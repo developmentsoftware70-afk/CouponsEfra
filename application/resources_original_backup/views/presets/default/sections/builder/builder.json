@@ -1,0 +1,240 @@
+{
+    "top_ads": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Top Ads Section",
+        "content": {
+            "heading": "text"
+        },
+        "element": {
+            "images":{
+                "top_ads_img":{
+                    "size":"1920x450"
+                }
+            },
+            "link": "text",
+            "modal": false
+        }
+    },
+    "exclusive_coupons": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Exclusive Coupons",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "cashback_coupons": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Cashback Coupons",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "latest_coupon": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Coupons",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "categories": {
+        "builder": true,
+        "name": "Explore Categories",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "feature_coupon": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Featured Coupons",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "popular_coupon": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Popular Coupons",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "deal_coupon": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Ads Section",
+        "content": {
+            "heading": "text"
+        },
+        "element": {
+            "images":{
+                "ads_img":{
+                    "size":"1920x450"
+                }
+            },
+            "title": "text",
+            "description": "textarea-rich",
+            "link": "text",
+            "button": "text",
+            "modal": false
+        }
+    },
+
+    "feature_store": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Top Stores",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "deals_categories": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Deals Categories",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "popular_deal": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Popular Deals",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "plan": {
+        "builder": true,
+        "name": "Plan Section",
+        "content": {
+            "heading": "text"
+        }
+    },
+    "testimonial": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Testimonial Section",
+        "content": {
+            "heading": "text"
+        },
+        "element": {
+            "images":{
+                "testimonial_img":{
+                    "size":"64x64"
+                }
+            },
+            "name": "text",
+            "title": "text",
+            "description": "textarea",
+            "modal": false
+        }
+    },
+    "about": {
+        "builder": true,
+        "name": "About Section",
+        "content": {
+            "heading": "text",
+            "description": "textarea-rich"
+        }
+    },
+    
+    "policy_pages": {
+        "builder": false,
+        "no_selection":true,
+        "name": "Policy Pages",
+        "element": {
+            "title": "text",
+            "details": "textarea-rich",
+            "modal": false
+        }
+    },
+    "faq": {
+        "builder": true,
+        "name": "FAQ Section",
+        "content": {
+            "heading": "text",
+            "images":{
+                "faq_image":{
+                    "size":"596x520"
+                }
+            }
+        },
+        "element": {
+            "question": "text",
+            "answer": "textarea-rich",
+            "modal": false
+        }
+    },
+    "blog": {
+        "builder": true,
+        "name": "Blog Section",
+        "content": {
+            "heading": "text"
+        },
+        "element": {
+            "images":{
+                "blog_image":{
+                    "size":"728x465",
+                    "thumb":"350x240"
+                }
+            },
+            "title": "text",
+            "description": "textarea-rich",
+            "modal": false
+        }
+    },
+    "social_icon": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Social Icons",
+        "element": {
+            "title": "text",
+            "social_icon": "icon",
+            "url": "text",
+            "modal": false
+        }
+    },
+    "contact_us": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Contact Us",
+        "content": {
+            "title": "text",
+            "short_description": "text",
+            "email_address": "text",
+            "email_address_two": "text",
+            "contact_details": "text",
+            "contact_details_two": "text",
+            "contact_number": "text",
+            "contact_number_two": "text",
+            "latitude": "text",
+            "longitude": "text",
+            "website_footer": "textarea-rich"
+        }
+    },
+    "footer_important_links": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Footer - Important Links",
+        "element": {
+            "title": "text",
+            "url": "text",
+            "modal": true
+        }
+    },
+    "footer_company_links": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Footer - Links",
+        "element": {
+            "title": "text",
+            "url": "text",
+            "modal": true
+        }
+    }
+}

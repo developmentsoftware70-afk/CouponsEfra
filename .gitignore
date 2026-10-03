@@ -1,0 +1,47 @@
+# Laravel and Composer dependencies
+/application/vendor/
+/application/node_modules/
+/application/npm-debug.log
+/application/yarn-error.log
+/application/yarn.lock
+
+# Environment and sensitive files
+/application/.env
+/application/.env.*
+*.env
+/application/auth.json
+/application/storage/*.key
+.idea/
+.vscode/
+
+# Caches, logs, and generated files
+/application/bootstrap/cache/*
+!/application/bootstrap/cache/.gitignore
+/application/storage/logs/*
+!/application/storage/logs/.gitignore
+/application/storage/framework/cache/data/*
+!/application/storage/framework/cache/data/.gitignore
+/application/storage/framework/sessions/*
+!/application/storage/framework/sessions/.gitignore
+/application/storage/framework/views/*
+!/application/storage/framework/views/.gitignore
+/application/storage/app/public/*
+!/application/storage/app/public/.gitignore
+/application/.phpunit.result.cache
+/application/public/hot
+/application/public/storage
+/application/public/build
+
+# Homestead and Vagrant
+/application/Homestead.json
+/application/Homestead.yaml
+Vagrantfile
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
