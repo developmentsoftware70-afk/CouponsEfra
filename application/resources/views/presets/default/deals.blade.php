@@ -76,17 +76,50 @@
             </div>
             <div class="col-lg-9  main-content">
                 <div class="row gy-4">
+                    @php
+                        $ckTheme = [
+                            ['bg' => 'linear-gradient(135deg, #ff9900, #ff5500)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #2874f0, #0053c8)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #c74c10, #802802)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #00c6ff, #0072ff)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #f093fb, #f5576c)', 'btn' => '#0053c8', 'badge' => '#ffd700']
+                        ];
+                    @endphp
                     @forelse($deals as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <div class="testimonial-card p-0 wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                            <a href="javascript:void(0)" class="getDeal" data-id="{{ $item->id }}" data-title="{{ $item->title }}" data-description="{{ $item->description }}" data-link="{{ $item->link }}"  data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
-                                @if($item->image)
-                                <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" class="img-fluid" alt="">
-                                @else
-                                <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" class="img-fluid" alt="">
-                                @endif
-                            </a>
-                        </div>
+                    @php
+                        $theme = $ckTheme[$index % count($ckTheme)];
+                    @endphp
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <a href="javascript:void(0)" class="getDeal ck-style-card-link" 
+                            data-id="{{ $item->id }}" data-title="{{ $item->title }}" 
+                            data-description="{{ $item->description }}" data-link="{{ $item->link }}"  
+                            data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
+                            
+                            <div class="ck-style-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s" style="background: {{ $theme['bg'] }};">
+                                <div class="ck-card-left">
+                                    <h3 class="ck-title">{{ __($item->title) }}</h3>
+                                    <p class="ck-subtitle">{{ Str::limit(html_entity_decode(strip_tags($item->description)), 40) }}</p>
+                                    <div class="ck-btn-wrap">
+                                        <span class="ck-btn">
+                                            <span class="ck-btn-icon">CK</span> 
+                                            {{ $item->button_label ?? __('Grab Deal') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="ck-card-right">
+                                    <div class="ck-badge" style="background: {{ $theme['badge'] }}; color: #000;">
+                                        @lang('Great Deal')
+                                    </div>
+                                    <div class="ck-image-wrap">
+                                        @if($item->image)
+                                            <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" alt="">
+                                        @else
+                                            <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" alt="">
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                     </div>
                     @empty
                     <p class="text-center">{{__($emptyMessage)}}</p>

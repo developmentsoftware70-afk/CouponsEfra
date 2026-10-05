@@ -22,16 +22,15 @@
             .tc-card {
                 background: #ffffff;
                 border-radius: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+                border: 1px solid #e2e8f0;
                 overflow: hidden;
                 margin: 15px 10px; /* Maintains slider spacing */
                 display: block;
                 text-decoration: none !important;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                transition: transform 0.3s ease;
             }
             .tc-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+                transform: translateY(-4px);
             }
             .tc-top {
                 height: 150px;
@@ -49,7 +48,6 @@
                 align-items: center;
                 justify-content: center;
                 padding: 8px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             }
             .tc-logo-wrapper img {
                 max-width: 100%;

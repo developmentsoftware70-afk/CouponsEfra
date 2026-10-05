@@ -64,8 +64,28 @@ class SiteController extends Controller
         $coupon = Coupon::findOrFail($id);
         $coupon->increment('click_count');
         
-        // Instant redirect to the actual store
-        return redirect($coupon->link);
+        $link = $coupon->link;
+
+        // Simply append the exact string "source=username_id" to the raw link
+        // without parsing, modifying, encoding, or changing anything else.
+        if (auth()->check()) {
+            $user = auth()->user();
+            
+            // Remove dashes (-) and spaces from the username
+            $cleanUsername = str_replace(['-', ' '], '', $user->username);
+            $trackingId = $cleanUsername . '_' . $user->id;
+            
+            // Check if link already has query parameters
+            if (strpos($link, '?') !== false) {
+                $link = $link . '&source=' . $trackingId;
+            } else {
+                $link = $link . '?source=' . $trackingId;
+            }
+        }
+
+        // Render an intermediate tracking page instead of instant redirect
+        $pageTitle = "Activating Cashback...";
+        return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'coupon'));
     }
 
     public function contact()

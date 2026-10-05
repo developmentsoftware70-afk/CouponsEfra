@@ -70,39 +70,52 @@
             </div>
             <div class="col-lg-9 main-content">
                 <div class="row gy-4">
+                    @php
+                        $ckTheme = [
+                            ['bg' => 'linear-gradient(135deg, #ff9900, #ff5500)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #2874f0, #0053c8)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #c74c10, #802802)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #00c6ff, #0072ff)', 'btn' => '#0053c8', 'badge' => '#ffd700'],
+                            ['bg' => 'linear-gradient(135deg, #f093fb, #f5576c)', 'btn' => '#0053c8', 'badge' => '#ffd700']
+                        ];
+                    @endphp
                     @forelse($cashbackCoupons as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <a href="javascript:void(0)" class="getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">
-                            <div class="coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                            <div class="card-thumb">
-                                @if($item->image)
-                                <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" class="img-fluid" alt="@lang('Coupon Image')">
-                                @else
-                                <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" class="img-fluid" alt="@lang('Store Image')">
-                                @endif
-                                <div class="card-ribbon-wrap">
-                                    <div class="ex-cta">
+                    @php
+                        $theme = $ckTheme[$index % count($ckTheme)];
+                    @endphp
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <a href="javascript:void(0)" class="getCoupon ck-style-card-link" 
+                            data-id="{{$item->id}}" data-title="{{$item->title}}" 
+                            data-code="{{$item->code}}" data-description="{{$item->description}}" 
+                            data-link="{{$item->link}}">
+                            <div class="ck-style-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s" style="background: {{ $theme['bg'] }};">
+                                <div class="ck-card-left">
+                                    <h3 class="ck-title">{{ __($item->title) }}</h3>
+                                    <p class="ck-subtitle">{{ Str::limit(html_entity_decode(strip_tags($item->description)), 40) }}</p>
+                                    <div class="ck-btn-wrap">
+                                        <span class="ck-btn">
+                                            <span class="ck-btn-icon">CK</span> 
+                                            {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="ck-card-right">
+                                    <div class="ck-badge" style="background: {{ $theme['badge'] }}; color: #000;">
                                         @if($item->is_cashback == 1)
-                                        <p>{{ $item->cashback_amount }}@lang('% Cash Back')</p>
+                                            {{ $item->cashback_amount }}@lang('% Cash Back')
                                         @else 
-                                        <p>@lang('New')</p>
+                                            @lang('New')
                                         @endif
                                     </div>
-                                    <button class="fav-cta addToWishList" data-id="{{ $item->id }}">
-                                        @if (auth()->check() && $item->wishlists->count() > 0)
-                                            <i class="fas fa-heart"></i>
-                                        @else
-                                            <i class="far fa-heart"></i>
+                                    <div class="ck-image-wrap">
+                                        @if($item->image)
+                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                                        @elseif($item->store && $item->store->image)
+                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
                                         @endif
-                                    </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-content-wrap">
-                                <p class="card-title">{{__($item->title)}}</p>
-                                <a href="javascript:void(0)" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">{{ $item->code ? __('Get Code') : __('Get Deal') }}</a>
-                                 <p class="card-action"> {!! isExpired($item->id) !!}</p>
-                            </div>
-                        </div>
                         </a>
                     </div>
                     @empty
