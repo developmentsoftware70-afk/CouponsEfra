@@ -346,6 +346,41 @@
 .profile-dropdown-menu ul li a:hover i {
     color: #f37254 !important;
 }
+/* Tablet specific adjustments to fit everything on one line (992px - 1250px) */
+@media (min-width: 992px) and (max-width: 1250px) {
+    .header-wrapper {
+        padding: 5px 10px !important;
+    }
+    .logo-wrapper {
+        min-width: 150px !important;
+    }
+    .logo-wrapper img {
+        width: 150px !important;
+        height: 45px !important;
+    }
+    .hero-search-bar {
+        margin-left: 10px !important;
+        max-width: 250px !important; /* shrink search bar */
+    }
+    .nav-links-container .main-menu {
+        gap: 12px !important; /* smaller gap between links */
+    }
+    .nav-links-container .main-menu li a {
+        font-size: 12px !important; /* smaller font */
+    }
+    .login-registration-list__item {
+        margin-left: 10px !important;
+    }
+    .login-registration-list__item::before {
+        left: -10px !important;
+    }
+    .login-registration-list__item a {
+        font-size: 12px !important;
+    }
+    .profile-dropdown {
+        margin-left: 10px !important;
+    }
+}
 
 /* Mobile responsive */
 @media (min-width: 992px) {

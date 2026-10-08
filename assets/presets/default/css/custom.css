@@ -806,19 +806,25 @@ h4.n15-color a {
     align-items: center;
     color: #fff;
     height: 220px;
-    box-shadow: none; /* removed shadow completely */
+    box-shadow: none;
+    /* removed shadow completely */
     transition: all 0.3s ease;
     text-decoration: none !important;
-    margin: 10px; /* spacing for slick slider */
+    margin: 10px;
+    /* spacing for slick slider */
 }
+
 .ck-style-card:hover {
     transform: translateY(-2px);
-    box-shadow: none; /* removed shadow on hover */
+    box-shadow: none;
+    /* removed shadow on hover */
 }
+
 .ck-style-card-link {
     display: block;
     text-decoration: none !important;
 }
+
 .ck-card-left {
     position: relative;
     z-index: 2;
@@ -830,6 +836,7 @@ h4.n15-color a {
     align-items: flex-start;
     height: 100%;
 }
+
 .ck-logo-wrap {
     display: inline-flex;
     align-items: center;
@@ -839,11 +846,13 @@ h4.n15-color a {
     padding: 5px 12px;
     border-radius: 6px;
 }
+
 .ck-logo-wrap img {
     max-height: 25px;
     max-width: 100px;
     object-fit: contain;
 }
+
 .ck-logo-wrap span {
     color: #333;
     font-weight: 800;
@@ -851,6 +860,7 @@ h4.n15-color a {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
 .ck-title {
     font-size: 22px;
     font-weight: 800;
@@ -862,15 +872,18 @@ h4.n15-color a {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
 .ck-subtitle {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.9);
     margin-bottom: auto;
     font-weight: 500;
 }
+
 .ck-btn-wrap {
     margin-top: 15px;
 }
+
 .ck-btn {
     background: #0053c8;
     color: #fff;
@@ -883,6 +896,7 @@ h4.n15-color a {
     gap: 8px;
     box-shadow: none;
 }
+
 .ck-btn-icon {
     background: #fff;
     color: #0053c8;
@@ -891,12 +905,14 @@ h4.n15-color a {
     font-size: 12px;
     font-weight: 800;
 }
+
 .ck-card-right {
     position: relative;
     z-index: 2;
     flex: 0 0 45%;
     height: 100%;
 }
+
 .ck-badge {
     position: absolute;
     top: 20px;
@@ -911,6 +927,7 @@ h4.n15-color a {
     box-shadow: none;
     z-index: 3;
 }
+
 .ck-image-wrap {
     width: 100%;
     height: 100%;
@@ -922,6 +939,7 @@ h4.n15-color a {
     align-items: center;
     padding-right: 15px;
 }
+
 .ck-image-wrap img {
     max-width: 130px;
     max-height: 140px;
@@ -930,15 +948,18 @@ h4.n15-color a {
     box-shadow: none;
     transition: transform 0.3s ease;
 }
+
 .ck-style-card:hover .ck-image-wrap img {
     transform: scale(1.05);
 }
+
 /* Slick Slider Arrow Customization */
 .ck-slider-wrap {
     position: relative;
     padding: 0 10px;
 }
-.ck-slider-wrap .slick-prev, 
+
+.ck-slider-wrap .slick-prev,
 .ck-slider-wrap .slick-next {
     position: absolute;
     top: 50%;
@@ -957,27 +978,35 @@ h4.n15-color a {
     cursor: pointer;
     border: 1px solid #eaeaea;
 }
+
 .ck-slider-wrap .slick-prev {
     left: -15px;
 }
+
 .ck-slider-wrap .slick-next {
     right: -15px;
 }
+
 .ck-slider-wrap .slick-prev::before {
-    content: '\f053'; /* FontAwesome chevron-left */
+    content: '\f053';
+    /* FontAwesome chevron-left */
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 16px;
 }
+
 .ck-slider-wrap .slick-next::before {
-    content: '\f054'; /* FontAwesome chevron-right */
+    content: '\f054';
+    /* FontAwesome chevron-right */
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 16px;
 }
+
 .ck-slider-wrap .slick-track {
     display: flex;
-    padding-bottom: 20px; /* For box-shadow */
+    padding-bottom: 20px;
+    /* For box-shadow */
 }
 
 /* View More Link Styles */
@@ -988,7 +1017,194 @@ h4.n15-color a {
     text-decoration: none !important;
     transition: color 0.3s ease;
 }
+
 .view-more-link:hover {
     color: #0056b3 !important;
     text-decoration: underline !important;
 }
+
+
+.ck-image-wrap img {
+    max-width: 120px !important;
+    max-height: 120px !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    border-radius: 8px !important;
+    background-color: #ffffff !important;
+    padding: 5px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ==============================================================
+   FULLY RESPONSIVE FIXES (Tablet & Mobile)
+   ============================================================== */
+
+/* --- TABLET RESPONSIVENESS (768px to 991px) --- */
+@media (max-width: 991px) and (min-width: 768px) {
+    .ck-style-card {
+        height: 180px;
+    }
+
+    .ck-card-left {
+        flex: 0 0 60%;
+        padding: 15px;
+    }
+
+    .ck-title {
+        font-size: 18px;
+    }
+
+    .ck-subtitle {
+        font-size: 13px;
+    }
+
+    .ck-btn {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    .ck-image-wrap img {
+        max-width: 90px !important;
+        max-height: 90px !important;
+    }
+}
+
+/* --- MOBILE RESPONSIVENESS (Up to 767px) --- */
+@media (max-width: 767px) {
+    .ck-style-card {
+        height: 150px;
+        min-height: 150px;
+        margin: 5px;
+        align-items: stretch;
+    }
+
+    .ck-card-left {
+        flex: 0 0 65%;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ck-card-right {
+        flex: 0 0 35%;
+        height: 100%;
+        position: relative;
+    }
+
+    .ck-title {
+        font-size: 14px;
+        -webkit-line-clamp: 2;
+    }
+
+    .ck-subtitle {
+        font-size: 10px;
+        margin-bottom: 5px;
+        -webkit-line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .ck-btn-wrap {
+        margin-top: 5px;
+    }
+
+    .ck-btn {
+        font-size: 10px;
+        padding: 3px 6px 3px 3px;
+        white-space: nowrap;
+    }
+
+    .ck-btn-icon {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+
+    .ck-image-wrap {
+        position: absolute !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-right: 10px !important;
+    }
+
+    .ck-image-wrap img {
+        max-width: 65px !important;
+        max-height: 65px !important;
+    }
+
+    .ck-badge {
+        font-size: 8px;
+        padding: 3px 6px;
+        top: 8px !important;
+        right: 8px !important;
+        position: absolute !important;
+        z-index: 10 !important;
+    }
+
+    .ck-card-right .addToWishList {
+        width: 20px !important;
+        height: 20px !important;
+        top: 8px !important;
+        left: -5px !important;
+        position: absolute !important;
+        z-index: 10 !important;
+    }
+
+    .ck-logo-wrap {
+        margin-bottom: 10px;
+        padding: 3px 6px;
+    }
+
+    .ck-logo-wrap img {
+        max-height: 15px;
+    }
+}
+.vertical-coupon-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    height: 220px;
+    display: block;
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    transition: all 0.3s ease;
+}
+.vertical-coupon-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.vertical-card-img {
+    width: 100%;
+    height: 100%;
+}
+.vertical-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.vertical-grab-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: #0053c8;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+    z-index: 2;
+    transition: background 0.2s;
+}
+.vertical-grab-btn:hover {
+    background: #003a8c;
+    color: #fff;
+}
+

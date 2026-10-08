@@ -102,11 +102,8 @@
                 box-shadow: none; /* button shadow removed */
             }
             
-            /* Badge colors matching gradients without shadows */
-            .slick-slide-inner:nth-child(4n+1) .dc-badge { background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%); }
-            .slick-slide-inner:nth-child(4n+2) .dc-badge { background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%); }
-            .slick-slide-inner:nth-child(4n+3) .dc-badge { background: linear-gradient(135deg, #b8c6db 0%, #f5f7fa 100%); color: #333; }
-            .slick-slide-inner:nth-child(4n+4) .dc-badge { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+            /* Badge colors matching gradients without shadows - uniform color */
+            .dc-badge { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
         </style>
         <div class="row">
             <div class="col-md-12">

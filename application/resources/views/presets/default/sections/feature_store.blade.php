@@ -119,18 +119,51 @@
                 align-items: center;
                 gap: 6px;
             }
+            
+            /* Responsive styling for tc-card on mobile */
+            @media (max-width: 767px) {
+                .tc-top {
+                    height: 110px;
+                    padding: 12px;
+                }
+                .tc-logo-wrapper {
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 8px;
+                    padding: 5px;
+                }
+                .tc-badge-text {
+                    font-size: 11px;
+                }
+                .tc-bottom {
+                    margin-top: -25px;
+                    padding: 20px 10px 15px;
+                }
+                .tc-brand {
+                    font-size: 12px;
+                }
+                .tc-title {
+                    font-size: 16px;
+                    margin-bottom: 10px;
+                }
+                .tc-dashed-box {
+                    font-size: 12px;
+                    padding: 6px 10px;
+                    margin-bottom: 10px;
+                }
+                .tc-footer {
+                    font-size: 11px;
+                }
+                .tc-card {
+                    margin: 10px 5px;
+                }
+            }
         </style>
         <div class="slider-wrapper">
             <div class="store-slider">
                 @foreach( $featureStoreElements as $index => $item)
                 @php
-                    $gradients = [
-                        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-                        'linear-gradient(135deg, #ff0844 0%, #ffb199 100%)',
-                        'linear-gradient(135deg, #f12711 0%, #f5af19 100%)'
-                    ];
-                    $bg = $gradients[$index % 4];
+                    $bg = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 @endphp
                 <div class="slick-slide-inner">
                     <a href="{{route('store.coupons', $item->id)}}" class="tc-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">

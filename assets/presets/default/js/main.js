@@ -134,7 +134,7 @@
         slidesToScroll: 1,
         autoplaySpeed: 2500,
         speed: 2000,
-        autoplay: true,
+        autoplay: false,
         loop:true,
         pauseOnHover: true,
         arrows: true,
@@ -557,8 +557,9 @@
         }
       });
       // wow js
-      new WOW().init();
-  
+      if (window.location.pathname === '/' || window.location.pathname === '/index') {
+          new WOW().init();
+      }  
   
       // For Categories
       $(function () {

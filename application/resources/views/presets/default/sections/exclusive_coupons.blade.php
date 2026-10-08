@@ -35,50 +35,23 @@
                             ];
                         @endphp
                         @foreach ($exlusivesCouponsData as $index => $item)
-                        @php
-                            $theme = $ckTheme[$index % count($ckTheme)];
-                        @endphp
                         <div class="slick-slide-inner">
-                            <a href="javascript:void(0)" class="getCoupon ck-style-card-link"
-                                data-id="{{ $item->id }}" data-title="{{ $item->title }}"
-                                data-code="{{ $item->code }}" data-description="{{ $item->description }}"
-                                data-link="{{ $item->link }}">
-                                <div class="ck-style-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s" style="background: {{ $theme['bg'] }};">
-                                    <div class="ck-card-left">
-                                        <h3 class="ck-title">{{ __($item->title) }}</h3>
-                                        <p class="ck-subtitle">{{ Str::limit(html_entity_decode(strip_tags($item->description)), 40) }}</p>
-                                        <div class="ck-btn-wrap">
-                                            <span class="ck-btn">
-                                                <span class="ck-btn-icon">CK</span> 
-                                                {{ $item->code ? __('Get Code') : __('Get Deal') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="ck-card-right">
-                                        <button class="addToWishList" data-id="{{ $item->id }}" style="position:absolute; top:20px; left:0; background:rgba(255,255,255,0.2); color:#fff; border:none; border-radius:50%; width:30px; height:30px; z-index:5;">
-                                            @if (auth()->check() && $item->wishlists->count() > 0)
-                                                <i class="fas fa-heart"></i>
-                                            @else
-                                                <i class="far fa-heart"></i>
-                                            @endif
-                                        </button>
-                                        <div class="ck-badge" style="background: {{ $theme['badge'] }}; color: #000;">
-                                            @if($item->is_exclusive == 1)
-                                                @lang('Exclusive')
-                                            @else 
-                                                @lang('New')
-                                            @endif
-                                        </div>
-                                        <div class="ck-image-wrap">
-                                            @if($item->image)
-                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
-                                            @elseif($item->store && $item->store->image)
-                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
-                                            @endif
-                                        </div>
-                                    </div>
+                            <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                                <div class="vertical-card-img">
+                                    @if($item->image)
+                                        <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                                    @elseif($item->store && $item->store->image)
+                                        <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
+                                    @endif
                                 </div>
-                            </a>
+                                
+                                <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
+                                    data-id="{{$item->id}}" data-title="{{$item->title}}" 
+                                    data-code="{{$item->code}}" data-description="{{$item->description}}" 
+                                    data-link="{{$item->link}}">
+                                    Grab Deal
+                                </a>
+                            </div>
                         </div>
                         @endforeach
                     </div>

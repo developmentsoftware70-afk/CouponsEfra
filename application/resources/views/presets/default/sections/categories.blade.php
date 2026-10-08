@@ -25,10 +25,11 @@
                 background: rgba(255, 255, 255, 0.6);
                 backdrop-filter: blur(20px);
                 border-radius: 20px;
-                padding: 20px;
+                padding: 15px 12px;
                 display: flex;
                 align-items: center;
-                gap: 20px;
+                gap: 12px;
+                height: 105px; /* Fixed height so all cards are perfectly equal */
                 box-shadow: none;
                 border: 1px solid rgba(255, 255, 255, 0.8);
                 transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -48,11 +49,8 @@
                 transition: opacity 0.4s ease;
                 z-index: 0;
             }
-            /* Subtle neon glow hints */
-            .slick-slide-inner:nth-child(4n+1) .adv-cat-card::before { background: radial-gradient(circle at 0% 0%, #38bdf8, transparent 70%); }
-            .slick-slide-inner:nth-child(4n+2) .adv-cat-card::before { background: radial-gradient(circle at 0% 0%, #f472b6, transparent 70%); }
-            .slick-slide-inner:nth-child(4n+3) .adv-cat-card::before { background: radial-gradient(circle at 0% 0%, #a78bfa, transparent 70%); }
-            .slick-slide-inner:nth-child(4n+4) .adv-cat-card::before { background: radial-gradient(circle at 0% 0%, #10b981, transparent 70%); }
+            /* Subtle neon glow hints - uniform color */
+            .adv-cat-card::before { background: radial-gradient(circle at 0% 0%, #38bdf8, transparent 70%); }
 
             .adv-cat-card:hover {
                 transform: translateY(-4px);
@@ -64,8 +62,8 @@
             }
             
             .adv-cat-icon-wrap {
-                width: 70px;
-                height: 70px;
+                width: 55px; /* Reduced from 70px to give text more space */
+                height: 55px;
                 border-radius: 50%;
                 background: #ffffff;
                 display: flex;
@@ -74,7 +72,7 @@
                 box-shadow: none;
                 position: relative;
                 z-index: 1;
-                padding: 14px;
+                padding: 10px;
                 border: 1px solid rgba(0,0,0,0.03);
                 transition: transform 0.4s ease;
                 flex-shrink: 0;
@@ -96,13 +94,20 @@
                 flex-grow: 1;
             }
             .adv-cat-title {
-                font-size: 19px;
+                font-size: 15px; /* Smaller font to fit better */
                 font-weight: 800;
                 color: #1e293b;
                 margin: 0 0 4px 0;
+                line-height: 1.2;
+                word-break: normal !important; /* Stop breaking words in the middle */
+                overflow-wrap: break-word;
+                display: -webkit-box;
+                -webkit-line-clamp: 2; /* Force max 2 lines */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
             }
             .adv-cat-count {
-                font-size: 14px;
+                font-size: 13px;
                 color: #64748b;
                 font-weight: 600;
             }

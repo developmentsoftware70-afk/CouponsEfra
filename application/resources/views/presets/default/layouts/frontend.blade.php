@@ -170,22 +170,66 @@
 
     <!-- Login Required Modal -->
     <div class="modal fade" id="loginRequiredModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                    <h5 class="modal-title" style="font-weight: 700; color: #333;"><i class="fas fa-lock" style="color: #f37254;"></i> Login Required</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center" style="padding: 30px;">
-                    <i class="fas fa-user-circle" style="font-size: 80px; color: #5c3b99; margin-bottom: 20px;"></i>
-                    <h4 style="font-size: 20px; margin-bottom: 15px; color: #333;">Oops! You are not logged in.</h4>
-                    <p style="color: #666; font-size: 15px; margin-bottom: 25px;">Please Login or Register an account to reveal this exclusive coupon code and grab your deal!</p>
-                    
-                    <div class="d-flex justify-content-center" style="gap: 15px;">
-                        <a href="{{ route('user.login') }}" class="btn btn--base" style="border-radius: 25px; padding: 10px 30px; font-weight: 600;">Login Now</a>
-                        <a href="{{ route('user.register') }}" class="btn btn-outline-dark" style="border-radius: 25px; padding: 10px 30px; font-weight: 600; border: 1px solid #333; color:#333;">Create Account</a>
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 380px;">
+            <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 16px; right: 16px; z-index: 10; font-size: 14px; opacity: 0.5;"></button>
+                
+                <div class="modal-body" style="padding: 24px 28px;">
+                    <!-- Logo -->
+                    <div class="text-center mb-4 mt-2">
+                        <h3 style="font-weight: 800; font-size: 22px; color: #111827; margin: 0; font-family: 'Inter', sans-serif;">
+                            Coupons<span style="color: #00c283;">Efra</span>
+                        </h3>
                     </div>
+
+                    <!-- Tabs -->
+                    <div class="d-flex mb-4" style="border-bottom: 1px solid #fecaca;">
+                        <a href="javascript:void(0)" class="flex-fill text-center pb-2" style="font-size: 14px; font-weight: 600; color: #00c283; border-bottom: 2px solid #00c283; text-decoration: none; margin-bottom: -1px;">Login</a>
+                        <a href="{{ route('user.register') }}" class="flex-fill text-center pb-2" style="font-size: 14px; font-weight: 600; color: #94a3b8; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px;">Register</a>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form method="POST" action="{{ route('user.login') }}">
+                        @csrf
+                        
+                        <div class="mb-3 text-start">
+                            <label style="font-size: 13px; color: #4b5563; margin-bottom: 6px; font-weight: 500;">Email Address</label>
+                            <input type="text" name="username" class="form-control" placeholder="Admin" style="background-color: #f0f7ff; border: 1px solid #b6d4fe; border-radius: 6px; padding: 10px 14px; font-size: 14px; color: #374151; box-shadow: none;" required>
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label style="font-size: 13px; color: #4b5563; margin: 0; font-weight: 500;">Password</label>
+                                <a href="{{ route('user.password.request') }}" style="font-size: 12px; color: #00c283; text-decoration: none; font-weight: 600;">Forgot Password?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" style="background-color: #f0f7ff; border: 1px solid #b6d4fe; border-radius: 6px; padding: 10px 14px; font-size: 16px; color: #374151; letter-spacing: 2px; box-shadow: none;" required>
+                        </div>
+
+                        <button type="submit" class="btn w-100 modal-auth-btn" style="background-color: #00c283; color: #fff; font-weight: 600; padding: 10px; border-radius: 6px; font-size: 15px; border: 1px solid #065f46; transition: background-color 0.2s;">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="position-relative text-center my-4">
+                        <hr style="border-color: #e5e7eb; margin: 0;">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 0 12px; color: #9ca3af; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">
+                            OR CONTINUE WITH
+                        </span>
+                    </div>
+
+                    <a href="{{ route('google.redirect') }}" class="btn w-100 d-flex justify-content-center align-items-center modal-google-btn" style="border: 1px solid #111827; background: #fff; color: #374151; padding: 8px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: background 0.2s;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 18px; margin-right: 10px;">
+                        Google
+                    </a>
+                    
                 </div>
+                
+                <style>
+                    .modal-auth-btn:hover { background-color: #059669 !important; }
+                    .modal-google-btn:hover { background-color: #f9fafb !important; }
+                    #loginRequiredModal .form-control:focus { border-color: #00c283; box-shadow: 0 0 0 0.2rem rgba(0, 194, 131, 0.25); background-color: #fff; }
+                </style>
             </div>
         </div>
     </div>

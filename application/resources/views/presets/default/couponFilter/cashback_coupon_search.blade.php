@@ -1,24 +1,23 @@
 <div class="row gy-4">
-
-                    @forelse($coupons as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                            <div class="vertical-card-img">
-                                @if($item->image)
-                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
-                                @elseif($item->store && $item->store->image)
-                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
-                                @endif
-                            </div>
-                            
-                            <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
-                                data-id="{{$item->id}}" data-title="{{$item->title}}" 
-                                data-code="{{$item->code}}" data-description="{{$item->description}}" 
-                                data-link="{{$item->link}}">
-                                Grab Deal
-                            </a>
-                        </div>
-                    </div>
+    @forelse($featureCoupons as $index => $item)
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+            <div class="vertical-card-img">
+                @if($item->image)
+                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                @elseif($item->store && $item->store->image)
+                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
+                @endif
+            </div>
+            
+            <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
+                data-id="{{$item->id}}" data-title="{{$item->title}}" 
+                data-code="{{$item->code}}" data-description="{{$item->description}}" 
+                data-link="{{$item->link}}">
+                {{ $item->code ? __('Get Code') : __('Get Deal') }}
+            </a>
+        </div>
+    </div>
     @empty
     <p class="text-center">{{__($emptyMessage ?? 'No coupons found')}}</p>
     @endforelse
@@ -73,6 +72,7 @@
         </div>
     </div>
 </div>
+
 <script>
     (function ($) {
         "use strict";

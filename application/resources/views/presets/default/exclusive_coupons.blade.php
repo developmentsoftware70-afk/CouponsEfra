@@ -70,39 +70,23 @@
             <div class="col-lg-9 main-content">
                 <div class="row gy-4">
                     @forelse($exclusiveCoupons as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <a href="javascript:void(0)" class="getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">
-                            <div class="coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                            <div class="card-thumb">
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                            <div class="vertical-card-img">
                                 @if($item->image)
-                                <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" class="img-fluid" alt="@lang('Coupon Image')">
-                                @else
-                                <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" class="img-fluid" alt="@lang('Store Image')">
+                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                                @elseif($item->store && $item->store->image)
+                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
                                 @endif
-                                <div class="card-ribbon-wrap">
-                                    <div class="ex-cta">
-                                        @if($item->is_exclusive == 1)
-                                        <p>@lang('Exclusive')</p>
-                                        @else 
-                                        <p>@lang('New')</p>
-                                        @endif
-                                    </div>
-                                    <button class="fav-cta addToWishList" data-id="{{ $item->id }}">
-                                        @if (auth()->check() && $item->wishlists->count() > 0)
-                                            <i class="fas fa-heart"></i>
-                                        @else
-                                            <i class="far fa-heart"></i>
-                                        @endif
-                                    </button>
-                                </div>
                             </div>
-                            <div class="card-content-wrap">
-                                <p class="card-title">{{__($item->title)}}</p>
-                                <a href="javascript:void(0)" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">{{ $item->code ? __('Get Code') : __('Get Deal') }}</a>
-                                 <p class="card-action">{!! isExpired($item->id) !!}</p>
-                            </div>
+                            
+                            <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
+                                data-id="{{$item->id}}" data-title="{{$item->title}}" 
+                                data-code="{{$item->code}}" data-description="{{$item->description}}" 
+                                data-link="{{$item->link}}">
+                                Grab Deal
+                            </a>
                         </div>
-                        </a>
                     </div>
                     @empty
                     <p class="text-center">{{__($emptyMessage)}}</p>

@@ -1,21 +1,67 @@
 <div class="row gy-4">
-    @forelse($deals as $index => $item)
-    <div class="col-lg-4 col-md-6 col-sm-6">
-        <div class="testimonial-card p-0 wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-            <a href="javascript:void(0)" class="getDeal" data-id="{{ $item->id }}" data-title="{{ $item->title }}" data-description="{{ $item->description }}" data-link="{{ $item->link }}"  data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
-                @if($item->image)
-                <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" class="img-fluid" alt="">
-                @else
-                <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" class="img-fluid" alt="">
-                @endif
-            </a>
-        </div>
-    </div>
+                    <style>
+                    .vertical-coupon-card {
+                        position: relative;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        margin-bottom: 24px;
+                        height: 220px;
+                        display: block;
+                        background: #f8f9fa;
+                        border: 1px solid #eaeaea;
+                    }
+                    .vertical-card-img {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    .vertical-card-img img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    .vertical-grab-btn {
+                        position: absolute;
+                        bottom: 12px;
+                        right: 12px;
+                        background: #0053c8;
+                        color: #fff;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        text-decoration: none;
+                        font-size: 14px;
+                        z-index: 2;
+                        transition: background 0.2s;
+                    }
+                    .vertical-grab-btn:hover {
+                        background: #003a8c;
+                        color: #fff;
+                    }
+                    </style>
+                    @forelse($deals as $index => $item)
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                            <div class="vertical-card-img">
+                                @if($item->image)
+                                    <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" alt="">
+                                @else
+                                    <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" alt="">
+                                @endif
+                            </div>
+                            
+                            <a href="javascript:void(0)" class="vertical-grab-btn getDeal" 
+                                data-id="{{ $item->id }}" data-title="{{ $item->title }}" 
+                                data-description="{{ $item->description }}" data-link="{{ $item->link }}"  
+                                data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
+                                {{ $item->button_label ?? __('Grab Deal') }}
+                            </a>
+                        </div>
+                    </div>
     @empty
-    <p class="text-center h4">{{__($emptyMessage)}}</p>
+    <p class="text-center">{{__($emptyMessage ?? 'No deals found')}}</p>
     @endforelse
 </div>
-@endsection
+
 <!-- Modal (keep once) -->
 <div class="modal fade" id="dealModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
