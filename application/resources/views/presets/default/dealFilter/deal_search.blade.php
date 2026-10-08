@@ -39,7 +39,7 @@
                     }
                     </style>
                     @forelse($deals as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="col-12 col-md-6 col-lg-4">
                         <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
                             <div class="vertical-card-img">
                                 @if($item->image)

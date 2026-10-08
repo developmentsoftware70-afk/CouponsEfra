@@ -1193,7 +1193,7 @@ h4.n15-color a {
     position: absolute;
     bottom: 12px;
     right: 12px;
-    background: #0053c8;
+    background: hsl(var(--base));
     color: #fff;
     padding: 8px 16px;
     border-radius: 6px;
@@ -1201,10 +1201,11 @@ h4.n15-color a {
     text-decoration: none;
     font-size: 14px;
     z-index: 2;
-    transition: background 0.2s;
+    transition: background 0.2s, filter 0.2s;
 }
 .vertical-grab-btn:hover {
-    background: #003a8c;
+    background: hsl(var(--base));
+    filter: brightness(0.85);
     color: #fff;
 }
 

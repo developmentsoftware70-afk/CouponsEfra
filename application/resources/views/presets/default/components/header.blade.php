@@ -8,13 +8,18 @@
     position: sticky !important; 
     top: 0 !important;
     width: 100% !important;
-    z-index: 1000 !important;
+    z-index: 9999999 !important; /* Extremely high z-index */
     font-family: 'Inter', sans-serif !important;
     border-bottom: 1px solid #eaeaec !important; /* Faint gray bottom line */
     box-shadow: none !important; /* No shadow, just clean border */
     transform: none !important; /* Stop JS from moving it */
     animation: none !important; /* Stop JS animations */
     transition: none !important; /* Stop JS delays */
+    overflow: visible !important; /* Ensure children can spill out */
+}
+
+.header .container-fluid, .header .row {
+    overflow: visible !important;
 }
 
 .header-wrapper {
@@ -29,10 +34,18 @@
 /* Hamburger Menu (Left) */
 .sidebar-menu-show-hide {
     order: 0 !important;
+    background: transparent !important;
     color: #111111 !important;
-    font-size: 20px !important;
-    margin-right: 20px !important;
+    font-size: 24px !important;
+    margin-right: 15px !important;
+    padding: 0 !important;
+    border: none !important;
     cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
 }
 
 /* Logo (Left) */
@@ -390,9 +403,77 @@
 }
 @media (max-width: 991px) {
     .nav-links-container { display: none !important; }
-    .hero-search-bar { display: none !important; }
     .login-registration-list__item::before { display: none !important; }
-    .header-wrapper { flex-wrap: nowrap !important; }
+    
+    .header-wrapper {
+        position: relative !important;
+        padding: 10px 5px !important; /* Very small padding */
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        width: 100% !important;
+        overflow-x: hidden !important; /* NO SCROLLBAR */
+    }
+    .sidebar-menu-show-hide {
+        margin-right: 5px !important;
+        font-size: 20px !important;
+        flex-shrink: 0 !important;
+    }
+    .logo-wrapper {
+        min-width: auto !important;
+        flex-grow: 0 !important;
+        flex-shrink: 1 !important;
+    }
+    .logo-wrapper img {
+        width: 100% !important;
+        max-width: 140px !important; 
+        height: auto !important;
+        max-height: 45px !important;
+        object-fit: contain !important;
+    }
+    .menu-right-wrapper {
+        flex-grow: 1 !important; 
+        width: auto !important;
+        flex-shrink: 1 !important;
+    }
+    .hero-search-bar { 
+        display: block !important; 
+        position: relative !important; 
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        max-width: none !important;
+        margin: 0 5px !important;
+        width: 100% !important; /* Take remaining space */
+        flex-shrink: 1 !important;
+    }
+    .hero-search-bar form {
+        height: 35px !important;
+        border: 1px solid #d1d5db !important;
+        width: 100% !important;
+    }
+    .hero-search-bar form input {
+        font-size: 12px !important;
+        padding: 0 5px 0 25px !important; /* Adjust padding for icon */
+        width: 100% !important;
+    }
+    .hero-search-bar button.search-btn {
+        width: 25px !important; /* Smaller icon button */
+    }
+    .profile-dropdown, .login-registration-list__item {
+        margin-left: 5px !important;
+        z-index: 99999 !important; 
+        flex-shrink: 0 !important;
+    }
+    .profile-dropdown-menu {
+        width: 250px !im
+<truncated 405 bytes>
+    .login-registration-list__item a .login-text {
+        display: none !important;
+    }
+    .login-registration-list__item a i {
+        font-size: 20px !important;
+    }
 }
 </style>
 @php
@@ -432,7 +513,7 @@ $user = auth()->user();
                         <li class="hero-search-bar">
                             <form action="{{route('single.coupon.search')}}" method="get">
                                 <input class="form--control" name="search" type="text" placeholder="@lang('Search') ...">
-                                <button class="search-btn btn btn--base" type="submit"> <i class="fas fa-search"></i> <span></button>
+                                <button class="search-btn btn btn--base" type="submit"> <i class="fas fa-search"></i></button>
                             </form>
                         </li>
                         
@@ -488,7 +569,7 @@ $user = auth()->user();
                         <li class="login-registration-list__item">
                             <a href="{{ route('user.login') }}" class="">
                                 <i class="fa fa-user"></i>
-                                 @lang('Login/Signup')
+                                 <span class="login-text">@lang('Login/Signup')</span>
                             </a>
                         </li>
                         @endauth

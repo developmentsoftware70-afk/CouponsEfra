@@ -2,7 +2,7 @@
     $popularCoupon = getContent('categories.content', true);
     $popularCouponElements = App\Models\Category::with('coupons')->where('show_on_front', 1)->where('status', 1)->latest()->limit(8)->get();
 @endphp
-<section class="top-collections top-stores second py-20">
+<section class="top-collections top-stores second" style="padding-top: 10px; margin-top: -20px;">
     <div class="container-fluid container-custom">
         <div class="row">
             <div class="col-lg-12">

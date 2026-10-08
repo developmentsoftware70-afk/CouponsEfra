@@ -402,9 +402,21 @@
 
                 const title = $(this).data('title');
                 const description = $(this).data('description');
-                const link = $(this).data('link');
+                let link = $(this).data('link');
                 const button_label = $(this).data('button_label');
                 const dealId = $(this).data('id');
+
+                @auth
+                    var cleanUsername = '{{ str_replace(["-", " "], "", auth()->user()->username) }}';
+                    var userId = '{{ auth()->user()->id }}';
+                    var trackingId = cleanUsername + '_' + userId;
+                    
+                    if (link.indexOf('?') !== -1) {
+                        link = link + '&source=' + trackingId;
+                    } else {
+                        link = link + '?source=' + trackingId;
+                    }
+                @endauth
 
                 modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
                 modal.find('.dealDescription').html(description);
