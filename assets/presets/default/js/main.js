@@ -129,7 +129,7 @@
           ]
       });
       // for deal section
-      $('.deal-slider').slick({
+            $('.deal-slider').slick({
         slidesToShow: 3,
         slidesToScroll: 1,
         autoplaySpeed: 2500,
@@ -157,17 +157,17 @@
               }
             },
             {
-              breakpoint: 424,
+              breakpoint: 767,
               settings: {
-                arrows: false,
+                arrows: true,
                 slidesToShow: 1
               }
             },
             {
-              breakpoint: 767,
+              breakpoint: 424,
               settings: {
-                arrows: false,
-                slidesToShow: 2
+                arrows: true,
+                slidesToShow: 1
               }
             }
           ]
@@ -605,3 +605,5 @@
   
   })(jQuery);
   
+
+

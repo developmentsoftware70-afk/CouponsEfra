@@ -402,22 +402,25 @@
     }
 }
 @media (max-width: 991px) {
-    .nav-links-container { display: none !important; }
-    .login-registration-list__item::before { display: none !important; }
-    
     .header-wrapper {
-        position: relative !important;
-        padding: 10px 5px !important; /* Very small padding */
-        justify-content: space-between !important;
-        flex-wrap: nowrap !important;
+        padding: 10px 15px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
         align-items: center !important;
         width: 100% !important;
-        overflow-x: hidden !important; /* NO SCROLLBAR */
+        box-sizing: border-box !important;
     }
     .sidebar-menu-show-hide {
-        margin-right: 5px !important;
-        font-size: 20px !important;
+        order: 1 !important;
+        margin-right: 15px !important;
+        font-size: 22px !important;
         flex-shrink: 0 !important;
+        display: block !important;
+    }
+    .header-menu-wrapper {
+        order: 2 !important;
+        flex-grow: 1 !important;
+        display: flex !important;
     }
     .logo-wrapper {
         min-width: auto !important;
@@ -425,55 +428,102 @@
         flex-shrink: 1 !important;
     }
     .logo-wrapper img {
-        width: 100% !important;
-        max-width: 140px !important; 
-        height: auto !important;
-        max-height: 45px !important;
+        width: auto !important;
+        max-width: 140px !important;
+        height: 35px !important;
         object-fit: contain !important;
     }
+    .mobile-header-auth {
+        order: 3 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .mobile-header-auth a {
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .mobile-header-auth a i {
+        font-size: 26px !important;
+        color: #111 !important;
+    }
+    .mobile-header-auth .profile-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #5c3b99 !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
     .menu-right-wrapper {
-        flex-grow: 1 !important; 
-        width: auto !important;
-        flex-shrink: 1 !important;
+        order: 4 !important;
+        width: 100% !important;
+        margin-top: 10px !important;
+        flex-grow: 1 !important;
+    }
+    .menu-right-wrapper ul {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .menu-right-wrapper .profile-dropdown,
+    .menu-right-wrapper .login-registration-list__item,
+    .menu-right-wrapper .nav-links-container,
+    .menu-right-wrapper .language {
+        display: none !important;
     }
     .hero-search-bar { 
         display: block !important; 
-        position: relative !important; 
-        bottom: auto !important;
-        left: auto !important;
-        right: auto !important;
-        max-width: none !important;
-        margin: 0 5px !important;
-        width: 100% !important; /* Take remaining space */
-        flex-shrink: 1 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
     }
     .hero-search-bar form {
-        height: 35px !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 40px !important;
         border: 1px solid #d1d5db !important;
         width: 100% !important;
+        border-radius: 20px !important;
+        background: #f4f5f8 !important;
+        padding: 0 10px !important;
     }
     .hero-search-bar form input {
-        font-size: 12px !important;
-        padding: 0 5px 0 25px !important; /* Adjust padding for icon */
+        order: 2 !important;
+        font-size: 14px !important;
+        padding: 0 !important;
         width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        flex-grow: 1 !important;
     }
     .hero-search-bar button.search-btn {
-        width: 25px !important; /* Smaller icon button */
+        order: 1 !important;
+        position: static !important;
+        width: auto !important;
+        background: transparent !important;
+        border: none !important;
+        color: #666 !important;
+        padding: 0 8px 0 0 !important;
+        display: flex !important;
+        align-items: center !important;
     }
-    .profile-dropdown, .login-registration-list__item {
-        margin-left: 5px !important;
-        z-index: 99999 !important; 
-        flex-shrink: 0 !important;
-    }
-    .profile-dropdown-menu {
-        width: 250px !im
-<truncated 405 bytes>
-    .login-registration-list__item a .login-text {
+    .hero-search-bar button.search-btn span {
         display: none !important;
     }
-    .login-registration-list__item a i {
-        font-size: 20px !important;
-    }
+}
+
+@media (min-width: 992px) {
+    .mobile-header-auth { display: none !important; }
 }
 </style>
 @php
@@ -495,6 +545,17 @@ $user = auth()->user();
                     </div>
                 </div>
                 <!-- / logo -->
+                {{-- Mobile only: profile/login directly in header row 1 --}}
+                @auth
+                @php $user = auth()->user(); $name = $user->firstname ?? $user->username; $initial = strtoupper(substr($name, 0, 1)); @endphp
+                <div class="mobile-header-auth">
+                    <div class="profile-avatar">{{ $initial }}</div>
+                </div>
+                @else
+                <div class="mobile-header-auth">
+                    <a href="{{ route('user.login') }}"><i class="fa fa-user"></i></a>
+                </div>
+                @endauth
                 <div class="menu-right-wrapper">
                     <ul>
                         {{-- 
@@ -647,3 +708,4 @@ $user = auth()->user();
         </ul>
     </div>
 </div>
+
