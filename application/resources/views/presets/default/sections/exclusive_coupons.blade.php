@@ -35,8 +35,8 @@
                             ];
                         @endphp
                         @foreach ($exlusivesCouponsData as $index => $item)
-                        @php
-                            $theme = $ckTheme[$index % count($ckTheme)];
+                                                                        @php
+                            $theme = $ckTheme[0];
                         @endphp
                         <div class="slick-slide-inner">
                             <a href="javascript:void(0)" class="getCoupon ck-style-card-link"
@@ -49,8 +49,7 @@
                                         <p class="ck-subtitle">{{ Str::limit(html_entity_decode(strip_tags($item->description)), 40) }}</p>
                                         <div class="ck-btn-wrap">
                                             <span class="ck-btn">
-                                                <span class="ck-btn-icon">CK</span> 
-                                                {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                                                @lang('Grab Deal')
                                             </span>
                                         </div>
                                     </div>
@@ -63,8 +62,8 @@
                                             @endif
                                         </button>
                                         <div class="ck-badge" style="background: {{ $theme['badge'] }}; color: #000;">
-                                            @if($item->is_exclusive == 1)
-                                                @lang('Exclusive')
+                                            @if($item->is_cashback == 1)
+                                                {{ $item->cashback_amount }}@lang('% Cash Back')
                                             @else 
                                                 @lang('New')
                                             @endif
@@ -92,3 +91,6 @@
         </div>
     </div>
 </section>
+
+
+

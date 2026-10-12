@@ -11,9 +11,10 @@
           if (!empty($item->data_values->ads_img)) {
               $bgImage = getImage(getFilePath('adsBannerImage') . '/' . $item->data_values->ads_img);
           }
+          $dealLink = appendTrackingSource($item->data_values->link ?? '#');
       @endphp
 
-      <a href="{{ $item->data_values->link }}" class="single-slide-link d-block text-decoration-none" target="_blank">
+      <a href="{{ $dealLink }}" class="single-slide-link d-block text-decoration-none" target="_blank">
         <div class="single-slide position-relative text-center">
           <img src="{{ $bgImage }}" alt="deal image" class="img-fluid w-100 slide-image">
           {{-- 

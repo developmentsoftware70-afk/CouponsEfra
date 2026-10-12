@@ -9,101 +9,30 @@
     <div class="container-fluid container-custom">
         <div class="row gy-4 justify-content-center">
             <div class="col-lg-3">
-                <div class="side-bar-wrap">
-                    <div class="section-search-box mb-4">
-                        <form>
-                            <input class="form--control" id="searchValue" name="search" type="text" placeholder="@lang('Search')">
-                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                        </form>
-                    </div>
-                    <div class="category-box">
-                        <div class="side-bar-wrap">
-                            <div class="category-box">
-                                <div class="categories">
-                                    <h6 class="title">@lang('Categories')</h6>
-                                    <div class="category-list">
-                                        @foreach ($categories as $item)
-                                        <div class="check-item">
-                                            <div class="form--check categories-search mb-2">
-                                                <input class="form-check-input filter-by-category" name="categories_{{$loop->iteration}}" type="checkbox" value="{{ $item->id }}" id="categories_{{$loop->iteration}}">
-                                                <label for="categories_{{$loop->iteration}}" class="form-check-label">{{ $item->name }}</label>
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                        <button class="show-more-button btn btn--base btn--sm mt-2">@lang('Show More')</button>
-                                    </div>
-                                </div>
-                                <div class="categories">
-                                    <h6 class="title">@lang('Stores')</h6>
-                                    <div class="category-list">
-                                        @foreach ($stores as $item)
-                                        <div class="check-item-stores">
-                                            <div class="form--check categories-search mb-2">
-                                                <input class="form-check-input filter-by-stores" id="stores_{{$loop->iteration}}" name="stores_{{$loop->iteration}}"
-                                                    type="checkbox" value="{{ $item->id }}">
-                                                <label for="stores_{{$loop->iteration}}" class="form-check-label">{{ $item->name }}</label>
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                        <button class="show-more-button-stores btn btn--base btn--sm mt-2">@lang('Show More')</button>
-                                    </div>
-                                </div>
-                                @if($secondAd)
-                                <div class="categories">
-                                    <!-- ad image start -->
-                                    <div class="sidebar-add-wrap position-relative">
-                                       <div class="long-add-wrap--thumb">
-                                            <a href="{{@$secondAd->link}}" target="_blank">
-                                                <img src="{{ getImage(getFilePath('adImage') . '/' . @$secondAd->image) }}" alt="">
-                                            </a>
-                                       </div>
-                                    </div>
-                                     <!-- ad image end -->
-                                </div>
-                                @else
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
+@include($activeTemplate.'components.sidebar', ['sidebarCategories' => $categories ?? [], 'categoryPrefix' => 'categories_', 'sidebarStores' => $stores ?? [], 'storePrefix' => 'stores_'])
                
             </div>
             <div class="col-lg-9 main-content">
                 <div class="row gy-4">
+
                     @forelse($cashbackCoupons as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <a href="javascript:void(0)" class="getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">
-                            <div class="coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                            <div class="card-thumb">
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                            <div class="vertical-card-img">
                                 @if($item->image)
-                                <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" class="img-fluid" alt="@lang('Coupon Image')">
-                                @else
-                                <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" class="img-fluid" alt="@lang('Store Image')">
+                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                                @elseif($item->store && $item->store->image)
+                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
                                 @endif
-                                <div class="card-ribbon-wrap">
-                                    <div class="ex-cta">
-                                        @if($item->is_cashback == 1)
-                                        <p>{{ $item->cashback_amount }}@lang('% Cash Back')</p>
-                                        @else 
-                                        <p>@lang('New')</p>
-                                        @endif
-                                    </div>
-                                    <button class="fav-cta addToWishList" data-id="{{ $item->id }}">
-                                        @if (auth()->check() && $item->wishlists->count() > 0)
-                                            <i class="fas fa-heart"></i>
-                                        @else
-                                            <i class="far fa-heart"></i>
-                                        @endif
-                                    </button>
-                                </div>
                             </div>
-                            <div class="card-content-wrap">
-                                <p class="card-title">{{__($item->title)}}</p>
-                                <a href="javascript:void(0)" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">{{ $item->code ? __('Get Code') : __('Get Deal') }}</a>
-                                 <p class="card-action"> {!! isExpired($item->id) !!}</p>
-                            </div>
+                            
+                            <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
+                                data-id="{{$item->id}}" data-title="{{$item->title}}" 
+                                data-code="{{$item->code}}" data-description="{{$item->description}}" 
+                                data-link="{{$item->link}}">
+                                Grab Deal
+                            </a>
                         </div>
-                        </a>
                     </div>
                     @empty
                     <p class="text-center">{{__($emptyMessage)}}</p>

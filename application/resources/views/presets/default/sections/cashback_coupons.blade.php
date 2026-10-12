@@ -36,8 +36,8 @@
                             ];
                         @endphp
                         @foreach ($cashbackCouponsData as $index => $item)
-                        @php
-                            $theme = $ckTheme[$index % count($ckTheme)];
+                                                                        @php
+                            $theme = $ckTheme[1];
                         @endphp
                         <div class="slick-slide-inner">
                             <a href="javascript:void(0)" class="getCoupon ck-style-card-link"
@@ -50,8 +50,7 @@
                                         <p class="ck-subtitle">{{ Str::limit(html_entity_decode(strip_tags($item->description)), 40) }}</p>
                                         <div class="ck-btn-wrap">
                                             <span class="ck-btn">
-                                                <span class="ck-btn-icon">CK</span> 
-                                                {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                                                @lang('Grab Deal')
                                             </span>
                                         </div>
                                     </div>
@@ -94,3 +93,6 @@
         </div>
     </div>
 </section>
+
+
+

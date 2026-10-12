@@ -10,7 +10,7 @@
     <section class="full-width-slider">
         @foreach($slider as $item)
         <div class="slider-item">
-            <a href="{{ $item->link }}" target="_blank">
+            <a href="{{ route('slider.redirect', $item->id) }}" class="slider-banner-link" target="_blank">
                 <img src="{{ getImage(getFilePath('slider') . '/' . $item->image) }}" alt="{{ $item->title ?? 'Slider Image' }}" class="img-fluid">
             </a>
         </div>

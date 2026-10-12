@@ -9,82 +9,66 @@
     <div class="container-fluid container-custom">
         <div class="row gy-4 justify-content-center">
             <div class="col-lg-3">
-                <div class="side-bar-wrap">
-                    <div class="section-search-box mb-4">
-                        <form>
-                            <input class="form--control" id="searchValue" name="search" type="text" placeholder="@lang('Search')">
-                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                        </form>
-                    </div>
-                    <div class="category-box">
-                        <div class="side-bar-wrap">
-                            <div class="category-box">
-                                <div class="categories">
-                                    <h6 class="title">@lang('Categories')</h6>
-                                    <div class="category-list">
-                                        @php
-                                            $categoryCount = count($dealCategories);
-                                        @endphp
-                                        @foreach ($dealCategories as $item)
-                                            <div class="check-item">
-                                                <div class="form--check categories-search mb-2">
-                                                    <input class="form-check-input filter-by-category" name="deal_categories_{{$loop->iteration}}" type="checkbox" value="{{ $item->id }}" id="deal_categories_{{$loop->iteration}}">
-                                                    <label for="deal_categories_{{$loop->iteration}}" class="form-check-label">{{ $item->title }}</label>
-                                                </div>
-                                            </div>
-                                            @if ($loop->iteration == 6 && $categoryCount > 6)
-                                                <button class="show-more-button btn btn--base btn--sm mt-2">@lang('Show More')</button>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                                @if($firstAd)
-                                    <div class="categories">
-                                        <!-- ad image start -->
-                                        <div class="sidebar-add-wrap position-relative">
-                                        <div class="long-add-wrap--thumb">
-                                                <a href="{{@$firstAd->link}}" target="_blank">
-                                                    <img src="{{ getImage(getFilePath('adImage') . '/' .@$firstAd->image) }}" alt="">
-                                                </a>
-                                        </div>
-                                        </div>
-                                        <!-- ad image end -->
-                                    </div>
-                                @else
-
-                                @endif
-                                @if($secondAd)
-                                    <div class="categories">
-                                        <!-- ad image start -->
-                                        <div class="sidebar-add-wrap position-relative">
-                                        <div class="long-add-wrap--thumb">
-                                                <a href="{{@$secondAd->link}}" target="_blank">
-                                                    <img src="{{ getImage(getFilePath('adImage') . '/' . @$secondAd->image) }}" alt="">
-                                                </a>
-                                        </div>
-                                        </div>
-                                        <!-- ad image end -->
-                                    </div>
-                                @else
-                                
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
+@include($activeTemplate.'components.sidebar', ['sidebarCategories' => $dealCategories ?? [], 'categoryPrefix' => 'deal_categories_'])
                
             </div>
             <div class="col-lg-9  main-content">
                 <div class="row gy-4">
+                    <style>
+                    .vertical-coupon-card {
+                        position: relative;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        margin-bottom: 24px;
+                        height: 220px;
+                        display: block;
+                        background: #f8f9fa;
+                        border: 1px solid #eaeaea;
+                    }
+                    .vertical-card-img {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    .vertical-card-img img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    .vertical-grab-btn {
+                        position: absolute;
+                        bottom: 12px;
+                        right: 12px;
+                        background: #0053c8;
+                        color: #fff;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        text-decoration: none;
+                        font-size: 14px;
+                        z-index: 2;
+                        transition: background 0.2s;
+                    }
+                    .vertical-grab-btn:hover {
+                        background: #003a8c;
+                        color: #fff;
+                    }
+                    </style>
                     @forelse($deals as $index => $item)
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <div class="testimonial-card p-0 wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                            <a href="javascript:void(0)" class="getDeal" data-id="{{ $item->id }}" data-title="{{ $item->title }}" data-description="{{ $item->description }}" data-link="{{ $item->link }}"  data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                            <div class="vertical-card-img">
                                 @if($item->image)
-                                <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" class="img-fluid" alt="">
+                                    <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" alt="">
                                 @else
-                                <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" class="img-fluid" alt="">
+                                    <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" alt="">
                                 @endif
+                            </div>
+                            
+                            <a href="javascript:void(0)" class="vertical-grab-btn getDeal" 
+                                data-id="{{ $item->id }}" data-title="{{ $item->title }}" 
+                                data-description="{{ $item->description }}" data-link="{{ $item->link }}"  
+                                data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
+                                {{ $item->button_label ?? __('Grab Deal') }}
                             </a>
                         </div>
                     </div>

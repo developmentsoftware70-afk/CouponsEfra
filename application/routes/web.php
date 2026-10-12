@@ -94,6 +94,7 @@ Route::controller('SiteController')->group(function () {
 
     Route::get('/coupon-details/{id}', 'couponDetails')->name('coupon.details');
     Route::get('/go/{id}', 'goStore')->name('coupon.redirect');
+    Route::get('/slider/go/{id}', 'goSlider')->name('slider.redirect');
     Route::get('/{slug}', 'pages')->name('pages');
     Route::get('/', 'index')->name('home');
 });

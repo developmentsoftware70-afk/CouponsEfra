@@ -1,21 +1,67 @@
 <div class="row gy-4">
-    @forelse($deals as $index => $item)
-    <div class="col-lg-4 col-md-6 col-sm-6">
-        <div class="testimonial-card p-0 wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-            <a href="javascript:void(0)" class="getDeal" data-id="{{ $item->id }}" data-title="{{ $item->title }}" data-description="{{ $item->description }}" data-link="{{ $item->link }}"  data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
-                @if($item->image)
-                <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" class="img-fluid" alt="">
-                @else
-                <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" class="img-fluid" alt="">
-                @endif
-            </a>
-        </div>
-    </div>
+                    <style>
+                    .vertical-coupon-card {
+                        position: relative;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        margin-bottom: 24px;
+                        height: 220px;
+                        display: block;
+                        background: #f8f9fa;
+                        border: 1px solid #eaeaea;
+                    }
+                    .vertical-card-img {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    .vertical-card-img img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    .vertical-grab-btn {
+                        position: absolute;
+                        bottom: 12px;
+                        right: 12px;
+                        background: #0053c8;
+                        color: #fff;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        text-decoration: none;
+                        font-size: 14px;
+                        z-index: 2;
+                        transition: background 0.2s;
+                    }
+                    .vertical-grab-btn:hover {
+                        background: #003a8c;
+                        color: #fff;
+                    }
+                    </style>
+                    @forelse($deals as $index => $item)
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                            <div class="vertical-card-img">
+                                @if($item->image)
+                                    <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" alt="">
+                                @else
+                                    <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" alt="">
+                                @endif
+                            </div>
+                            
+                            <a href="javascript:void(0)" class="vertical-grab-btn getDeal" 
+                                data-id="{{ $item->id }}" data-title="{{ $item->title }}" 
+                                data-description="{{ $item->description }}" data-link="{{ $item->link }}"  
+                                data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
+                                {{ $item->button_label ?? __('Grab Deal') }}
+                            </a>
+                        </div>
+                    </div>
     @empty
-    <p class="text-center h4">{{__($emptyMessage)}}</p>
+    <p class="text-center">{{__($emptyMessage ?? 'No deals found')}}</p>
     @endforelse
 </div>
-@endsection
+
 <!-- Modal (keep once) -->
 <div class="modal fade" id="dealModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -71,29 +117,45 @@
             // Event delegation for dynamically added content
             $(document).on('click', '.getDeal', function(e) {
                 e.preventDefault();
-                const modal = $('#dealModal');
+                @auth
+                    const modal = $('#dealModal');
 
-                const title = $(this).data('title');
-                const description = $(this).data('description');
-                const link = $(this).data('link');
-                const button_label = $(this).data('button_label');
-                const dealId = $(this).data('id');
+                    const title = $(this).data('title');
+                    const description = $(this).data('description');
+                    let link = $(this).data('link');
+                    const button_label = $(this).data('button_label');
+                    const dealId = $(this).data('id');
 
-                modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
-                modal.find('.dealDescription').html(description);
-                modal.find('.dealAnchor').attr('href', link);
-                modal.find('.dealBtn').attr('href', link);
+                    var cleanUsername = '{{ str_replace(["-", " "], "", auth()->user()->username) }}';
+                    var userId = '{{ auth()->user()->id }}';
+                    var trackingId = cleanUsername + '_' + userId;
+                    
+                    if (link && link.indexOf('source=') === -1) {
+                        if (link.indexOf('?') !== -1) {
+                            link = link + '&source=' + trackingId;
+                        } else {
+                            link = link + '?source=' + trackingId;
+                        }
+                    }
 
-                modal.find('input[name=link]').val(link);
-                modal.find('.dealLink').val(link);
+                    modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
+                    modal.find('.dealDescription').html(description);
+                    modal.find('.dealAnchor').attr('href', link);
+                    modal.find('.dealBtn').attr('href', link);
 
-                // Update share links
-                $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
-                $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
-                $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+                    modal.find('input[name=link]').val(link);
+                    modal.find('.dealLink').val(link);
 
-                getDealInfo(dealId);
-                modal.modal('show');
+                    // Update share links
+                    $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
+                    $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
+                    $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+
+                    getDealInfo(dealId);
+                    modal.modal('show');
+                @else
+                    $('#loginRequiredModal').modal('show');
+                @endauth
             });
             // Fix: Use delegated binding for copy link button
             $(document).on('click', '.copy-link-btn', function(e) {

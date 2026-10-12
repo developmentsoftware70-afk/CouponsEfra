@@ -72,19 +72,19 @@
                                         <img class="couponImage img-fluid w-100" src="{{ asset('assets/images/general/logo.png') }}" alt="">
                                     </div>
                                 </a>
-                                <div class="d-flex gap-2 mt-3">
-                                    {{-- 
-                                    <div class="copy-code-input">
-                                        <input class="form--control coponCodeCopyFeature" name="code" readonly>
-                                        <a href="" class="btn btn--base copy-btn copytext" id="copyBoard-feature" target="_blank"><i class="fas fa-copy"></i></a>
+                                <div class="mt-3">
+                                    <!-- Center: Copy Code -->
+                                    <div class="mb-2 text-center">
+                                        <a href="" class="btn btn--base copy-btn copytext w-100" id="copyBoard-feature" target="_blank">@lang('Copy Code')</a>
+                                        <input type="text" class="coponCodeCopyFeature visually-hidden" name="code">
                                     </div>
-                                    --}}
                                     
-                                    <a href="" class="btn btn--base copy-btn copytext w-100" id="copyBoard-feature" target="_blank">@lang('Copy Code')</a>
-                                    <input type="text" class="coponCodeCopyFeature visually-hidden" name="code">
-                                    <a href="" class="btn btn--base couponName w-100" id="copyLink" target="_blank">@lang('Copy Link')</a>
-                                    <input type="text" class="couponLinkCopyFeature visually-hidden" name="link">
-                                    <a href="#" class="btn btn--base couponName w-100" target="_blank">@lang('Grab Deal')</a>
+                                    <!-- Bottom Row: Left (Copy Link) | Right (Go to Website) -->
+                                    <div class="d-flex gap-2">
+                                        <a href="" class="btn btn--base couponName w-100" id="copyLink" target="_blank">@lang('Copy Link')</a>
+                                        <input type="text" class="couponLinkCopyFeature visually-hidden" name="link">
+                                        <a href="#" class="btn btn--base couponName w-100" target="_blank">@lang('Go to Website')</a>
+                                    </div>
                                 </div>
                                 <div class="footer-item social-wrapper mt-4">
                                     <p class="mb-3">@lang('Share this coupon now.')</p>
@@ -170,22 +170,66 @@
 
     <!-- Login Required Modal -->
     <div class="modal fade" id="loginRequiredModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                    <h5 class="modal-title" style="font-weight: 700; color: #333;"><i class="fas fa-lock" style="color: #f37254;"></i> Login Required</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center" style="padding: 30px;">
-                    <i class="fas fa-user-circle" style="font-size: 80px; color: #5c3b99; margin-bottom: 20px;"></i>
-                    <h4 style="font-size: 20px; margin-bottom: 15px; color: #333;">Oops! You are not logged in.</h4>
-                    <p style="color: #666; font-size: 15px; margin-bottom: 25px;">Please Login or Register an account to reveal this exclusive coupon code and grab your deal!</p>
-                    
-                    <div class="d-flex justify-content-center" style="gap: 15px;">
-                        <a href="{{ route('user.login') }}" class="btn btn--base" style="border-radius: 25px; padding: 10px 30px; font-weight: 600;">Login Now</a>
-                        <a href="{{ route('user.register') }}" class="btn btn-outline-dark" style="border-radius: 25px; padding: 10px 30px; font-weight: 600; border: 1px solid #333; color:#333;">Create Account</a>
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 380px;">
+            <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 16px; right: 16px; z-index: 10; font-size: 14px; opacity: 0.5;"></button>
+                
+                <div class="modal-body" style="padding: 24px 28px;">
+                    <!-- Logo -->
+                    <div class="text-center mb-4 mt-2">
+                        <h3 style="font-weight: 800; font-size: 22px; color: #111827; margin: 0; font-family: 'Inter', sans-serif;">
+                            Coupons<span style="color: #00c283;">Efra</span>
+                        </h3>
                     </div>
+
+                    <!-- Tabs -->
+                    <div class="d-flex mb-4" style="border-bottom: 1px solid #fecaca;">
+                        <a href="javascript:void(0)" class="flex-fill text-center pb-2" style="font-size: 14px; font-weight: 600; color: #00c283; border-bottom: 2px solid #00c283; text-decoration: none; margin-bottom: -1px;">Login</a>
+                        <a href="{{ route('user.register') }}" class="flex-fill text-center pb-2" style="font-size: 14px; font-weight: 600; color: #94a3b8; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px;">Register</a>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form method="POST" action="{{ route('user.login') }}">
+                        @csrf
+                        
+                        <div class="mb-3 text-start">
+                            <label style="font-size: 13px; color: #4b5563; margin-bottom: 6px; font-weight: 500;">Email Address</label>
+                            <input type="text" name="username" class="form-control" placeholder="Admin" style="background-color: #f0f7ff; border: 1px solid #b6d4fe; border-radius: 6px; padding: 10px 14px; font-size: 14px; color: #374151; box-shadow: none;" required>
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label style="font-size: 13px; color: #4b5563; margin: 0; font-weight: 500;">Password</label>
+                                <a href="{{ route('user.password.request') }}" style="font-size: 12px; color: #00c283; text-decoration: none; font-weight: 600;">Forgot Password?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" style="background-color: #f0f7ff; border: 1px solid #b6d4fe; border-radius: 6px; padding: 10px 14px; font-size: 16px; color: #374151; letter-spacing: 2px; box-shadow: none;" required>
+                        </div>
+
+                        <button type="submit" class="btn w-100 modal-auth-btn" style="background-color: #00c283; color: #fff; font-weight: 600; padding: 10px; border-radius: 6px; font-size: 15px; border: 1px solid #065f46; transition: background-color 0.2s;">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="position-relative text-center my-4">
+                        <hr style="border-color: #e5e7eb; margin: 0;">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 0 12px; color: #9ca3af; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">
+                            OR CONTINUE WITH
+                        </span>
+                    </div>
+
+                    <a href="{{ route('google.redirect') }}" class="btn w-100 d-flex justify-content-center align-items-center modal-google-btn" style="border: 1px solid #111827; background: #fff; color: #374151; padding: 8px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: background 0.2s;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 18px; margin-right: 10px;">
+                        Google
+                    </a>
+                    
                 </div>
+                
+                <style>
+                    .modal-auth-btn:hover { background-color: #059669 !important; }
+                    .modal-google-btn:hover { background-color: #f9fafb !important; }
+                    #loginRequiredModal .form-control:focus { border-color: #00c283; box-shadow: 0 0 0 0.2rem rgba(0, 194, 131, 0.25); background-color: #fff; }
+                </style>
             </div>
         </div>
     </div>
@@ -354,29 +398,45 @@
             // Event delegation for dynamically added content
             $(document).on('click', '.getDeal', function(e) {
                 e.preventDefault();
-                const modal = $('#dealModal');
+                @auth
+                    const modal = $('#dealModal');
 
-                const title = $(this).data('title');
-                const description = $(this).data('description');
-                const link = $(this).data('link');
-                const button_label = $(this).data('button_label');
-                const dealId = $(this).data('id');
+                    const title = $(this).data('title');
+                    const description = $(this).data('description');
+                    let link = $(this).data('link');
+                    const button_label = $(this).data('button_label');
+                    const dealId = $(this).data('id');
 
-                modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
-                modal.find('.dealDescription').html(description);
-                modal.find('.dealAnchor').attr('href', link);
-                modal.find('.dealBtn').attr('href', link);
+                    var cleanUsername = '{{ str_replace(["-", " "], "", auth()->user()->username) }}';
+                    var userId = '{{ auth()->user()->id }}';
+                    var trackingId = cleanUsername + '_' + userId;
+                    
+                    if (link && link.indexOf('source=') === -1) {
+                        if (link.indexOf('?') !== -1) {
+                            link = link + '&source=' + trackingId;
+                        } else {
+                            link = link + '?source=' + trackingId;
+                        }
+                    }
 
-                modal.find('input[name=link]').val(link);
-                modal.find('.dealLink').val(link);
+                    modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
+                    modal.find('.dealDescription').html(description);
+                    modal.find('.dealAnchor').attr('href', link);
+                    modal.find('.dealBtn').attr('href', link);
 
-                // Update share links
-                $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
-                $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
-                $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+                    modal.find('input[name=link]').val(link);
+                    modal.find('.dealLink').val(link);
 
-                getDealInfo(dealId);
-                modal.modal('show');
+                    // Update share links
+                    $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
+                    $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
+                    $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+
+                    getDealInfo(dealId);
+                    modal.modal('show');
+                @else
+                    $('#loginRequiredModal').modal('show');
+                @endauth
             });
             // Fix: Use delegated binding for copy link button
             $(document).on('click', '.copy-link-btn', function(e) {
@@ -457,5 +517,68 @@
         })(jQuery);
     </script>
 
+    @guest
+    <script>
+        (function($) {
+            "use strict";
+            // If user is not logged in: Force login popup on slider, banner, deal or coupon clicks
+            $(document).on('click', '.slider-banner-link, .single-slide-link, .getDeal, .getCoupon', function(e) {
+                e.preventDefault();
+                $('#loginRequiredModal').modal('show');
+                return false;
+            });
+        })(jQuery);
+    </script>
+    @endguest
+
+    @auth
+    <script>
+        (function($) {
+            "use strict";
+            var currentTrackingId = '{{ str_replace(["-", " "], "", auth()->user()->username) }}_{{ auth()->user()->id }}';
+
+            function addTrackingSource(url) {
+                if (!url || typeof url !== 'string') return url;
+                if (url.indexOf('javascript:') === 0 || url.indexOf('#') === 0) return url;
+
+                try {
+                    var parsed = new URL(url, window.location.origin);
+                    if (parsed.hostname !== window.location.hostname && (parsed.protocol === 'http:' || parsed.protocol === 'https:')) {
+                        if (parsed.searchParams.get('source') === currentTrackingId) {
+                            return url;
+                        }
+                        parsed.searchParams.set('source', currentTrackingId);
+                        return parsed.toString();
+                    }
+                } catch(e) {
+                    if ((url.indexOf('http://') === 0 || url.indexOf('https://') === 0 || url.indexOf('//') === 0) &&
+                        url.indexOf(window.location.hostname) === -1) {
+                        if (/[?&]source=/.test(url)) {
+                            return url.replace(/([?&]source=)[^&]*/, '$1' + currentTrackingId);
+                        } else {
+                            var sep = url.indexOf('?') !== -1 ? '&' : '?';
+                            return url + sep + 'source=' + currentTrackingId;
+                        }
+                    }
+                }
+                return url;
+            }
+
+            // Universal interceptor for external clicks on dashboard and entire site
+            $(document).on('click', 'a', function(e) {
+                var href = $(this).attr('href');
+                if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0 || href.indexOf('//') === 0)) {
+                    var newHref = addTrackingSource(href);
+                    if (newHref !== href) {
+                        $(this).attr('href', newHref);
+                    }
+                }
+            });
+        })(jQuery);
+    </script>
+    @endauth
+
 </body>
 </html>
+
+

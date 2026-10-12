@@ -8,13 +8,18 @@
     position: sticky !important; 
     top: 0 !important;
     width: 100% !important;
-    z-index: 1000 !important;
+    z-index: 9999999 !important; /* Extremely high z-index */
     font-family: 'Inter', sans-serif !important;
     border-bottom: 1px solid #eaeaec !important; /* Faint gray bottom line */
     box-shadow: none !important; /* No shadow, just clean border */
     transform: none !important; /* Stop JS from moving it */
     animation: none !important; /* Stop JS animations */
     transition: none !important; /* Stop JS delays */
+    overflow: visible !important; /* Ensure children can spill out */
+}
+
+.header .container-fluid, .header .row {
+    overflow: visible !important;
 }
 
 .header-wrapper {
@@ -29,10 +34,18 @@
 /* Hamburger Menu (Left) */
 .sidebar-menu-show-hide {
     order: 0 !important;
+    background: transparent !important;
     color: #111111 !important;
-    font-size: 20px !important;
-    margin-right: 20px !important;
+    font-size: 24px !important;
+    margin-right: 15px !important;
+    padding: 0 !important;
+    border: none !important;
     cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
 }
 
 /* Logo (Left) */
@@ -346,6 +359,41 @@
 .profile-dropdown-menu ul li a:hover i {
     color: #f37254 !important;
 }
+/* Tablet specific adjustments to fit everything on one line (992px - 1250px) */
+@media (min-width: 992px) and (max-width: 1250px) {
+    .header-wrapper {
+        padding: 5px 10px !important;
+    }
+    .logo-wrapper {
+        min-width: 150px !important;
+    }
+    .logo-wrapper img {
+        width: 150px !important;
+        height: 45px !important;
+    }
+    .hero-search-bar {
+        margin-left: 10px !important;
+        max-width: 250px !important; /* shrink search bar */
+    }
+    .nav-links-container .main-menu {
+        gap: 12px !important; /* smaller gap between links */
+    }
+    .nav-links-container .main-menu li a {
+        font-size: 12px !important; /* smaller font */
+    }
+    .login-registration-list__item {
+        margin-left: 10px !important;
+    }
+    .login-registration-list__item::before {
+        left: -10px !important;
+    }
+    .login-registration-list__item a {
+        font-size: 12px !important;
+    }
+    .profile-dropdown {
+        margin-left: 10px !important;
+    }
+}
 
 /* Mobile responsive */
 @media (min-width: 992px) {
@@ -354,10 +402,128 @@
     }
 }
 @media (max-width: 991px) {
-    .nav-links-container { display: none !important; }
-    .hero-search-bar { display: none !important; }
-    .login-registration-list__item::before { display: none !important; }
-    .header-wrapper { flex-wrap: nowrap !important; }
+    .header-wrapper {
+        padding: 10px 15px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .sidebar-menu-show-hide {
+        order: 1 !important;
+        margin-right: 15px !important;
+        font-size: 22px !important;
+        flex-shrink: 0 !important;
+        display: block !important;
+    }
+    .header-menu-wrapper {
+        order: 2 !important;
+        flex-grow: 1 !important;
+        display: flex !important;
+    }
+    .logo-wrapper {
+        min-width: auto !important;
+        flex-grow: 0 !important;
+        flex-shrink: 1 !important;
+    }
+    .logo-wrapper img {
+        width: auto !important;
+        max-width: 140px !important;
+        height: 35px !important;
+        object-fit: contain !important;
+    }
+    .mobile-header-auth {
+        order: 3 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .mobile-header-auth a {
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .mobile-header-auth a i {
+        font-size: 26px !important;
+        color: #111 !important;
+    }
+    .mobile-header-auth .profile-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #5c3b99 !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+    .menu-right-wrapper {
+        order: 4 !important;
+        width: 100% !important;
+        margin-top: 10px !important;
+        flex-grow: 1 !important;
+    }
+    .menu-right-wrapper ul {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .menu-right-wrapper .profile-dropdown,
+    .menu-right-wrapper .login-registration-list__item,
+    .menu-right-wrapper .nav-links-container,
+    .menu-right-wrapper .language {
+        display: none !important;
+    }
+    .hero-search-bar { 
+        display: block !important; 
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+    .hero-search-bar form {
+        display: flex !important;
+        align-items: center !important;
+        height: 40px !important;
+        border: 1px solid #d1d5db !important;
+        width: 100% !important;
+        border-radius: 20px !important;
+        background: #f4f5f8 !important;
+        padding: 0 10px !important;
+    }
+    .hero-search-bar form input {
+        order: 2 !important;
+        font-size: 14px !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        flex-grow: 1 !important;
+    }
+    .hero-search-bar button.search-btn {
+        order: 1 !important;
+        position: static !important;
+        width: auto !important;
+        background: transparent !important;
+        border: none !important;
+        color: #666 !important;
+        padding: 0 8px 0 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .hero-search-bar button.search-btn span {
+        display: none !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .mobile-header-auth { display: none !important; }
 }
 </style>
 @php
@@ -379,6 +545,17 @@ $user = auth()->user();
                     </div>
                 </div>
                 <!-- / logo -->
+                {{-- Mobile only: profile/login directly in header row 1 --}}
+                @auth
+                @php $user = auth()->user(); $name = $user->firstname ?? $user->username; $initial = strtoupper(substr($name, 0, 1)); @endphp
+                <div class="mobile-header-auth">
+                    <div class="profile-avatar">{{ $initial }}</div>
+                </div>
+                @else
+                <div class="mobile-header-auth">
+                    <a href="{{ route('user.login') }}"><i class="fa fa-user"></i></a>
+                </div>
+                @endauth
                 <div class="menu-right-wrapper">
                     <ul>
                         {{-- 
@@ -397,7 +574,7 @@ $user = auth()->user();
                         <li class="hero-search-bar">
                             <form action="{{route('single.coupon.search')}}" method="get">
                                 <input class="form--control" name="search" type="text" placeholder="@lang('Search') ...">
-                                <button class="search-btn btn btn--base" type="submit"> <i class="fas fa-search"></i> <span></button>
+                                <button class="search-btn btn btn--base" type="submit"> <i class="fas fa-search"></i></button>
                             </form>
                         </li>
                         
@@ -453,7 +630,7 @@ $user = auth()->user();
                         <li class="login-registration-list__item">
                             <a href="{{ route('user.login') }}" class="">
                                 <i class="fa fa-user"></i>
-                                 @lang('Login/Signup')
+                                 <span class="login-text">@lang('Login/Signup')</span>
                             </a>
                         </li>
                         @endauth
@@ -531,3 +708,4 @@ $user = auth()->user();
         </ul>
     </div>
 </div>
+
