@@ -97,7 +97,7 @@
                                 </div>
                                 <div class="card-content-wrap">
                                     <p class="card-title">{{__($item->title)}}</p>
-                                    <a href="javascript:void(0)" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">{{ $item->code ? __('Get Code') : __('Get Deal') }}</a>
+                                    <a href="javascript:void(0)" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">Grab Deal</a>
                                      <p class="card-action">{!! isExpired($item->id) !!}</p>
                                 </div>
                             </div>

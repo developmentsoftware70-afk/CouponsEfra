@@ -20,7 +20,7 @@
                 </div>
             </div>
         </div>
-        <div class="row gy-4 main-content">
+        <div class="row gy-4 coupons-row">
             <style>
                 .vertical-coupon-card {
                     position: relative;
@@ -57,7 +57,7 @@
                         data-id="{{$item->id}}" data-title="{{$item->title}}" 
                         data-code="{{$item->code}}" data-description="{{$item->description}}" 
                         data-link="{{$item->link}}">
-                        {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                        Grab Deal
                     </a>
                 </div>
             </div>
@@ -79,12 +79,11 @@
                         <h2 class="section-title mb-2 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
                             {{ __($cashbackCoupon->data_values->heading) }}
                         </h2>
-                       {{--  <a href="{{ route('cashback.coupons') }}">@lang('View More')</a> --}}
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row gy-4 main-content">
+        <div class="row gy-4 cashback-row">
             @forelse($cashbackCoupons as $index => $item)
             <div class="col-lg-3 col-md-6 col-sm-12">
                 <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
@@ -100,7 +99,7 @@
                         data-id="{{$item->id}}" data-title="{{$item->title}}" 
                         data-code="{{$item->code}}" data-description="{{$item->description}}" 
                         data-link="{{$item->link}}">
-                        {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                        Grab Deal
                     </a>
                 </div>
             </div>
@@ -122,12 +121,11 @@
                         <h2 class="section-title mb-2 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
                             Deals
                         </h2>
-                       {{--  <a href="{{ route('cashback.coupons') }}">@lang('View More')</a> --}}
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row gy-4 main-content">
+        <div class="row gy-4 deals-row">
             @forelse($deals as $index => $item)
             <div class="col-lg-3 col-md-6 col-sm-12">
                 <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">

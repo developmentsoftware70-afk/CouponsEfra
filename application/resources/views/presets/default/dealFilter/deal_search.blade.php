@@ -117,29 +117,45 @@
             // Event delegation for dynamically added content
             $(document).on('click', '.getDeal', function(e) {
                 e.preventDefault();
-                const modal = $('#dealModal');
+                @auth
+                    const modal = $('#dealModal');
 
-                const title = $(this).data('title');
-                const description = $(this).data('description');
-                const link = $(this).data('link');
-                const button_label = $(this).data('button_label');
-                const dealId = $(this).data('id');
+                    const title = $(this).data('title');
+                    const description = $(this).data('description');
+                    let link = $(this).data('link');
+                    const button_label = $(this).data('button_label');
+                    const dealId = $(this).data('id');
 
-                modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
-                modal.find('.dealDescription').html(description);
-                modal.find('.dealAnchor').attr('href', link);
-                modal.find('.dealBtn').attr('href', link);
+                    var cleanUsername = '{{ str_replace(["-", " "], "", auth()->user()->username) }}';
+                    var userId = '{{ auth()->user()->id }}';
+                    var trackingId = cleanUsername + '_' + userId;
+                    
+                    if (link && link.indexOf('source=') === -1) {
+                        if (link.indexOf('?') !== -1) {
+                            link = link + '&source=' + trackingId;
+                        } else {
+                            link = link + '?source=' + trackingId;
+                        }
+                    }
 
-                modal.find('input[name=link]').val(link);
-                modal.find('.dealLink').val(link);
+                    modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
+                    modal.find('.dealDescription').html(description);
+                    modal.find('.dealAnchor').attr('href', link);
+                    modal.find('.dealBtn').attr('href', link);
 
-                // Update share links
-                $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
-                $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
-                $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+                    modal.find('input[name=link]').val(link);
+                    modal.find('.dealLink').val(link);
 
-                getDealInfo(dealId);
-                modal.modal('show');
+                    // Update share links
+                    $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
+                    $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
+                    $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+
+                    getDealInfo(dealId);
+                    modal.modal('show');
+                @else
+                    $('#loginRequiredModal').modal('show');
+                @endauth
             });
             // Fix: Use delegated binding for copy link button
             $(document).on('click', '.copy-link-btn', function(e) {

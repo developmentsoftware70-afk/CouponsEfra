@@ -168,10 +168,12 @@
         
         <h2>One moment, please.</h2>
         
-        @if($coupon->is_cashback == 1)
+        @if(isset($coupon) && $coupon->is_cashback == 1)
             <p>We are safely routing you to <strong>{{ $coupon->store->name ?? 'the store' }}</strong>.<br>Shop normally and your cashback will be tracked automatically.</p>
-        @else
+        @elseif(isset($coupon))
             <p>We are safely transferring you to <strong>{{ $coupon->store->name ?? 'the store' }}</strong>.<br>Grab your deal and enjoy shopping!</p>
+        @else
+            <p>We are safely transferring you to <strong>the store</strong>.<br>Grab your deal and enjoy shopping!</p>
         @endif
         
         <div class="transfer-box">
@@ -188,8 +190,10 @@
             <div class="logo-wrapper">
                 @if(isset($coupon->store->image))
                     <img src="{{ getImage(getFilePath('store').'/'.$coupon->store->image) }}" alt="{{ $coupon->store->name }}">
+                @elseif(isset($slider) && isset($slider->image))
+                    <img src="{{ getImage(getFilePath('slider').'/'.$slider->image) }}" alt="STORE">
                 @else
-                    <span style="font-weight: 600; font-size: 20px; color: #4a5568;">{{ $coupon->store->name ?? 'STORE' }}</span>
+                    <span style="font-weight: 600; font-size: 20px; color: #4a5568;">{{ isset($coupon->store->name) ? $coupon->store->name : 'STORE' }}</span>
                 @endif
             </div>
         </div>

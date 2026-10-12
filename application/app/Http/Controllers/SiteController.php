@@ -61,31 +61,33 @@ class SiteController extends Controller
 
     public function goStore($id)
     {
+        if (!auth()->check()) {
+            session()->put('url.intended', url()->current());
+            return redirect()->route('user.login');
+        }
+
         $coupon = Coupon::findOrFail($id);
         $coupon->increment('click_count');
         
-        $link = $coupon->link;
-
-        // Simply append the exact string "source=username_id" to the raw link
-        // without parsing, modifying, encoding, or changing anything else.
-        if (auth()->check()) {
-            $user = auth()->user();
-            
-            // Remove dashes (-) and spaces from the username
-            $cleanUsername = str_replace(['-', ' '], '', $user->username);
-            $trackingId = $cleanUsername . '_' . $user->id;
-            
-            // Check if link already has query parameters
-            if (strpos($link, '?') !== false) {
-                $link = $link . '&source=' . $trackingId;
-            } else {
-                $link = $link . '?source=' . $trackingId;
-            }
-        }
+        $link = appendTrackingSource($coupon->link);
 
         // Render an intermediate tracking page instead of instant redirect
         $pageTitle = "Activating Cashback...";
         return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'coupon'));
+    }
+
+    public function goSlider($id)
+    {
+        if (!auth()->check()) {
+            session()->put('url.intended', url()->current());
+            return redirect()->route('user.login');
+        }
+
+        $slider = \App\Models\Slider::findOrFail($id);
+        $link = appendTrackingSource($slider->link);
+
+        $pageTitle = "Activating Cashback...";
+        return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'slider'));
     }
 
     public function contact()
@@ -359,11 +361,11 @@ class SiteController extends Controller
     public function affiliate()
     {
         $pageTitle = "Affiliates";
-        $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate(8));
-        $cashbackCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 1)->latest()->paginate(getPaginate(8));
+        $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate(8), ['*'], 'coupon_page');
+        $cashbackCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 1)->latest()->paginate(getPaginate(8), ['*'], 'cashback_page');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
-        $deals = Deal::with(['deal_category'])->where('status', 1)->where('is_affiliate', 1)->latest()->paginate(getPaginate(8));
+        $deals = Deal::with(['deal_category'])->where('status', 1)->where('is_affiliate', 1)->latest()->paginate(getPaginate(8), ['*'], 'deal_page');
         $dealCategories = DealCategory::where('status', 1)->latest()->get();
         return view($this->activeTemplate . 'affiliate',compact('pageTitle', 'cashbackCoupons', 'coupons', 'categories', 'stores', 'deals', 'dealCategories'));
     }

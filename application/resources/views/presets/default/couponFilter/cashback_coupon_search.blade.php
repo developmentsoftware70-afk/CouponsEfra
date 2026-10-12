@@ -14,7 +14,7 @@
                 data-id="{{$item->id}}" data-title="{{$item->title}}" 
                 data-code="{{$item->code}}" data-description="{{$item->description}}" 
                 data-link="{{$item->link}}">
-                {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                Grab Deal
             </a>
         </div>
     </div>

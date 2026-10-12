@@ -49,8 +49,7 @@
                                         <p class="ck-subtitle">{{ Str::limit(html_entity_decode(strip_tags($item->description)), 40) }}</p>
                                         <div class="ck-btn-wrap">
                                             <span class="ck-btn">
-                                                <span class="ck-btn-icon">CK</span> 
-                                                {{ $item->code ? __('Get Code') : __('Get Deal') }}
+                                                @lang('Grab Deal')
                                             </span>
                                         </div>
                                     </div>

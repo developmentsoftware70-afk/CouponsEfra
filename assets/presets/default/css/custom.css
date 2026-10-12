@@ -889,12 +889,13 @@ h4.n15-color a {
     color: #fff;
     font-size: 12px;
     font-weight: 700;
-    padding: 4px 12px 4px 4px;
+    padding: 6px 14px;
     border-radius: 4px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
     box-shadow: none;
+    transition: all 0.3s ease;
 }
 
 .ck-btn-icon {
@@ -1113,7 +1114,7 @@ h4.n15-color a {
 
     .ck-btn {
         font-size: 10px;
-        padding: 3px 6px 3px 3px;
+        padding: 4px 8px;
         white-space: nowrap;
     }
 
@@ -1288,4 +1289,3 @@ body {
     margin-top: 0 !important;
     padding-top: 0 !important;
 }
-

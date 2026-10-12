@@ -455,3 +455,38 @@ function isExpired($couponId) {
         return '<span class="text--danger">Expired</span>';
     }
 }
+
+function appendTrackingSource($link, $user = null)
+{
+    if (!$user && auth()->check()) {
+        $user = auth()->user();
+    }
+    if (!$user || empty($link)) {
+        return $link;
+    }
+
+    $cleanUsername = str_replace(['-', ' '], '', $user->username);
+    $trackingId = $cleanUsername . '_' . $user->id;
+
+    // 1. Replace placeholder tags if present in the affiliate link
+    if (strpos($link, '{publisher_id}_{source}') !== false) {
+        $link = str_replace('{publisher_id}_{source}', $trackingId, $link);
+    }
+    if (strpos($link, '{source}') !== false) {
+        $link = str_replace('{source}', $trackingId, $link);
+    }
+
+    // 2. If exact query parameter "source=" already exists (not utm_source), replace its value
+    if (preg_match('/([?&]source=)[^&]*/', $link)) {
+        $link = preg_replace('/([?&]source=)[^&]*/', '${1}' . $trackingId, $link);
+    } else {
+        // 3. Otherwise append source parameter
+        $sep = (strpos($link, '?') !== false) ? '&' : '?';
+        $link = $link . $sep . 'source=' . $trackingId;
+    }
+
+    // Replace other common placeholders if present
+    $link = str_replace('{click_id}', getNumber(10), $link);
+
+    return $link;
+}

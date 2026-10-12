@@ -72,19 +72,19 @@
                                         <img class="couponImage img-fluid w-100" src="{{ asset('assets/images/general/logo.png') }}" alt="">
                                     </div>
                                 </a>
-                                <div class="d-flex gap-2 mt-3">
-                                    {{-- 
-                                    <div class="copy-code-input">
-                                        <input class="form--control coponCodeCopyFeature" name="code" readonly>
-                                        <a href="" class="btn btn--base copy-btn copytext" id="copyBoard-feature" target="_blank"><i class="fas fa-copy"></i></a>
+                                <div class="mt-3">
+                                    <!-- Center: Copy Code -->
+                                    <div class="mb-2 text-center">
+                                        <a href="" class="btn btn--base copy-btn copytext w-100" id="copyBoard-feature" target="_blank">@lang('Copy Code')</a>
+                                        <input type="text" class="coponCodeCopyFeature visually-hidden" name="code">
                                     </div>
-                                    --}}
                                     
-                                    <a href="" class="btn btn--base copy-btn copytext w-100" id="copyBoard-feature" target="_blank">@lang('Copy Code')</a>
-                                    <input type="text" class="coponCodeCopyFeature visually-hidden" name="code">
-                                    <a href="" class="btn btn--base couponName w-100" id="copyLink" target="_blank">@lang('Copy Link')</a>
-                                    <input type="text" class="couponLinkCopyFeature visually-hidden" name="link">
-                                    <a href="#" class="btn btn--base couponName w-100" target="_blank">@lang('Grab Deal')</a>
+                                    <!-- Bottom Row: Left (Copy Link) | Right (Go to Website) -->
+                                    <div class="d-flex gap-2">
+                                        <a href="" class="btn btn--base couponName w-100" id="copyLink" target="_blank">@lang('Copy Link')</a>
+                                        <input type="text" class="couponLinkCopyFeature visually-hidden" name="link">
+                                        <a href="#" class="btn btn--base couponName w-100" target="_blank">@lang('Go to Website')</a>
+                                    </div>
                                 </div>
                                 <div class="footer-item social-wrapper mt-4">
                                     <p class="mb-3">@lang('Share this coupon now.')</p>
@@ -398,41 +398,45 @@
             // Event delegation for dynamically added content
             $(document).on('click', '.getDeal', function(e) {
                 e.preventDefault();
-                const modal = $('#dealModal');
-
-                const title = $(this).data('title');
-                const description = $(this).data('description');
-                let link = $(this).data('link');
-                const button_label = $(this).data('button_label');
-                const dealId = $(this).data('id');
-
                 @auth
+                    const modal = $('#dealModal');
+
+                    const title = $(this).data('title');
+                    const description = $(this).data('description');
+                    let link = $(this).data('link');
+                    const button_label = $(this).data('button_label');
+                    const dealId = $(this).data('id');
+
                     var cleanUsername = '{{ str_replace(["-", " "], "", auth()->user()->username) }}';
                     var userId = '{{ auth()->user()->id }}';
                     var trackingId = cleanUsername + '_' + userId;
                     
-                    if (link.indexOf('?') !== -1) {
-                        link = link + '&source=' + trackingId;
-                    } else {
-                        link = link + '?source=' + trackingId;
+                    if (link && link.indexOf('source=') === -1) {
+                        if (link.indexOf('?') !== -1) {
+                            link = link + '&source=' + trackingId;
+                        } else {
+                            link = link + '?source=' + trackingId;
+                        }
                     }
+
+                    modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
+                    modal.find('.dealDescription').html(description);
+                    modal.find('.dealAnchor').attr('href', link);
+                    modal.find('.dealBtn').attr('href', link);
+
+                    modal.find('input[name=link]').val(link);
+                    modal.find('.dealLink').val(link);
+
+                    // Update share links
+                    $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
+                    $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
+                    $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
+
+                    getDealInfo(dealId);
+                    modal.modal('show');
+                @else
+                    $('#loginRequiredModal').modal('show');
                 @endauth
-
-                modal.find('.buttonLabel').text(button_label ?? '{{ __("Grab Deal") }}');
-                modal.find('.dealDescription').html(description);
-                modal.find('.dealAnchor').attr('href', link);
-                modal.find('.dealBtn').attr('href', link);
-
-                modal.find('input[name=link]').val(link);
-                modal.find('.dealLink').val(link);
-
-                // Update share links
-                $('.share-link[data-social="facebook"]').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link));
-                $('.share-link[data-social="twitter"]').attr('href', 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link));
-                $('.share-link[data-social="linkedin"]').attr('href', 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link));
-
-                getDealInfo(dealId);
-                modal.modal('show');
             });
             // Fix: Use delegated binding for copy link button
             $(document).on('click', '.copy-link-btn', function(e) {
@@ -512,6 +516,67 @@
 
         })(jQuery);
     </script>
+
+    @guest
+    <script>
+        (function($) {
+            "use strict";
+            // If user is not logged in: Force login popup on slider, banner, deal or coupon clicks
+            $(document).on('click', '.slider-banner-link, .single-slide-link, .getDeal, .getCoupon', function(e) {
+                e.preventDefault();
+                $('#loginRequiredModal').modal('show');
+                return false;
+            });
+        })(jQuery);
+    </script>
+    @endguest
+
+    @auth
+    <script>
+        (function($) {
+            "use strict";
+            var currentTrackingId = '{{ str_replace(["-", " "], "", auth()->user()->username) }}_{{ auth()->user()->id }}';
+
+            function addTrackingSource(url) {
+                if (!url || typeof url !== 'string') return url;
+                if (url.indexOf('javascript:') === 0 || url.indexOf('#') === 0) return url;
+
+                try {
+                    var parsed = new URL(url, window.location.origin);
+                    if (parsed.hostname !== window.location.hostname && (parsed.protocol === 'http:' || parsed.protocol === 'https:')) {
+                        if (parsed.searchParams.get('source') === currentTrackingId) {
+                            return url;
+                        }
+                        parsed.searchParams.set('source', currentTrackingId);
+                        return parsed.toString();
+                    }
+                } catch(e) {
+                    if ((url.indexOf('http://') === 0 || url.indexOf('https://') === 0 || url.indexOf('//') === 0) &&
+                        url.indexOf(window.location.hostname) === -1) {
+                        if (/[?&]source=/.test(url)) {
+                            return url.replace(/([?&]source=)[^&]*/, '$1' + currentTrackingId);
+                        } else {
+                            var sep = url.indexOf('?') !== -1 ? '&' : '?';
+                            return url + sep + 'source=' + currentTrackingId;
+                        }
+                    }
+                }
+                return url;
+            }
+
+            // Universal interceptor for external clicks on dashboard and entire site
+            $(document).on('click', 'a', function(e) {
+                var href = $(this).attr('href');
+                if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0 || href.indexOf('//') === 0)) {
+                    var newHref = addTrackingSource(href);
+                    if (newHref !== href) {
+                        $(this).attr('href', newHref);
+                    }
+                }
+            });
+        })(jQuery);
+    </script>
+    @endauth
 
 </body>
 </html>

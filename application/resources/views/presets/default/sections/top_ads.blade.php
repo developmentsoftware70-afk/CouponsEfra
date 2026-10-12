@@ -11,9 +11,10 @@
           if (!empty($item->data_values->top_ads_img)) {
               $bgImage = getImage(getFilePath('topAdsBannerImage') . '/' . $item->data_values->top_ads_img);
           }
+          $topAdLink = appendTrackingSource($item->data_values->link ?? '#');
       @endphp
 
-      <a href="{{ $item->data_values->link }}" class="single-slide-link d-block text-decoration-none" target="_blank" rel="noopener noreferrer">
+      <a href="{{ $topAdLink }}" class="single-slide-link d-block text-decoration-none" target="_blank" rel="noopener noreferrer">
         <div class="single-slide position-relative text-center">
           <img src="{{ $bgImage }}" alt="Top Ad" class="img-fluid w-100 slide-image">
         </div>
