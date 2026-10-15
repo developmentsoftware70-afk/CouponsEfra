@@ -44,7 +44,10 @@ class RegisterController extends Controller
     {
         $pageTitle = "Register";
         $info = json_decode(json_encode(getIpInfo()), true);
-        $mobileCode = @implode(',', $info['code']);
+        $mobileCode = @implode(',', $info['code'] ?? []);
+        if (!$mobileCode) {
+            $mobileCode = 'IN';
+        }
         $countries = json_decode(file_get_contents(resource_path('views/includes/country.json')));
         return view($this->activeTemplate . 'user.auth.register', compact('pageTitle','mobileCode','countries'));
     }

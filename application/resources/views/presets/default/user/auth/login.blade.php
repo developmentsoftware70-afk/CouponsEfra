@@ -3,92 +3,138 @@
 @section('content')
 <style>
 /* ========================================================
-   MODERN AUTHENTICATION PAGE - CLEAN CARD DESIGN
+   BIG TECH COMPANY AUTH DESIGN - CLEAN, HIGH-TRUST & MODERN
    ======================================================== */
-
-/* Hide the large banner breadcrumb on the dedicated login page */
 .breadcumb {
     display: none !important;
 }
 
-/* Page Container */
-.login-page-section {
+.corp-auth-section {
     min-height: calc(100vh - 120px);
     background-color: #f8fafc;
     background-image: 
-        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.04) 0px, transparent 50%);
+        radial-gradient(circle at 10% 20%, rgba(195, 0, 9, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.03) 0%, transparent 40%);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 60px 15px;
-    position: relative;
+    padding: 60px 20px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Auth Card */
-.auth-card-box {
-    background: #ffffff;
+.corp-auth-card {
     width: 100%;
-    max-width: 440px;
-    border-radius: 18px;
+    max-width: 460px;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-    padding: 38px 34px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 20px 25px -5px rgba(0, 0, 0, 0.03);
+    padding: 44px 40px;
     position: relative;
     z-index: 5;
-    transition: box-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 @media (max-width: 480px) {
-    .auth-card-box {
-        padding: 28px 20px;
-        border-radius: 14px;
+    .corp-auth-card {
+        padding: 32px 24px;
+        border-radius: 16px;
     }
 }
 
-/* Header inside Card */
-.auth-header {
+/* Header & Logo */
+.corp-auth-header {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 26px;
 }
 
-.auth-badge-icon {
-    width: 52px;
-    height: 52px;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #0f172a;
-    font-size: 20px;
-    margin-bottom: 14px;
+.corp-brand-logo {
+    display: inline-block;
+    margin-bottom: 16px;
 }
 
-.auth-title {
+.corp-brand-logo img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+}
+
+.corp-auth-title {
     font-size: 24px;
     font-weight: 700;
     color: #0f172a;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.4px;
     margin-bottom: 6px;
 }
 
-.auth-subtitle {
+.corp-auth-sub {
     font-size: 14px;
     color: #64748b;
     margin-bottom: 0;
     line-height: 1.5;
 }
 
-/* Form Groups */
-.auth-field-group {
-    margin-bottom: 18px;
-    position: relative;
+/* Google Sign-in */
+.corp-google-btn {
+    width: 100%;
+    height: 48px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.auth-field-label {
+.corp-google-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+/* Divider */
+.corp-divider {
+    position: relative;
+    text-align: center;
+    margin: 22px 0;
+}
+
+.corp-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.corp-divider span {
+    position: relative;
+    background: #ffffff;
+    padding: 0 14px;
+    font-size: 12.5px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Form Groups */
+.corp-form-group {
+    margin-bottom: 18px;
+}
+
+.corp-form-label {
     display: block;
     font-size: 13.5px;
     font-weight: 600;
@@ -96,13 +142,13 @@
     margin-bottom: 6px;
 }
 
-.auth-input-wrapper {
+.corp-input-wrap {
     position: relative;
     display: flex;
     align-items: center;
 }
 
-.auth-input-icon {
+.corp-input-wrap .field-icon {
     position: absolute;
     left: 14px;
     color: #94a3b8;
@@ -111,37 +157,30 @@
     transition: color 0.2s ease;
 }
 
-.auth-text-input {
+.corp-input-wrap input.corp-input {
     width: 100%;
-    height: 46px;
+    height: 48px;
     padding: 0 14px 0 42px;
-    background: #f8fafc;
+    background: #ffffff;
     border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 14.5px;
     color: #0f172a;
     outline: none;
     transition: all 0.2s ease;
 }
 
-.auth-text-input:focus {
-    background: #ffffff;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+.corp-input-wrap input.corp-input:focus {
+    border-color: #c30009;
+    box-shadow: 0 0 0 3px rgba(195, 0, 9, 0.12);
 }
 
-.auth-text-input:focus ~ .auth-input-icon,
-.auth-input-wrapper:focus-within .auth-input-icon {
-    color: #2563eb;
+.corp-input-wrap input.corp-input:focus ~ .field-icon,
+.corp-input-wrap:focus-within .field-icon {
+    color: #c30009;
 }
 
-.auth-text-input::placeholder {
-    color: #94a3b8;
-    font-size: 13.5px;
-}
-
-/* Password Toggle */
-.auth-password-toggle {
+.corp-toggle-pwd {
     position: absolute;
     right: 12px;
     background: transparent;
@@ -156,12 +195,12 @@
     transition: color 0.2s;
 }
 
-.auth-password-toggle:hover {
+.corp-toggle-pwd:hover {
     color: #334155;
 }
 
-/* Remember & Forgot Row */
-.auth-options-row {
+/* Options Row */
+.corp-options-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -170,7 +209,7 @@
     font-size: 13.5px;
 }
 
-.auth-checkbox-label {
+.corp-checkbox-wrap {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -181,35 +220,35 @@
     margin-bottom: 0;
 }
 
-.auth-checkbox-label input[type="checkbox"] {
+.corp-checkbox-wrap input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: #2563eb;
+    accent-color: #c30009;
     cursor: pointer;
     border-radius: 4px;
 }
 
-.auth-forgot-link {
-    color: #2563eb;
+.corp-forgot-link {
+    color: #c30009;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     transition: color 0.2s;
 }
 
-.auth-forgot-link:hover {
-    color: #1d4ed8;
+.corp-forgot-link:hover {
+    color: #990007;
     text-decoration: underline;
 }
 
-/* Submit Button */
-.auth-primary-btn {
+/* Submit CTA */
+.corp-submit-btn {
     width: 100%;
-    height: 48px;
-    background: #0f172a;
+    height: 50px;
+    background: linear-gradient(135deg, #c30009 0%, #e11d48 100%);
     color: #ffffff;
     border: none;
-    border-radius: 10px;
-    font-size: 15px;
+    border-radius: 12px;
+    font-size: 15.5px;
     font-weight: 600;
     letter-spacing: 0.2px;
     display: inline-flex;
@@ -218,96 +257,38 @@
     gap: 8px;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    box-shadow: 0 4px 14px rgba(195, 0, 9, 0.3);
 }
 
-.auth-primary-btn:hover {
-    background: #1e293b;
+.corp-submit-btn:hover {
+    background: linear-gradient(135deg, #b00008 0%, #be123c 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+    box-shadow: 0 6px 18px rgba(195, 0, 9, 0.38);
 }
 
-.auth-primary-btn:active {
+.corp-submit-btn:active {
     transform: translateY(0);
 }
 
-/* Divider */
-.auth-or-divider {
-    position: relative;
+/* Switch & Trust */
+.corp-switch-prompt {
     text-align: center;
-    margin: 22px 0;
-}
-
-.auth-or-divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #e2e8f0;
-}
-
-.auth-or-divider span {
-    position: relative;
-    background: #ffffff;
-    padding: 0 14px;
-    font-size: 12.5px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-}
-
-/* Google Social Button */
-.auth-google-btn {
-    width: 100%;
-    height: 46px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 14.5px;
-    font-weight: 500;
-    color: #334155;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.auth-google-btn:hover {
-    background: #f8fafc;
-    border-color: #94a3b8;
-    color: #0f172a;
-}
-
-.auth-google-btn svg {
-    flex-shrink: 0;
-}
-
-/* Switch Page Text */
-.auth-footer-prompt {
-    text-align: center;
-    margin-top: 24px;
+    margin-top: 22px;
     font-size: 14px;
     color: #64748b;
 }
 
-.auth-footer-prompt a {
-    color: #2563eb;
+.corp-switch-prompt a {
+    color: #c30009;
     font-weight: 600;
     text-decoration: none;
 }
 
-.auth-footer-prompt a:hover {
+.corp-switch-prompt a:hover {
     text-decoration: underline;
 }
 
-/* Trust Badge */
-.auth-trust-note {
+.corp-trust-badge {
     text-align: center;
     margin-top: 18px;
     font-size: 12px;
@@ -315,88 +296,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 6px;
 }
 </style>
 
-<section class="login-page-section">
-    <div class="auth-card-box wow animate__animated animate__fadeInUp" data-wow-delay="0.15s">
+<section class="corp-auth-section">
+    <div class="corp-auth-card wow animate__animated animate__fadeInUp" data-wow-delay="0.15s">
         
-        <!-- Header -->
-        <div class="auth-header">
-            <div class="auth-badge-icon">
-                <i class="fas fa-user-lock"></i>
-            </div>
-            <h1 class="auth-title">@lang('Welcome Back')</h1>
-            <p class="auth-subtitle">@lang('Sign in to access your coupons, cashback & earnings')</p>
+        <!-- Header & Brand Logo -->
+        <div class="corp-auth-header">
+            <a href="{{ route('home') }}" class="corp-brand-logo">
+                <img src="{{ getImage(getFilePath('logoIcon') . '/logo.png') }}" alt="{{ config('app.name') }}">
+            </a>
+            <h1 class="corp-auth-title">@lang('Login Your Account')</h1>
         </div>
 
-        <!-- Form -->
-        <form method="POST" action="{{ route('user.login') }}" class="verify-gcaptcha">
-            @csrf
-
-            <!-- Username or Email -->
-            <div class="auth-field-group">
-                <label for="username" class="auth-field-label">@lang('Username or Email')</label>
-                <div class="auth-input-wrapper">
-                    <i class="far fa-envelope auth-input-icon"></i>
-                    <input type="text" 
-                           class="auth-text-input" 
-                           id="username" 
-                           name="username" 
-                           value="{{ old('username') }}" 
-                           required 
-                           autocomplete="username" 
-                           placeholder="@lang('Enter username or email')">
-                </div>
-            </div>
-
-            <!-- Password -->
-            <div class="auth-field-group">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <label for="your-password" class="auth-field-label mb-0">@lang('Password')</label>
-                </div>
-                <div class="auth-input-wrapper">
-                    <i class="far fa-lock auth-input-icon"></i>
-                    <input type="password" 
-                           class="auth-text-input" 
-                           id="your-password" 
-                           name="password" 
-                           required 
-                           autocomplete="current-password" 
-                           placeholder="@lang('Enter your password')">
-                    <button type="button" class="auth-password-toggle" id="togglePasswordBtn" aria-label="Toggle password visibility">
-                        <i class="far fa-eye" id="togglePasswordIcon"></i>
-                    </button>
-                </div>
-            </div>
-
-            <x-captcha></x-captcha>
-
-            <!-- Remember me & Forgot Password -->
-            <div class="auth-options-row">
-                <label class="auth-checkbox-label">
-                    <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                    <span>@lang('Remember me')</span>
-                </label>
-                <a href="{{ route('user.password.request') }}" class="auth-forgot-link">@lang('Forgot Password?')</a>
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="auth-primary-btn">
-                <span>@lang('Sign In')</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
-        </form>
-
-        <!-- Divider -->
-        <div class="auth-or-divider">
-            <span>@lang('or continue with')</span>
-        </div>
-
-        <!-- Google Login -->
-        <a href="{{ route('google.redirect') }}" class="auth-google-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24">
+        <!-- Google One-Click Login -->
+        <a href="{{ route('google.redirect') }}" class="corp-google-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24z"/>
                 <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
@@ -405,16 +322,79 @@
             <span>@lang('Sign in with Google')</span>
         </a>
 
-        <!-- Switch Link -->
-        <p class="auth-footer-prompt">
-            @lang('Don\'t have an account?') 
+        <!-- Divider -->
+        <div class="corp-divider">
+            <span>@lang('or sign in with email')</span>
+        </div>
+
+        <!-- Login Form -->
+        <form method="POST" action="{{ route('user.login') }}" class="verify-gcaptcha">
+            @csrf
+
+            <!-- Username or Email -->
+            <div class="corp-form-group">
+                <label for="username" class="corp-form-label">@lang('Username or Email')</label>
+                <div class="corp-input-wrap">
+                    <i class="far fa-envelope field-icon"></i>
+                    <input type="text" 
+                           class="corp-input" 
+                           id="username" 
+                           name="username" 
+                           value="{{ old('username') }}" 
+                           required 
+                           autocomplete="username" 
+                           placeholder="@lang('Username or Email')">
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="corp-form-group">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="your-password" class="corp-form-label mb-0">@lang('Password')</label>
+                </div>
+                <div class="corp-input-wrap">
+                    <i class="far fa-lock field-icon"></i>
+                    <input type="password" 
+                           class="corp-input" 
+                           id="your-password" 
+                           name="password" 
+                           required 
+                           autocomplete="current-password" 
+                           placeholder="@lang('Password')">
+                    <button type="button" class="corp-toggle-pwd" id="togglePasswordBtn" aria-label="Toggle password visibility">
+                        <i class="far fa-eye" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <x-captcha></x-captcha>
+
+            <!-- Remember & Forgot -->
+            <div class="corp-options-row">
+                <label class="corp-checkbox-wrap">
+                    <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                    <span>@lang('Remember me')</span>
+                </label>
+                <a href="{{ route('user.password.request') }}" class="corp-forgot-link">@lang('Forgot Your Password')?</a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="corp-submit-btn">
+                <span>@lang('Login')</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- Switch to Register -->
+        <p class="corp-switch-prompt">
+            @lang("Don't have any account?") 
             <a href="{{ route('user.register') }}">@lang('Create Account')</a>
         </p>
 
         <!-- Trust Note -->
-        <div class="auth-trust-note">
+        <div class="corp-trust-badge">
             <i class="fas fa-shield-alt text-success"></i>
-            <span>@lang('256-bit Secure Encryption')</span>
+            <span>@lang('Protected by 256-bit SSL encryption')</span>
         </div>
     </div>
 </section>

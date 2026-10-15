@@ -81,7 +81,11 @@ class AuthorizationController extends Controller
             'code' => $user->ver_code
         ],[$type]);
 
-        $notify[] = ['success', 'Verification code sent successfully'];
+        if (session('mail_error')) {
+            $notify[] = ['error', 'Email error: ' . session('mail_error')];
+        } else {
+            $notify[] = ['success', 'Verification code sent successfully'];
+        }
         return back()->withNotify($notify);
     }
 

@@ -41,7 +41,13 @@ class Email extends NotifyProcess{
 		$message = $this->getMessage();
 		if ($this->setting->en && $message) {
 			//Send mail
-			$methodName = $this->setting->mail_config->name;
+			$methodName = @$this->setting->mail_config->name ?: 'smtp';
+
+			// Force/prefer SMTP on localhost Windows or when SMTP is configured
+			if ($methodName == 'php') {
+				$methodName = 'smtp';
+			}
+
 			$method = $this->mailMethods($methodName);
 			try{
 				$this->$method();
@@ -66,7 +72,7 @@ class Email extends NotifyProcess{
 			'sendgrid'=>'sendSendGridMail',
 			'mailjet'=>'sendMailjetMail',
 		];
-		return $methods[$name];
+		return $methods[$name] ?? 'sendSmtpMail';
 	}
 
 	protected function sendPhpMail(){
@@ -75,35 +81,61 @@ class Email extends NotifyProcess{
 	    $headers .= "Reply-To: $general->site_name <$general->email_from> \r\n";
 	    $headers .= "MIME-Version: 1.0\r\n";
 	    $headers .= "Content-Type: text/html; charset=utf-8\r\n";
-	    @mail($this->email, $this->subject, $this->finalMessage, $headers);
+	    $sent = @mail($this->email, $this->subject, $this->finalMessage, $headers);
+	    if (!$sent) {
+	    	$this->sendSmtpMail();
+	    }
 	}
 
 	protected function sendSmtpMail(){
 		$mail = new PHPMailer(true);
 		$config = $this->setting->mail_config;
 		$general = $this->setting;
+
+        $host = !empty($config->host) ? $config->host : env('MAIL_HOST', 'smtp.gmail.com');
+        $port = !empty($config->port) ? (int)$config->port : (int)env('MAIL_PORT', 587);
+        $username = !empty($config->username) ? $config->username : env('MAIL_USERNAME');
+        $password = !empty($config->password) ? $config->password : env('MAIL_PASSWORD');
+        $enc = !empty($config->enc) ? strtolower($config->enc) : strtolower(env('MAIL_ENCRYPTION', 'tls'));
+
+        if (empty($username) || empty($password)) {
+            throw new Exception("SMTP Username or Password is not configured. Please set your Gmail address and 16-character App Password in .env (MAIL_USERNAME / MAIL_PASSWORD) or in Admin Email Settings.");
+        }
+
         //Server settings
         $mail->isSMTP();
-        $mail->Host       = $config->host;
+        $mail->Host       = $host;
         $mail->SMTPAuth   = true;
-        $mail->Username   = $config->username;
-        $mail->Password   = $config->password;
-        if ($config->enc == 'ssl') {
+        $mail->Username   = $username;
+        $mail->Password   = $password;
+        if ($enc == 'ssl') {
 			$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         }else{
 			$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
-        $mail->Port       = $config->port;
-        $mail->CharSet = 'UTF-8';
+        $mail->Port       = $port;
+        $mail->CharSet    = 'UTF-8';
+
+        // Fix SSL certificate verify issues on Windows / localhost
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+
         //Recipients
-        $mail->setFrom($general->email_from, $general->site_name);
+        $fromEmail = !empty($username) ? $username : $general->email_from;
+        $fromName  = $general->site_name ?: config('app.name');
+        $mail->setFrom($fromEmail, $fromName);
         $mail->addAddress($this->email, $this->receiverName);
-        $mail->addReplyTo($general->email_from, $general->site_name);
+        $mail->addReplyTo($fromEmail, $fromName);
+
         // Content
         $mail->isHTML(true);
         $mail->Subject = $this->subject;
         $mail->Body    = $this->finalMessage;
-		// dd($mail);
         $mail->send();
 	}
 
