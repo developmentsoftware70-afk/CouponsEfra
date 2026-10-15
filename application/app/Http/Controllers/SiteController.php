@@ -48,15 +48,70 @@ class SiteController extends Controller
 
     public function couponDetails($id)
     {
-        $coupon = Coupon::with('store')->findOrFail($id);
+        $coupon = Coupon::with(['store', 'category'])->findOrFail($id);
         $pageTitle = $coupon->title;
-        // Fetch 3 related coupons from the same store
-        $relatedCoupons = Coupon::where('store_id', $coupon->store_id)
-            ->where('id', '!=', $id)
+
+        // Fetch related coupons strictly from the SAME category (e.g. Shoes / Footwear)
+        // Shows offers from other brands of the same category, prioritizing same store first if any
+        $relatedQuery = Coupon::with(['store', 'category'])
             ->where('status', 1)
-            ->take(3)
+            ->where('id', '!=', $id);
+
+        if ($coupon->category_id) {
+            $relatedQuery->where('category_id', $coupon->category_id);
+        } else {
+            $relatedQuery->where('store_id', $coupon->store_id);
+        }
+
+        $relatedCoupons = $relatedQuery
+            ->orderByRaw('CASE WHEN store_id = ? THEN 0 ELSE 1 END', [$coupon->store_id])
+            ->latest()
+            ->take(6)
             ->get();
+
         return view($this->activeTemplate . 'coupon_details', compact('pageTitle', 'coupon', 'relatedCoupons'));
+    }
+
+    public function dealDetails($id)
+    {
+        $deal = Deal::with('deal_category')->findOrFail($id);
+        $pageTitle = $deal->title;
+
+        // Find matching store & coupon if available by brand/category name
+        $categoryTitle = @$deal->deal_category->title;
+        $store = null;
+        $coupon = null;
+        if ($categoryTitle) {
+            $store = Store::where('name', 'like', '%' . trim($categoryTitle) . '%')->first();
+            if ($store) {
+                $coupon = Coupon::where('store_id', $store->id)->where('status', 1)->latest()->first();
+            }
+        }
+        if (!$coupon && $categoryTitle) {
+            $coupon = Coupon::where('title', 'like', '%' . trim($categoryTitle) . '%')->where('status', 1)->latest()->first();
+        }
+
+        // Fetch related deals from the same category or brand
+        $relatedDeals = Deal::with('deal_category')
+            ->where('status', 1)
+            ->where('id', '!=', $id)
+            ->where('deal_category_id', $deal->deal_category_id)
+            ->latest()
+            ->take(6)
+            ->get();
+
+        if ($relatedDeals->count() < 3) {
+            $moreDeals = Deal::with('deal_category')
+                ->where('status', 1)
+                ->where('id', '!=', $id)
+                ->whereNotIn('id', $relatedDeals->pluck('id'))
+                ->latest()
+                ->take(6 - $relatedDeals->count())
+                ->get();
+            $relatedDeals = $relatedDeals->concat($moreDeals);
+        }
+
+        return view($this->activeTemplate . 'deal_details', compact('pageTitle', 'deal', 'store', 'coupon', 'relatedDeals'));
     }
 
     public function goStore($id)
@@ -74,6 +129,20 @@ class SiteController extends Controller
         // Render an intermediate tracking page instead of instant redirect
         $pageTitle = "Activating Cashback...";
         return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'coupon'));
+    }
+
+    public function goDeal($id)
+    {
+        if (!auth()->check()) {
+            session()->put('url.intended', url()->current());
+            return redirect()->route('user.login');
+        }
+
+        $deal = Deal::findOrFail($id);
+        $link = appendTrackingSource($deal->link);
+
+        $pageTitle = "Activating Cashback...";
+        return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'deal'));
     }
 
     public function goSlider($id)
@@ -294,7 +363,7 @@ class SiteController extends Controller
     // coupons
     public function coupons() {
         $pageTitle = "Coupons";
-        $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->latest()->paginate(getPaginate());
+        $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
         return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
@@ -423,11 +492,11 @@ class SiteController extends Controller
     //popular deal 
     public function popularDeal()
     {
-        $pageTitle = "Popular Deal";
-        $popularDeals = Deal::with(['deal_category'])->where('status', 1)->where('is_popular', 1)->latest()->paginate(getPaginate());
+        $pageTitle = "Popular Deals";
+        $deals = Deal::with(['deal_category'])->where('status', 1)->latest()->paginate(getPaginate());
         $dealCategories = DealCategory::where('status', 1)->latest()->get();
       
-        return view($this->activeTemplate . 'popular_deals',compact('pageTitle', 'popularDeals', 'dealCategories'));
+        return view($this->activeTemplate . 'deals', compact('pageTitle', 'deals', 'dealCategories'));
     }
     // deals
     public function deals() {
@@ -500,7 +569,7 @@ class SiteController extends Controller
         $stores = $request->input('stores', []);
         $search = $request->input('search');
 
-        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1);
+        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0);
 
         if (!empty($categories)) {
             $query->whereIn('category_id', $categories);
@@ -537,14 +606,28 @@ class SiteController extends Controller
 
     // 
     public function storeCoupons($id) {
-        $store = Store::find($id);
+        $store = Store::findOrFail($id);
         $pageTitle =  $store->name;
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('store_id', $id)->latest()->paginate(getPaginate());
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
-        
-        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
 
+        // Find store's category from its coupons so we can show similar category offers from other brands
+        $primaryCategoryId = Coupon::where('store_id', $id)->whereNotNull('category_id')->value('category_id');
+        $primaryCategory = $primaryCategoryId ? Category::find($primaryCategoryId) : null;
+
+        $relatedCategoryCoupons = collect();
+        if ($primaryCategoryId) {
+            $relatedCategoryCoupons = Coupon::with(['category', 'store', 'wishlists'])
+                ->where('status', 1)
+                ->where('category_id', $primaryCategoryId)
+                ->where('store_id', '!=', $id)
+                ->latest()
+                ->take(6)
+                ->get();
+        }
+
+        return view($this->activeTemplate . 'coupons', compact('pageTitle', 'store', 'coupons', 'categories', 'stores', 'primaryCategory', 'relatedCategoryCoupons'));
     }
 
     public function singleCouponSearch(Request $request) {

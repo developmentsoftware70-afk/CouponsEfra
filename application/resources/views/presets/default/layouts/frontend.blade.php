@@ -48,7 +48,7 @@
         @include($activeTemplate.'components.header')
     @endif
 
-    @if(request()->route()->uri != '/')
+    @if(request()->route()->uri != '/' && !request()->routeIs('coupon.details') && !request()->routeIs('deal.details'))
         @include($activeTemplate.'components.breadcrumb')
     @endif
 
@@ -268,6 +268,18 @@
                     // User is not logged in, show Login Required Popup!
                     $('#loginRequiredModal').modal('show');
                 @endauth
+            });
+
+            // Universal Card Click: Make entire card clickable across all coupon & deal cards
+            $(document).on('click', '.vertical-coupon-card, .coupon-card, .deal-card', function(e) {
+                // If the click was already on a link, button, or wishlist, let it handle directly
+                if ($(e.target).closest('a, button').length) {
+                    return;
+                }
+                var targetBtn = $(this).find('.vertical-grab-btn, .getCoupon, .getDeal, a.btn, a').first();
+                if (targetBtn.length) {
+                    targetBtn[0].click();
+                }
             });
 
             $('#copyBoard-feature').on('click', function(e) {
@@ -522,7 +534,7 @@
         (function($) {
             "use strict";
             // If user is not logged in: Force login popup on slider, banner, deal or coupon clicks
-            $(document).on('click', '.slider-banner-link, .single-slide-link, .getDeal, .getCoupon', function(e) {
+            $(document).on('click', '.slider-banner-link, .single-slide-link, .getDeal, .getCoupon, .vertical-coupon-card', function(e) {
                 e.preventDefault();
                 $('#loginRequiredModal').modal('show');
                 return false;

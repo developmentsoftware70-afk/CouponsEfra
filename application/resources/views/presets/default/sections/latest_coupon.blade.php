@@ -7,23 +7,20 @@
         ->get();
 @endphp
 
-<section class="flash-deals-section" id="flash-deals-section">
-    {{-- Background Video --}}
-    <video class="flash-deals-bg-video" autoplay loop muted playsinline poster="{{ asset('assets/presets/default/images/bg/flash-deals-bg.jpg') }}">
-        <source src="{{ asset('assets/presets/default/images/bg/flash-deals-video.mp4') }}" type="video/mp4">
-        <source src="{{ asset('WhatsApp Video 2026-10-12 at 16.40.33.mp4') }}" type="video/mp4">
-    </video>
-    <div class="flash-deals-bg-overlay"></div>
+<section class="flash-deals-section" id="latest-coupons-section">
+    {{-- Soft Atmospheric Cloud Sky Overlay --}}
+    <div class="flash-deals-cloud-overlay"></div>
+
+    {{-- Subtle, Ultra-Slow Falling Snow Canvas (Light & Slow) --}}
+    <canvas id="flashRainCanvas" class="flash-rain-canvas"></canvas>
     <div class="container-fluid container-custom position-relative" style="z-index: 2;">
-        {{-- CashKaro Style Header with Title & Live Countdown Timer --}}
         <div class="row">
-            <div class="col-12 text-center">
-                <div class="flash-deals-header">
-                    <h2 class="flash-deals-main-title wow animate__animated animate__fadeInDown">
-                        {{ __($latestCoupon->data_values->heading == 'Coupons' ? 'FLASH DEALS' : $latestCoupon->data_values->heading) }}
-                    </h2>
-                    <div class="flash-deals-timer-badge wow animate__animated animate__fadeInUp" data-wow-delay="0.1s">
-                        <i class="far fa-clock"></i> Ends in <span id="flashDealCountdownTimer">02:45:39</span>
+            <div class="col-lg-12">
+                <div class="section-content" style="margin-bottom: 20px;">
+                    <div class="title-wrap">
+                        <h2 class="section-title mb-2 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
+                            {{ __($latestCoupon->data_values->heading) }}
+                        </h2>
                     </div>
                 </div>
             </div>
@@ -104,12 +101,10 @@
             </div>
         </div>
 
-        {{-- View All Deals Button --}}
-        <div class="row pt-4">
-            <div class="col-12 text-center">
-                <a href="{{ route('latest.coupons') }}" class="flash-view-all-btn">
-                    @lang('View All Deals') <i class="fas fa-chevron-right ms-2"></i>
-                </a>
+        {{-- View More Link at Bottom Right --}}
+        <div class="row pt-2">
+            <div class="col-lg-12 text-end">
+                <a href="{{ route('latest.coupons') }}" class="view-more-link">@lang('View More')</a>
             </div>
         </div>
     </div>
@@ -117,69 +112,32 @@
 
 <style>
 /* ========================================================
-   CASHKARO FLASH DEALS STYLES
+   CASHKARO COUPONS SECTION STYLES
    ======================================================== */
 .flash-deals-section {
     position: relative;
-    background-color: #0f172a;
-    padding: 55px 0 60px;
+    background: #f1f5f9 url('{{ asset("assets/presets/default/images/bg/cloud-sky-bg.jpg") }}') center center / cover no-repeat;
+    padding: 35px 0 40px;
     overflow: hidden;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-.flash-deals-bg-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: 100%;
-    height: 100%;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
-    z-index: 0;
-    pointer-events: none;
-}
-
-.flash-deals-bg-overlay {
+.flash-deals-cloud-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 50% 25%, rgba(0, 0, 0, 0.2) 0%, rgba(15, 23, 42, 0.45) 55%, rgba(15, 23, 42, 0.75) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.45) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.flash-rain-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 1;
-}
-
-/* Header */
-.flash-deals-header {
-    margin-bottom: 24px;
-}
-
-.flash-deals-main-title {
-    font-size: 38px;
-    font-weight: 900;
-    color: #ffffff !important;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-    line-height: 1.1;
-    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.flash-deals-timer-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #e50914;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 6px 18px;
-    border-radius: 6px;
-    box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45);
-    letter-spacing: 0.4px;
-}
-
-.flash-deals-timer-badge i {
-    font-size: 14px;
 }
 
 /* Card Wrapper & Link */
@@ -196,41 +154,47 @@
 
 .flash-deal-card-wrapper {
     margin: 10px 8px;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
-/* CashKaro Ice-Blue Rounded Card */
+/* CashKaro Dark Sleek Card - High Contrast on Light Cloudy Sky (No Shadow) */
 .flash-deal-card {
-    background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 45%, #ecfeff 100%);
+    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
     border-radius: 20px;
-    padding: 20px 22px;
-    height: 215px;
+    padding: 20px 20px;
+    height: 235px;
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: none !important;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
 .flash-deal-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 32px -4px rgba(0, 0, 0, 0.22);
+    transform: translateY(-5px);
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: none !important;
 }
 
 .flash-card-inner {
     display: flex;
     height: 100%;
     justify-content: space-between;
+    align-items: center;
     position: relative;
 }
 
 /* Left Body */
 .flash-card-body {
-    flex: 1 1 58%;
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    height: 100%;
     z-index: 2;
-    padding-right: 10px;
+    padding-right: 12px;
 }
 
 .flash-card-brand-pill {
@@ -242,7 +206,7 @@
     border-radius: 8px;
     height: 36px;
     width: fit-content;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: none !important;
 }
 
 .flash-card-brand-pill img {
@@ -263,21 +227,25 @@
     margin-top: auto;
     margin-bottom: auto;
     padding: 6px 0;
+    min-width: 0;
 }
 
 .flash-card-category {
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: #475569;
+    color: #94a3b8;
     line-height: 1.3;
     margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .flash-card-title {
     font-size: 18px;
     font-weight: 800;
-    color: #0f172a !important;
+    color: #ffffff !important;
     line-height: 1.25;
     margin: 0;
     display: -webkit-box;
@@ -291,57 +259,81 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     padding-top: 6px;
+    min-width: 0;
 }
 
 .flash-card-cashback {
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 800;
-    color: #0f172a;
+    color: #38bdf8;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .flash-grab-deal-btn {
     background: #2563eb;
     color: #ffffff !important;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
-    padding: 7px 16px;
+    padding: 6px 13px;
     border-radius: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     white-space: nowrap;
+    flex-shrink: 0;
     transition: background 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    box-shadow: none !important;
 }
 
 .flash-deal-card:hover .flash-grab-deal-btn {
     background: #1d4ed8;
     transform: scale(1.03);
+    box-shadow: none !important;
 }
 
-/* Right Visual */
+/* Right Visual - Pure Image only, No White Box Background */
 .flash-card-visual {
-    flex: 0 0 42%;
+    width: 115px;
+    height: 78px;
+    flex: 0 0 115px;
+    max-width: 115px;
+    max-height: 78px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
+    padding: 0 !important;
+    margin-top: auto;
+    margin-bottom: auto;
     position: relative;
     z-index: 1;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 12px;
 }
 
 .flash-card-visual img {
-    max-width: 130px;
-    max-height: 140px;
-    object-fit: contain;
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.1));
+    width: 100%;
+    height: 100%;
+    max-width: 115px;
+    max-height: 78px;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+    filter: none !important;
     transition: transform 0.3s ease;
 }
 
 .flash-deal-card:hover .flash-card-visual img {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 /* Wishlist Floating Pill */
@@ -352,15 +344,15 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: #0f172a;
     font-size: 14px;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: none !important;
     transition: all 0.2s ease;
     cursor: pointer;
 }
@@ -371,30 +363,6 @@
     transform: scale(1.1);
 }
 
-/* View All Deals Button */
-.flash-view-all-btn {
-    display: inline-flex;
-    align-items: center;
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    padding: 9px 26px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none !important;
-    letter-spacing: 0.3px;
-    transition: all 0.25s ease;
-}
-
-.flash-view-all-btn:hover {
-    background: #ffffff;
-    color: #0f172a !important;
-    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-}
 
 /* Slick Custom Arrows for Flash Deals */
 .flash-deals-slider-wrap .slick-prev,
@@ -454,7 +422,7 @@
         font-size: 28px;
     }
     .flash-deal-card {
-        height: 195px;
+        height: 210px;
         padding: 16px 16px;
     }
     .flash-card-title {
@@ -557,36 +525,58 @@
             }
         });
 
-        // Flash Deal Live Countdown Timer
-        (function initFlashTimer() {
-            var timerEl = document.getElementById('flashDealCountdownTimer');
-            if (!timerEl) return;
+        // Subtle & Ultra-Slow Falling Snow Particles (Atmospheric Cloud Effect)
+        (function initSnowfall() {
+            var canvas = document.getElementById('flashRainCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var section = document.getElementById('latest-coupons-section');
+            var flakes = [];
+            var flakeCount = 48; // clean, subtle drift
 
-            // Target time: today midnight or rolling 3-hour window
-            var now = new Date();
-            var target = new Date();
-            target.setHours(target.getHours() + 2);
-            target.setMinutes(target.getMinutes() + 45);
-            target.setSeconds(target.getSeconds() + 39);
+            function resize() {
+                if (!section || !canvas) return;
+                canvas.width = section.offsetWidth;
+                canvas.height = section.offsetHeight;
+            }
+            resize();
+            $(window).on('resize', resize);
 
-            function updateTimer() {
-                var current = new Date();
-                var diff = Math.max(0, Math.floor((target - current) / 1000));
-                var hours = Math.floor(diff / 3600);
-                var minutes = Math.floor((diff % 3600) / 60);
-                var seconds = diff % 60;
-
-                var hStr = hours < 10 ? '0' + hours : hours;
-                var mStr = minutes < 10 ? '0' + minutes : minutes;
-                var sStr = seconds < 10 ? '0' + seconds : seconds;
-
-                timerEl.textContent = hStr + ':' + mStr + ':' + sStr;
+            for (var i = 0; i < flakeCount; i++) {
+                flakes.push({
+                    x: Math.random() * (canvas.width || window.innerWidth),
+                    y: Math.random() * (canvas.height || 420),
+                    radius: 0.9 + Math.random() * 1.4,
+                    speed: 0.2 + Math.random() * 0.35,
+                    opacity: 0.18 + Math.random() * 0.22,
+                    swing: Math.random() * Math.PI * 2,
+                    swingSpeed: 0.008 + Math.random() * 0.012
+                });
             }
 
-            updateTimer();
-            setInterval(updateTimer, 1000);
-        })();
+            function animateSnow() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (var i = 0; i < flakes.length; i++) {
+                    var f = flakes[i];
+                    f.swing += f.swingSpeed;
+                    f.x += Math.sin(f.swing) * 0.25;
+                    f.y += f.speed;
 
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, ' + f.opacity + ')';
+                    ctx.fill();
+
+                    if (f.y > canvas.height + 5) {
+                        f.y = -5;
+                        f.x = Math.random() * canvas.width;
+                    }
+                }
+                requestAnimationFrame(animateSnow);
+            }
+            requestAnimationFrame(animateSnow);
+        })();
     })(jQuery);
 </script>
 @endpush
+

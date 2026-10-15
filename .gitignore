@@ -45,3 +45,8 @@ Vagrantfile
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Database dumps and backups
+*.sql
+couponsefra_db_backup.sql
+

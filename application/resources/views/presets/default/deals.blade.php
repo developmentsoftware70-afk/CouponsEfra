@@ -24,6 +24,12 @@
                         display: block;
                         background: #f8f9fa;
                         border: 1px solid #eaeaea;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                    }
+                    .vertical-coupon-card:hover {
+                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+                        transform: translateY(-3px);
                     }
                     .vertical-card-img {
                         width: 100%;
@@ -64,10 +70,7 @@
                                 @endif
                             </div>
                             
-                            <a href="javascript:void(0)" class="vertical-grab-btn getDeal" 
-                                data-id="{{ $item->id }}" data-title="{{ $item->title }}" 
-                                data-description="{{ $item->description }}" data-link="{{ $item->link }}"  
-                                data-button_label="{{ $item->button_label ?? __('Grab Deal') }}">
+                            <a href="{{ route('deal.details', $item->id) }}" class="vertical-grab-btn">
                                 {{ $item->button_label ?? __('Grab Deal') }}
                             </a>
                         </div>

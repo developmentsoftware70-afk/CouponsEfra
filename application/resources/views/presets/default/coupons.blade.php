@@ -38,6 +38,56 @@
                     <p class="text-center">{{__($emptyMessage)}}</p>
                     @endforelse
                 </div>
+
+                @if(isset($relatedCategoryCoupons) && $relatedCategoryCoupons->count() > 0)
+                <div class="mt-5 pt-4 border-top">
+                    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                        <div>
+                            <h4 class="mb-1" style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">
+                                <i class="las la-fire text-danger me-1"></i>
+                                @lang('Similar') {{ @$primaryCategory->name }} @lang('Offers from Other Brands')
+                            </h4>
+                            <p class="text-muted mb-0" style="font-size: 0.875rem;">
+                                @lang('Explore more verified deals in') {{ @$primaryCategory->name }}
+                            </p>
+                        </div>
+                        @if(isset($primaryCategory))
+                        <a href="{{ route('category.coupons', $primaryCategory->id) }}" class="btn btn--base btn--sm">
+                            @lang('View All') {{ $primaryCategory->name }} &rarr;
+                        </a>
+                        @endif
+                    </div>
+                    <div class="row gy-4">
+                        @foreach($relatedCategoryCoupons as $relIndex => $relItem)
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($relIndex * 0.1) }}s">
+                                <div class="vertical-card-img position-relative">
+                                    @if($relItem->image)
+                                        <img src="{{ getImage(getFilePath('coupon') . '/' . @$relItem->image) }}" alt="@lang('Coupon Image')">
+                                    @elseif($relItem->store && $relItem->store->image)
+                                        <img src="{{ getImage(getFilePath('store') . '/' . @$relItem->store->image) }}" alt="">
+                                    @endif
+                                </div>
+                                <div class="px-3 pt-2 pb-1 text-center">
+                                    <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">
+                                        {{ $relItem->store->name ?? 'Brand' }}
+                                    </span>
+                                    <h6 class="mt-2 mb-1" style="font-size: 14px; font-weight: 600; line-height: 1.3;">
+                                        {{ Str::limit($relItem->title, 35) }}
+                                    </h6>
+                                </div>
+                                <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
+                                    data-id="{{$relItem->id}}" data-title="{{$relItem->title}}" 
+                                    data-code="{{$relItem->code}}" data-description="{{$relItem->description}}" 
+                                    data-link="{{$relItem->link}}">
+                                    Grab Deal
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </div>
         
         </div>

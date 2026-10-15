@@ -1,4 +1,4 @@
-@php
+    @php
 use App\Models\DealCategory;
 
 // Moved filters into the model relationship
@@ -74,14 +74,8 @@ $bgClass = ['bg-light', 'bg-white'];
                                     @if($item->image)
                                     <div class="slick-slide-inner">
                                         <div class="p-0">
-                                            <a href="#" class="getDeal premium-deal-card"
-                                                data-id="{{ $item->id }}"
-                                                data-title="{{ $item->title }}"
-                                                data-description="{{ $item->description }}"
-                                                data-link="{{ $item->link }}"
-                                                data-button_label="{{ $item->button_label ?? __('Grab Deal') }}"
-                                                style="margin-bottom: 15px;">
-                                                <img loading="lazy" src="{{ getImage(getFilePath('deal') . '/' . $item->image) }}" class="img-fluid" alt="">
+                                            <a href="{{ route('deal.details', $item->id) }}" class="premium-deal-card" style="margin-bottom: 15px;">
+                                                <img loading="lazy" src="{{ getImage(getFilePath('deal') . '/' . $item->image) }}" class="img-fluid" alt="{{ $item->title }}">
                                             </a>
                                         </div>
                                     </div>

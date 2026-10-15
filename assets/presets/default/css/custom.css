@@ -1177,11 +1177,13 @@ h4.n15-color a {
     display: block;
     background: #ffffff;
     border: 1px solid #eaeaea;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    cursor: pointer;
 }
 
 .vertical-coupon-card:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
 }
 
 .vertical-card-img {
