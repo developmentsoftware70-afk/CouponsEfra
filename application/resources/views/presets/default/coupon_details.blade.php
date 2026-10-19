@@ -193,7 +193,7 @@
                     <div class="ck-content-block ck-extra-description mt-4 pt-3 border-top">
                         <h4 class="ck-block-sub-heading mb-3">@lang('Offer Details & Terms')</h4>
                         <div class="ck-rich-description-body" id="dealArticleBody">
-                            {!! $coupon->description !!}
+                            {!! html_entity_decode($coupon->description) !!}
                         </div>
                     </div>
                 @endif
@@ -712,6 +712,72 @@
 
 .ck-bullet-list li strong {
     color: #0f172a;
+}
+
+/* ==========================================
+   OFFER DETAILS & TERMS: EXACT FONT & BULLET SYNC
+   ========================================== */
+.ck-rich-description-body,
+.ck-rich-description-body * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.ck-rich-description-body {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #334155 !important;
+}
+
+.ck-rich-description-body p {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #334155 !important;
+    margin-bottom: 12px;
+}
+
+.ck-rich-description-body strong,
+.ck-rich-description-body b {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+.ck-rich-description-body ul {
+    list-style: none !important;
+    padding-left: 0 !important;
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.ck-rich-description-body ul li {
+    position: relative !important;
+    padding-left: 20px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #334155 !important;
+    margin-bottom: 7px !important;
+}
+
+.ck-rich-description-body ul li::before {
+    content: "•" !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: -1px !important;
+    font-size: 18px !important;
+    color: #64748b !important;
+}
+
+.ck-rich-description-body ol {
+    padding-left: 20px;
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
+
+.ck-rich-description-body ol li {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #334155 !important;
+    margin-bottom: 7px !important;
 }
 
 /* ==========================================

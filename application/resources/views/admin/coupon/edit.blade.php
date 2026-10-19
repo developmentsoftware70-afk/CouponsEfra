@@ -171,6 +171,15 @@
                                     </label>
                                 </div>
                             </div>
+                            <div class="col-md-2">
+                                <div class="form-group mt-4">
+                                    <label class="fw-bold" for="is_background">@lang('Background')</label>
+                                    <label class="switch m-0" for="is_background">
+                                        <input type="checkbox" class="toggle-switch" name="is_background" id="is_background" {{ (isset($coupon->is_background) ? $coupon->is_background : 1) ? 'checked' : null }}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col text-end">

@@ -820,6 +820,29 @@ h4.n15-color a {
     /* removed shadow on hover */
 }
 
+/* Full Banner Image Only Card (When Background is OFF) */
+.ck-banner-only-card {
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+}
+
+.ck-banner-only-card .ck-banner-only-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 12px !important;
+    transition: transform 0.3s ease !important;
+}
+
+.ck-banner-only-card:hover .ck-banner-only-img {
+    transform: scale(1.02);
+}
+
 .ck-style-card-link {
     display: block;
     text-decoration: none !important;

@@ -48,53 +48,59 @@
                                     data-id="{{ $item->id }}" data-title="{{ $item->title }}"
                                     data-code="{{ $item->code }}" data-description="{{ $item->description }}"
                                     data-link="{{ $item->link }}">
-                                    <div class="flash-deal-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.15 + ($index * 0.08) }}s">
-                                        <div class="flash-card-inner">
-                                            {{-- Left Column: Brand, Title, Category, Cashback & Grab Button --}}
-                                            <div class="flash-card-body">
-                                                <div class="flash-card-brand-pill">
-                                                    @if($item->store && $item->store->image)
-                                                        <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ @$item->store->name }}">
-                                                    @elseif($item->store)
-                                                        <span class="flash-brand-text">{{ Str::limit(@$item->store->name, 12) }}</span>
-                                                    @else
-                                                        <span class="flash-brand-text">{{ Str::limit(@$item->category->name ?? 'DEAL', 12) }}</span>
-                                                    @endif
-                                                </div>
-
-                                                <div class="flash-card-texts">
-                                                    <span class="flash-card-category">
-                                                        {{ Str::limit(@$item->category->name ?? 'Exclusive Offer', 24) }}
-                                                    </span>
-                                                    <h3 class="flash-card-title">
-                                                        {{ Str::limit(__($item->title), 36) }}
-                                                    </h3>
-                                                </div>
-
-                                                <div class="flash-card-footer">
-                                                    <div class="flash-card-cashback">
-                                                        @if($item->is_cashback == 1)
-                                                            Flat {{ $item->cashback_amount }}% Cashback
+                                    @if(isset($item->is_background) && $item->is_background == 0 && $item->image)
+                                        <div class="flash-deal-card flash-banner-only-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.15 + ($index * 0.08) }}s">
+                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}" class="flash-banner-only-img" loading="lazy">
+                                        </div>
+                                    @else
+                                        <div class="flash-deal-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.15 + ($index * 0.08) }}s">
+                                            <div class="flash-card-inner">
+                                                {{-- Left Column: Brand, Title, Category, Cashback & Grab Button --}}
+                                                <div class="flash-card-body">
+                                                    <div class="flash-card-brand-pill">
+                                                        @if($item->store && $item->store->image)
+                                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ @$item->store->name }}">
+                                                        @elseif($item->store)
+                                                            <span class="flash-brand-text">{{ Str::limit(@$item->store->name, 12) }}</span>
                                                         @else
-                                                            Flat Deal Offer
+                                                            <span class="flash-brand-text">{{ Str::limit(@$item->category->name ?? 'DEAL', 12) }}</span>
                                                         @endif
                                                     </div>
-                                                    <span class="flash-grab-deal-btn">
-                                                        @lang('Grab Deal')
-                                                    </span>
+
+                                                    <div class="flash-card-texts">
+                                                        <span class="flash-card-category">
+                                                            {{ Str::limit(@$item->category->name ?? 'Exclusive Offer', 24) }}
+                                                        </span>
+                                                        <h3 class="flash-card-title">
+                                                            {{ Str::limit(__($item->title), 36) }}
+                                                        </h3>
+                                                    </div>
+
+                                                    <div class="flash-card-footer">
+                                                        <div class="flash-card-cashback">
+                                                            @if($item->is_cashback == 1)
+                                                                Flat {{ $item->cashback_amount }}% Cashback
+                                                            @else
+                                                                Flat Deal Offer
+                                                            @endif
+                                                        </div>
+                                                        <span class="flash-grab-deal-btn">
+                                                            @lang('Grab Deal')
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Right Column: Product / Offer Visual Image --}}
+                                                <div class="flash-card-visual">
+                                                    @if($item->image)
+                                                        <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}" loading="lazy">
+                                                    @elseif($item->store && $item->store->image)
+                                                        <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ @$item->store->name }}" loading="lazy">
+                                                    @endif
                                                 </div>
                                             </div>
-
-                                            {{-- Right Column: Product / Offer Visual Image --}}
-                                            <div class="flash-card-visual">
-                                                @if($item->image)
-                                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}" loading="lazy">
-                                                @elseif($item->store && $item->store->image)
-                                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ @$item->store->name }}" loading="lazy">
-                                                @endif
-                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </a>
                             </div>
                         </div>
@@ -177,6 +183,28 @@
     transform: translateY(-5px);
     border-color: rgba(56, 189, 248, 0.5);
     box-shadow: none !important;
+}
+
+/* Full Banner Image Only Card (When Background is OFF) */
+.flash-banner-only-card {
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    border-radius: 20px !important;
+}
+
+.flash-banner-only-card .flash-banner-only-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 20px !important;
+    transition: transform 0.3s ease !important;
+}
+
+.flash-banner-only-card:hover .flash-banner-only-img {
+    transform: scale(1.02);
 }
 
 .flash-card-inner {

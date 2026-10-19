@@ -53,6 +53,7 @@ class CouponController extends Controller
             $coupon->is_sale=$request->is_sale ? 1 : 0;
             $coupon->is_cashback=$request->is_cashback ? 1 : 0;
             $coupon->is_earning=$request->is_earning ? 1 : 0;
+            $coupon->is_background=$request->is_background ? 1 : 0;
             $coupon->status=$request->status;
             $coupon->description=$request->description;
             
@@ -111,6 +112,7 @@ class CouponController extends Controller
             $coupon->is_sale=$request->is_sale ? 1 : 0;
             $coupon->is_cashback=$request->is_cashback ? 1 : 0;
             $coupon->is_earning=$request->is_earning ? 1 : 0;
+            $coupon->is_background=$request->is_background ? 1 : 0;
             $coupon->status=$request->status ? 1: 0;
             $coupon->description=$request->description;
 
