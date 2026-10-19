@@ -18,6 +18,7 @@ use App\Models\Deal;
 use App\Models\DealCategory;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Cache;
 
 class SiteController extends Controller
 {
@@ -31,9 +32,16 @@ class SiteController extends Controller
         }
 
         $pageTitle = 'Home';
-        $sections = Page::where('tempname',$this->activeTemplate)->where('slug','/')->first();
-        $categories =  Category::where('status',1)->latest()->limit(4)->get();
-        $slider =  Slider::all()->where('status',1);
+        $activeTemplate = $this->activeTemplate;
+        $sections = Cache::remember("page_home_sections_{$activeTemplate}", 3600, function () use ($activeTemplate) {
+            return Page::where('tempname', $activeTemplate)->where('slug', '/')->first();
+        });
+        $categories = Cache::remember('home_categories_top4', 1800, function () {
+            return Category::where('status', 1)->latest()->limit(4)->get();
+        });
+        $slider = Cache::remember('home_sliders_active', 1800, function () {
+            return Slider::where('status', '1')->get();
+        });
         return view($this->activeTemplate . 'home', compact('pageTitle','sections','categories','slider'));
     }
 

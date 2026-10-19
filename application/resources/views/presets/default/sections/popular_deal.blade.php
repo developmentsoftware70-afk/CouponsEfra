@@ -2,10 +2,14 @@
 use App\Models\DealCategory;
 
 // Moved filters into the model relationship
-$categoryWiseDeals = DealCategory::where('status', 1)
-    ->where('is_show', 1)
-    ->with('deals')
-    ->get();
+$categoryWiseDeals = \Illuminate\Support\Facades\Cache::remember('home_category_wise_deals', 1800, function() {
+    return DealCategory::where('status', 1)
+        ->where('is_show', 1)
+        ->with(['deals' => function($q) {
+            $q->where('status', 1)->where('is_show', 1);
+        }])
+        ->get();
+});
 $bgClass = ['bg-light', 'bg-white'];
 @endphp
 

@@ -34,139 +34,152 @@
   </div>
     @endif
     <style>
-        /* Separated Image Card and Text Style */
-        .blog-item {
-            background: transparent;
-            border-radius: 0;
-            overflow: visible;
-            border: none;
-            box-shadow: none !important;
-            position: relative;
-            margin-bottom: 20px;
-        }
-        .blog-item__thumb {
-            border-radius: 24px; /* Image gets the round styling like Noise deals */
+        .unified-blog-card {
+            background: #ffffff;
+            border: 1px solid #eaedf2;
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .unified-blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+            border-color: #cbd5e1;
+        }
+        .unified-blog-card__thumb {
             position: relative;
-            height: 220px; 
             width: 100%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            background-color: #f1f5f9;
+            border-radius: 0 !important;
         }
-        .blog-item:hover .blog-item__thumb {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        .unified-blog-card__thumb a {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
-        .blog-item__thumb img {
+        .unified-blog-card__thumb img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
+            display: block;
+            border-radius: 0 !important;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .blog-item:hover .blog-item__thumb img {
+        .unified-blog-card:hover .unified-blog-card__thumb img {
             transform: scale(1.05);
         }
-        .blog-item__content {
-            padding: 20px 5px 0 5px; /* Text sits below with padding top */
-            color: #1e293b;
-        }
-        .blog-item .text-list {
-            margin-bottom: 8px;
-            padding: 0;
-            list-style: none;
+        .unified-blog-card__content {
+            padding: 20px 22px;
+            background: #ffffff;
             display: flex;
+            flex-direction: column;
+            flex: 1;
+            border-top: 1px solid #f1f5f9;
         }
-        .blog-item .text-list__item {
+        .unified-blog-card__meta {
             font-size: 13px;
             color: #64748b;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 6px;
+            margin-bottom: 10px;
         }
-        .blog-item .text-list__item-icon i {
-            color: #f43f5e; 
+        .unified-blog-card__meta i {
+            color: #ef4444;
             font-size: 14px;
         }
-        .blog-item__title {
-            font-size: 16px; 
-            line-height: 1.5;
-            font-weight: 500; /* Removed heavy bold for a sleeker look */
+        .unified-blog-card__title {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.45;
             margin-bottom: 16px;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            height: 48px; 
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            letter-spacing: 0.2px;
+            min-height: 2.9rem;
         }
-        .blog-item__title-link {
-            color: #1e293b;
+        .unified-blog-card__title a {
+            color: inherit;
             text-decoration: none;
             transition: color 0.2s ease;
         }
-        .blog-item__title-link:hover {
-            color: #007bff; 
+        .unified-blog-card:hover .unified-blog-card__title a {
+            color: #ef4444;
         }
-        .blog-item__content .btn--base {
-            padding: 8px 16px !important;
-            font-size: 13px !important;
-            border-radius: 6px !important; 
-            font-weight: 500 !important; /* Sleeker text in button */
-            background: #ffffff !important; 
-            color: #007bff !important; /* Blue text */
-            border: 1px solid #e2e8f0 !important; /* Outlined sleek button */
-            box-shadow: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            transition: all 0.3s ease;
+        .unified-blog-card__footer {
+            margin-top: auto;
+            padding-top: 6px;
         }
-        .blog-item__content .btn--base:hover {
-            background: #f8fafc !important;
-            border-color: #cbd5e1 !important;
-            color: #0056b3 !important;
+        .btn-blog-details {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: #0f172a;
+            color: #ffffff !important;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+            width: fit-content;
+        }
+        .btn-blog-details:hover {
+            background: #ef4444;
+            color: #ffffff !important;
+            gap: 10px;
         }
     </style>
         <div class="row gy-4 justify-content-center">
             @foreach($blogElements as $item)
-            <div class="col-lg-4 col-md-6">
-                <div class="blog-item wow animate__animated animate__fadeInUp">
-                    <div class="blog-item__thumb">
-                        <a href="{{ route('blog.details', ['slug' => slug($item->data_values->title), 'id' => $item->id])}}" class="blog-item__thumb-link">
-                            @php
-                                $blogImage = @$item->data_values->blog_image;
-                            @endphp
-                            
-                            @if($blogImage)
-                                <img src="{{ getImage(getFilePath('blog') . '/thumb_' . $blogImage) }}" alt="image">
-                            @else
-                                <img src="{{ asset('assets/images/default.png') }}" alt="image">
-                            @endif
-                        </a>
-                    </div>
-                    <div class="blog-item__content">
-                        <ul class="text-list inline">
-                            <li class="text-list__item"> <span class="text-list__item-icon"><i class="fas fa-calendar-alt"></i></span> {{showDateTime($item->created_at)}}</li>
-                        </ul>
-                        <h4 class="blog-item__title">
-                            <a href="{{ route('blog.details', ['slug' => slug($item->data_values->title), 'id' => $item->id])}}" class="blog-item__title-link">
-                                @if(strlen(__($item->data_values->title)) >50)
-                                {{substr( __($item->data_values->title), 0,50).'...' }}
+                @php
+                    $rawTitle = @$item->data_values->title ?? 'Blog';
+                    $cleanTitle = html_entity_decode(strip_tags($rawTitle));
+                    $blogImage = @$item->data_values->blog_image ?? null;
+                    $detailUrl = route('blog.details', ['slug' => slug($cleanTitle), 'id' => $item->id]);
+                @endphp
+                <div class="col-lg-4 col-md-6">
+                    <article class="unified-blog-card wow animate__animated animate__fadeInUp">
+                        <!-- Top Image (Seamlessly connected to card) -->
+                        <div class="unified-blog-card__thumb">
+                            <a href="{{ $detailUrl }}" tabindex="-1" aria-hidden="true">
+                                @if($blogImage)
+                                    <img src="{{ getImage(getFilePath('blog') . '/thumb_' . $blogImage) }}" alt="{{ $cleanTitle }}" loading="lazy">
                                 @else
-                                {{__($item->data_values->title)}}
+                                    <img src="{{ asset('assets/images/default.png') }}" alt="{{ $cleanTitle }}" loading="lazy">
                                 @endif
                             </a>
-                        </h4>
-                        <a href="{{ route('blog.details', ['slug' => slug($item->data_values->title), 'id' => $item->id])}}" class="btn btn--base">
-                            @lang('Read More')
-                            <span class="btn--simple__icon">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-                        </a>
-                    </div>
+                        </div>
+                        <!-- Card Body (Together with image in the same card) -->
+                        <div class="unified-blog-card__content">
+                            <div class="unified-blog-card__meta">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>{{ showDateTime($item->created_at, 'M d, Y') }}</span>
+                            </div>
+                            <h4 class="unified-blog-card__title">
+                                <a href="{{ $detailUrl }}" title="{{ $cleanTitle }}">
+                                    {{ $cleanTitle }}
+                                </a>
+                            </h4>
+                            <div class="unified-blog-card__footer">
+                                <a href="{{ $detailUrl }}" class="btn-blog-details">
+                                    <span>@lang('Details')</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
                 </div>
-            </div>
             @endforeach
         </div>
     </div>

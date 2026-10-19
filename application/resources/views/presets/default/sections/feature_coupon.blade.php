@@ -1,11 +1,13 @@
 @php
     $featureCoupon = getContent('feature_coupon.content', true);
-    $featuredCouponsData = App\Models\Coupon::with(['category', 'store', 'wishlists'])
-        ->where('status', 1)
-        ->where('is_featured', 1)
-        ->latest()
-        ->limit(16)
-        ->get();
+    $featuredCouponsData = \Illuminate\Support\Facades\Cache::remember('home_featured_coupons_16', 600, function() {
+        return App\Models\Coupon::with(['category', 'store', 'wishlists'])
+            ->where('status', 1)
+            ->where('is_featured', 1)
+            ->latest()
+            ->limit(16)
+            ->get();
+    });
 @endphp
 
 <section class="exclusive-section py-20 bg-white">
@@ -72,9 +74,9 @@
                                         </div>
                                         <div class="ck-image-wrap">
                                             @if($item->image)
-                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')" loading="lazy">
                                             @elseif($item->store && $item->store->image)
-                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
+                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="" loading="lazy">
                                             @endif
                                         </div>
                                     </div>

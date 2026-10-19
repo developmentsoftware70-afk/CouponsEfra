@@ -1,11 +1,13 @@
 @php
     $exclusiveCoupon = getContent('exclusive_coupons.content', true);
-    $exlusivesCouponsData = App\Models\Coupon::with(['category', 'store', 'wishlists'])
-        ->where('status', 1)
-        ->where('is_exclusive', 1)
-        ->latest()
-        ->limit(16)
-        ->get();
+    $exlusivesCouponsData = \Illuminate\Support\Facades\Cache::remember('home_exclusive_coupons_16', 600, function() {
+        return App\Models\Coupon::with(['category', 'store', 'wishlists'])
+            ->where('status', 1)
+            ->where('is_exclusive', 1)
+            ->latest()
+            ->limit(16)
+            ->get();
+    });
 @endphp
 <section class="exclusive-section py-20 bg-light">
     <div class="container-fluid container-custom">
@@ -70,9 +72,9 @@
                                         </div>
                                         <div class="ck-image-wrap">
                                             @if($item->image)
-                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
+                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')" loading="lazy">
                                             @elseif($item->store && $item->store->image)
-                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
+                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="" loading="lazy">
                                             @endif
                                         </div>
                                     </div>

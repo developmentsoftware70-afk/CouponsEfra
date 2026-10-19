@@ -14,4 +14,14 @@ class Frontend extends Model
     {
         return Frontend::where('data_keys', $data_keys);
     }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('frontend_cache_version');
+        });
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('frontend_cache_version');
+        });
+    }
 }

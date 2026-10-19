@@ -1,6 +1,10 @@
 @php
     $featureStore = getContent('feature_store.content', true);
-    $featureStoreElements = App\Models\Store::with('coupons')->where('show_on_front', 1)->latest()->limit(10)->get();
+    $featureStoreElements = \Illuminate\Support\Facades\Cache::remember('home_feature_stores_10', 1800, function() {
+        return App\Models\Store::with(['coupons' => function($q) {
+            $q->where('status', 1);
+        }])->where('show_on_front', 1)->latest()->limit(10)->get();
+    });
     $cardBg = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
 @endphp
 <section class="top-collections top-stores second py-20 bg-white">
@@ -249,7 +253,7 @@
                         <div class="tc-top" style="background: {{ $cardBg }};">
                             <div class="tc-top-glow"></div>
                             <div class="tc-logo-wrapper">
-                                <img src="{{ getImage(getFilePath('store') . '/' . $item->image) }}" alt="{{ __($item->name) }}">
+                                <img src="{{ getImage(getFilePath('store') . '/' . $item->image) }}" alt="{{ __($item->name) }}" loading="lazy">
                             </div>
                             <div class="tc-badge-pill">
                                 <i class="las la-gift"></i> @lang('GIFT COUPON')

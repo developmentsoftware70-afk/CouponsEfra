@@ -10,14 +10,14 @@ Route::get('/clear', function(){
 Route::namespace('Auth')->group(function () {
     Route::controller('LoginController')->group(function () {
         Route::get('/', 'showLoginForm')->name('login');
-        Route::post('/', 'login')->name('login');
+        Route::post('/', 'login');
         Route::get('logout', 'logout')->name('logout');
     });
 
     // Admin Password Reset
     Route::controller('ForgotPasswordController')->group(function(){
         Route::get('password/reset', 'showLinkRequestForm')->name('password.reset');
-        Route::post('password/reset', 'sendResetCodeEmail');
+        Route::post('password/reset', 'sendResetCodeEmail')->name('password.reset.submit');
         Route::get('password/code-verify', 'codeVerify')->name('password.code.verify');
         Route::post('password/verify-code', 'verifyCode')->name('password.verify.code');
     });
@@ -42,7 +42,7 @@ Route::middleware('admin')->group(function () {
 
         //Report Bugs
         Route::get('request/report','requestReport')->name('request.report');
-        Route::post('request/report','reportSubmit');
+        Route::post('request/report','reportSubmit')->name('request.report.submit');
 
         Route::get('download/attachments/{file_hash}', 'downloadAttachment')->name('download.attachment');
     });
@@ -56,13 +56,12 @@ Route::middleware('admin')->group(function () {
         Route::get('email/unverified', 'emailUnverifiedUsers')->name('email.unverified');
         Route::get('mobile/unverified', 'mobileUnverifiedUsers')->name('mobile.unverified');
         Route::get('mobile/verified', 'mobileVerifiedUsers')->name('mobile.verified');
-        Route::get('mobile/verified', 'mobileVerifiedUsers')->name('mobile.verified');
    
 
         Route::get('detail/{id}', 'detail')->name('detail');
         Route::post('update/{id}', 'update')->name('update');
         Route::get('send/notification/{id}', 'showNotificationSingleForm')->name('notification.single');
-        Route::post('send/notification/{id}', 'sendNotificationSingle')->name('notification.single');
+        Route::post('send/notification/{id}', 'sendNotificationSingle')->name('notification.single.send');
         Route::get('login/{id}', 'login')->name('login');
         Route::post('status/{id}', 'status')->name('status');
 
@@ -76,7 +75,7 @@ Route::middleware('admin')->group(function () {
         Route::get('subscriber', 'index')->name('subscriber.index');
         Route::get('subscriber/send/email', 'sendEmailForm')->name('subscriber.send.email');
         Route::post('subscriber/remove/{id}', 'remove')->name('subscriber.remove');
-        Route::post('subscriber/send/email', 'sendEmail')->name('subscriber.send.email');
+        Route::post('subscriber/send/email', 'sendEmail')->name('subscriber.send.email.submit');
     });
     
     // Category
@@ -263,19 +262,19 @@ Route::middleware('admin')->group(function () {
         Route::post('global/settings', 'update')->name('setting.update');
 
         //configuration
-        Route::post('setting/system-configuration','systemConfigurationSubmit');
+        Route::post('setting/system-configuration','systemConfigurationSubmit')->name('setting.system.configuration');
 
         // Logo-Icon
         Route::get('setting/logo', 'logoIcon')->name('setting.logo.icon');
-        Route::post('setting/logo', 'logoIconUpdate')->name('setting.logo.icon');
+        Route::post('setting/logo', 'logoIconUpdate')->name('setting.logo.icon.update');
 
         //Cookie
         Route::get('cookie','cookie')->name('setting.cookie');
-        Route::post('cookie','cookieSubmit');
+        Route::post('cookie','cookieSubmit')->name('setting.cookie.submit');
 
          //Custom CSS
          Route::get('custom-css', 'customCss')->name('setting.custom.css');
-         Route::post('custom-css', 'customCssSubmit');
+         Route::post('custom-css', 'customCssSubmit')->name('setting.custom.css.submit');
 
     });
 
@@ -290,12 +289,12 @@ Route::middleware('admin')->group(function () {
 
         //Email Setting
         Route::get('email/setting','emailSetting')->name('email');
-        Route::post('email/setting','emailSettingUpdate');
+        Route::post('email/setting','emailSettingUpdate')->name('email.update');
         Route::post('email/test','emailTest')->name('email.test');
 
         //SMS Setting
         Route::get('sms/setting','smsSetting')->name('sms');
-        Route::post('sms/setting','smsSettingUpdate');
+        Route::post('sms/setting','smsSettingUpdate')->name('sms.update');
         Route::post('sms/test','smsTest')->name('sms.test');
     });
 

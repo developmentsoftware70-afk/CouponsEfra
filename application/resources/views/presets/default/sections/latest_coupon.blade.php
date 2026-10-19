@@ -1,10 +1,12 @@
 @php
     $latestCoupon = getContent('latest_coupon.content', true);
-    $latestCouponsData = App\Models\Coupon::with(['category', 'store', 'wishlists'])
-        ->where('status', 1)
-        ->latest()
-        ->limit(12)
-        ->get();
+    $latestCouponsData = \Illuminate\Support\Facades\Cache::remember('home_latest_coupons_12', 600, function() {
+        return App\Models\Coupon::with(['category', 'store', 'wishlists'])
+            ->where('status', 1)
+            ->latest()
+            ->limit(12)
+            ->get();
+    });
 @endphp
 
 <section class="flash-deals-section" id="latest-coupons-section">
@@ -86,9 +88,9 @@
                                             {{-- Right Column: Product / Offer Visual Image --}}
                                             <div class="flash-card-visual">
                                                 @if($item->image)
-                                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}">
+                                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}" loading="lazy">
                                                 @elseif($item->store && $item->store->image)
-                                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ @$item->store->name }}">
+                                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ @$item->store->name }}" loading="lazy">
                                                 @endif
                                             </div>
                                         </div>
@@ -532,7 +534,9 @@
             var ctx = canvas.getContext('2d');
             var section = document.getElementById('latest-coupons-section');
             var flakes = [];
-            var flakeCount = 48; // clean, subtle drift
+            var flakeCount = 36; // clean, subtle drift
+            var isVisible = true;
+            var animFrameId = null;
 
             function resize() {
                 if (!section || !canvas) return;
@@ -555,6 +559,7 @@
             }
 
             function animateSnow() {
+                if (!isVisible) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 for (var i = 0; i < flakes.length; i++) {
                     var f = flakes[i];
@@ -572,9 +577,27 @@
                         f.x = Math.random() * canvas.width;
                     }
                 }
-                requestAnimationFrame(animateSnow);
+                animFrameId = requestAnimationFrame(animateSnow);
             }
-            requestAnimationFrame(animateSnow);
+
+            if ('IntersectionObserver' in window && section) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            if (!isVisible) {
+                                isVisible = true;
+                                animFrameId = requestAnimationFrame(animateSnow);
+                            }
+                        } else {
+                            isVisible = false;
+                            if (animFrameId) cancelAnimationFrame(animFrameId);
+                        }
+                    });
+                }, { threshold: 0.05 });
+                observer.observe(section);
+            }
+
+            animFrameId = requestAnimationFrame(animateSnow);
         })();
     })(jQuery);
 </script>

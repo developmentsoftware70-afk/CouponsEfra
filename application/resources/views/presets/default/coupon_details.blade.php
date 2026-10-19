@@ -1355,11 +1355,6 @@
         openShareModal(link, '{{ addslashes($coupon->title) }}', btn);
     }
 
-    // Optional click tracking callback
-    function trackClickCount() {
-        console.log('Grab Deal initiated for coupon {{ $coupon->id }}');
-    }
-
     // Live Rolling Countdown Timer
     (function initDetailCountdown() {
         var timerEl = document.getElementById('ckDetailCountdown');

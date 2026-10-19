@@ -9,7 +9,7 @@ Route::namespace('User\Auth')->name('user.')->group(function () {
 
     Route::controller('RegisterController')->group(function(){
         Route::get('register', 'showRegistrationForm')->name('register');
-        Route::post('register', 'register')->middleware('registration.status');
+        Route::post('register', 'register')->name('register.submit')->middleware('registration.status');
         Route::post('check-mail', 'checkUser')->name('checkUser');
     });
 
@@ -81,8 +81,8 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('profile/setting', 'profile')->name('profile.setting');
                 Route::post('profile/setting', 'submitProfile')->name('profile.update');
                 Route::get('change-password', 'changePassword')->name('change.password');
-                Route::post('change-password', 'submitPassword');
-                Route::post('profile', 'imageUpdate')->name('profile.update');
+                Route::post('change-password', 'submitPassword')->name('change.password.submit');
+                Route::post('profile', 'imageUpdate')->name('profile.image.update');
             });
 
             // Coupons

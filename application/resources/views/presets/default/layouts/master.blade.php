@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/glightbox.min.css')}}">
     <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/slick.css')}}">
     <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/main.css')}}">
-    <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/custom.css')}}">
+    <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/custom.css')}}?v={{ time() }}">
     @stack('style-lib')
 
     @stack('style')

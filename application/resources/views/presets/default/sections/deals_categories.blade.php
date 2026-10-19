@@ -1,11 +1,15 @@
 @php
     $dealsCategory = getContent('deals_categories.content', true);
-    $dealsCategoryElements = App\Models\DealCategory::with('deals')
+    $dealsCategoryElements = \Illuminate\Support\Facades\Cache::remember('home_deals_categories_8', 1800, function() {
+        return App\Models\DealCategory::with(['deals' => function($q) {
+            $q->where('status', 1)->where('is_show', 1)->latest();
+        }])
         ->where('is_show', 1)
         ->where('status', 1)
         ->latest()
         ->limit(8)
         ->get();
+    });
 @endphp
 
 <section class="top-collections top-stores second py-20">

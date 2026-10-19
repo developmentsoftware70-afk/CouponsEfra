@@ -1,5 +1,5 @@
 @php
-    $cookie = App\Models\Frontend::where('data_keys','cookie.data')->first();
+    $cookie = getContent('cookie.data', true);
 @endphp
 @if(!\Cookie::get('gdpr_cookie') && !isset($_COOKIE['gdpr_declined']))
     <style>

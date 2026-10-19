@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::namespace('Api')->name('api.')->group(function(){
+Route::namespace('Api')->group(function(){
 
     Route::get('general-setting',function()
     {
@@ -98,13 +98,15 @@ Route::namespace('Api')->name('api.')->group(function(){
                     Route::post('change-password', 'submitPassword');
                 });
 
-                // Withdraw
+                /*
+                // Withdraw (Unimplemented in Api)
                 Route::controller('WithdrawController')->group(function(){
                     Route::get('withdraw-method', 'withdrawMethod')->name('withdraw.method')->middleware('kyc');
                     Route::post('withdraw-request', 'withdrawStore')->name('withdraw.money')->middleware('kyc');
                     Route::post('withdraw-request/confirm', 'withdrawSubmit')->name('withdraw.submit')->middleware('kyc');
                     Route::get('withdraw/history', 'withdrawLog')->name('withdraw.history');
                 });
+                */
 
                 // Payment
                 Route::controller('PaymentController')->group(function(){

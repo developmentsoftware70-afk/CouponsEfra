@@ -37,7 +37,9 @@ class AppServiceProvider extends ServiceProvider
         $viewShare['general'] = $general;
         $viewShare['activeTemplate'] = $activeTemplate;
         $viewShare['activeTemplateTrue'] = activeTemplate(true);
-        $viewShare['language'] = Language::all();
+        $viewShare['language'] = \Illuminate\Support\Facades\Cache::remember('all_languages', 86400, function() {
+            return Language::all();
+        });
         $viewShare['emptyMessage'] = 'No data';
         view()->share($viewShare);
         
@@ -96,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
         view()->composer('includes.seo', function ($view) {
-            $seo = Frontend::where('data_keys', 'seo.data')->first();
+            $seo = getContent('seo.data', true);
             $view->with([
                 'seo' => $seo ? $seo->data_values : $seo,
             ]);

@@ -1,6 +1,10 @@
 @php
     $popularCoupon = getContent('categories.content', true);
-    $popularCouponElements = App\Models\Category::with('coupons')->where('show_on_front', 1)->where('status', 1)->latest()->limit(8)->get();
+    $popularCouponElements = \Illuminate\Support\Facades\Cache::remember('home_categories_elements_8', 1800, function() {
+        return App\Models\Category::with(['coupons' => function($q) {
+            $q->where('status', 1);
+        }])->where('show_on_front', 1)->where('status', 1)->latest()->limit(8)->get();
+    });
 @endphp
 <section class="top-collections top-stores second" style="padding-top: 10px; margin-top: -20px;">
     <div class="container-fluid container-custom">

@@ -81,8 +81,10 @@ function verifyCaptcha()
 
 function loadExtension($key)
 {
-    $analytics = Extension::where('act', $key)->where('status', 1)->first();
-    return $analytics ? $analytics->generateScript() : '';
+    return \Illuminate\Support\Facades\Cache::remember('extension_' . $key, 86400, function () use ($key) {
+        $analytics = Extension::where('act', $key)->where('status', 1)->first();
+        return $analytics ? $analytics->generateScript() : '';
+    });
 }
 
 function getTrx($length = 12)
@@ -315,20 +317,28 @@ function showDateTime($date, $format = 'M Y, h:i A')
 
 function getContent($dataKeys, $singleQuery = false, $limit = null, $orderById = false)
 {
-    if ($singleQuery) {
-        $content = Frontend::where('data_keys', $dataKeys)->orderBy('id', 'desc')->first();
-    } else {
-        $article = Frontend::query();
-        $article->when($limit != null, function ($q) use ($limit) {
-            return $q->limit($limit);
-        });
-        if ($orderById) {
-            $content = $article->where('data_keys', $dataKeys)->orderBy('id')->get();
-        } else {
-            $content = $article->where('data_keys', $dataKeys)->orderBy('id', 'desc')->get();
-        }
+    $cacheVersion = \Illuminate\Support\Facades\Cache::get('frontend_cache_version');
+    if (!$cacheVersion) {
+        $cacheVersion = time();
+        \Illuminate\Support\Facades\Cache::forever('frontend_cache_version', $cacheVersion);
     }
-    return $content;
+    $cacheKey = "frontend_{$cacheVersion}_{$dataKeys}_" . ($singleQuery ? '1' : '0') . '_' . ($limit ?? 'all') . '_' . ($orderById ? '1' : '0');
+
+    return \Illuminate\Support\Facades\Cache::remember($cacheKey, 86400, function () use ($dataKeys, $singleQuery, $limit, $orderById) {
+        if ($singleQuery) {
+            return Frontend::where('data_keys', $dataKeys)->orderBy('id', 'desc')->first();
+        } else {
+            $article = Frontend::query();
+            $article->when($limit != null, function ($q) use ($limit) {
+                return $q->limit($limit);
+            });
+            if ($orderById) {
+                return $article->where('data_keys', $dataKeys)->orderBy('id')->get();
+            } else {
+                return $article->where('data_keys', $dataKeys)->orderBy('id', 'desc')->get();
+            }
+        }
+    });
 }
 
 
@@ -380,7 +390,7 @@ function showEmailAddress($email)
 
 function getRealIP()
 {
-    $ip = $_SERVER["REMOTE_ADDR"];
+    $ip = $_SERVER["REMOTE_ADDR"] ?? request()->ip() ?? '127.0.0.1';
     //Deep detect ip
     if (filter_var(@$_SERVER['HTTP_FORWARDED'], FILTER_VALIDATE_IP)) {
         $ip = $_SERVER['HTTP_FORWARDED'];
