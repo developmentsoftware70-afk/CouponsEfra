@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title> {{ $general->siteName(__($pageTitle)) }}</title>
     @include('includes.seo')
+    @stack('seo')
     <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/common/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/common/css/all.min.css') }}" rel="stylesheet">
@@ -56,65 +57,7 @@
 
     @include($activeTemplate.'components.footer')
     @include($activeTemplate.'components.cookie')
-    <!-- Modal (keep once) -->
-    <div class="modal fade" id="couponModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="btn-wrap">
-                    <button data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="modal-body justify-content-center align-items-center p-1">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-5 mb-3">
-                                <a href="#" class="couponName text-center" target="_blank">
-                                    <div class="logo-thumb">
-                                        <img class="couponImage img-fluid w-100" src="{{ asset('assets/images/general/logo.png') }}" alt="">
-                                    </div>
-                                </a>
-                                <div class="mt-3">
-                                    <!-- Center: Copy Code -->
-                                    <div class="mb-2 text-center">
-                                        <a href="" class="btn btn--base copy-btn copytext w-100" id="copyBoard-feature" target="_blank">@lang('Copy Code')</a>
-                                        <input type="text" class="coponCodeCopyFeature visually-hidden" name="code">
-                                    </div>
-                                    
-                                    <!-- Bottom Row: Left (Copy Link) | Right (Go to Website) -->
-                                    <div class="d-flex gap-2">
-                                        <a href="" class="btn btn--base couponName w-100" id="copyLink" target="_blank">@lang('Copy Link')</a>
-                                        <input type="text" class="couponLinkCopyFeature visually-hidden" name="link">
-                                        <a href="#" class="btn btn--base couponName w-100" target="_blank">@lang('Go to Website')</a>
-                                    </div>
-                                </div>
-                                <div class="footer-item social-wrapper mt-4">
-                                    <p class="mb-3">@lang('Share this coupon now.')</p>
-                                    <ul class="social-list">
-                                        <li class="social-list__item">
-                                            <a href="#" class="social-list__link share-link" target="_blank" data-social="facebook"><i class="fab fa-facebook-f"></i></a>
-                                        </li>
-                                        <li class="social-list__item">
-                                            <a href="#" class="social-list__link share-link" target="_blank" data-social="twitter"><i class="fab fa-twitter"></i></a>
-                                        </li>
-                                        <li class="social-list__item">
-                                            <a href="#" class="social-list__link share-link" target="_blank" data-social="linkedin"><i class="fab fa-linkedin-in"></i></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-7 mb-3 scroll_section_popup">
-                                <div class="p-2">
-                                    {{-- <p class="title"></p> --}}
-                                    <div class="description mt-2"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal (keep once) -->
+    <!-- Deal Modal (keep once) -->
     <div class="modal fade" id="dealModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
@@ -255,19 +198,21 @@
     <script>
         (function($) {
             "use strict";
-            // Affiliate Flow: Only Navigate to Detail Page (Replaces the old modal popup)
+            // Direct Coupon Detail Navigation for all users (Guests & Logged In)
             $(document).off('click', '.getCoupon').on('click', '.getCoupon', function(e) {
+                var href = $(this).attr('href');
+                if (href && href !== '#' && href.indexOf('javascript:') === -1) {
+                    // Real link: let natural browser navigation take place
+                    return true;
+                }
+
                 e.preventDefault();
-                @auth
-                    var couponId = $(this).data('id');
-                    var detailsUrl = "{{ url('/coupon-details') }}/" + couponId;
-                    
-                    // Navigate current tab to Detailed Coupon Page (Image 1 & 2)
-                    window.location.href = detailsUrl;
-                @else
-                    // User is not logged in, show Login Required Popup!
-                    $('#loginRequiredModal').modal('show');
-                @endauth
+                var slug = $(this).data('slug');
+                var couponId = $(this).data('id');
+                var target = slug || couponId;
+                if (target) {
+                    window.location.href = "{{ url('/coupon') }}/" + target;
+                }
             });
 
             // Universal Card Click: Make entire card clickable across all coupon & deal cards
@@ -282,79 +227,35 @@
                 }
             });
 
-            $('#copyBoard-feature').on('click', function(e) {
-                e.preventDefault();
-
-                var copyText = document.querySelector(".coponCodeCopyFeature");
-
-                if (copyText) {
-                    copyText.select();
-                    copyText.setSelectionRange(0, 99999); // For mobile compatibility
-                    document.execCommand("copy");
-                    copyText.blur();
-
-                    // Show notification (if exists)
-                    var notification = $('.coupon-code-notification');
-                    if (notification.length > 0) {
-                        notification.text('Copied Code').fadeIn().delay(1000).fadeOut(100);
-                    } else {
-                        // Fallback alert
-                        alert('Copied: ' + copyText.value);
-                    }
-
-                    // Optional: add 'copied' class for styling
-                    $(this).addClass('copied');
-
-                    // Open the link in new tab after a short delay
-                    var href = $(this).attr('href');
-                    if (href && href !== '#') {
-                        setTimeout(function() {
-                            window.open(href, '_blank');
-                        }, 2000);
-                    }
-                } else {
-                    alert('Copy target not found.');
+            // Auto reload fresh page if restored from browser back/forward cache
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
                 }
             });
-            $('#copyLink').on('click', function(e) {
-                e.preventDefault();
 
-                const link = $('.couponLinkCopyFeature').val();
-                if (!link) return alert('Link not found.');
-
-                navigator.clipboard.writeText(link).then(function () {
-                    const notification = $('.coupon-code-notification');
-                    notification.length
-                        ? notification.text('Link Copied').fadeIn().delay(1000).fadeOut(100)
-                        : alert('Link Copied: ' + link);
-                }).catch(function (err) {
-                    alert('Failed to copy: ' + err);
-                });
-            });
-
-            // get modal into product info
-            function getCouponInfo(couponId) {
-                $.ajax({
-                    url: '{{ route('get.modal.info') }}',
-                    type: 'get',
-                    data: {
-                        couponId: couponId,
-                    },
-                    success: function(response) {
-                        if (response.couponImage) {
-                            $('.couponImage').attr('src', response.couponImage);
-                        } else if (response.storeImage) {
-                            $('.couponImage').attr('src', response.storeImage);
-                        } else {
-                            console.error('store image could not found');
+            @auth
+                try {
+                    localStorage.setItem('couponsefra_auth_sync', '{{ auth()->user()->id }}_' + Date.now());
+                } catch(e) {}
+            @else
+                try {
+                    var initialAuth = localStorage.getItem('couponsefra_auth_sync');
+                    // When user logs in in another tab (e.g. from Grab Deal in new tab), auto-reload this tab so header shows logged in!
+                    window.addEventListener('storage', function(e) {
+                        if (e.key === 'couponsefra_auth_sync' && e.newValue) {
+                            window.location.reload();
                         }
-
-                    },
-                    error: function(error) {
-                        console.error('Error fetching product info:', error);
-                    }
-                });
-            }
+                    });
+                    // On tab focus, check if login occurred in the other tab
+                    window.addEventListener('focus', function() {
+                        var currentAuth = localStorage.getItem('couponsefra_auth_sync');
+                        if (currentAuth && currentAuth !== initialAuth) {
+                            window.location.reload();
+                        }
+                    });
+                } catch(e) {}
+            @endauth
             // add to wishlist
             $(document).on('click', '.addToWishList', function() {
                 'use strict';
@@ -533,11 +434,81 @@
     <script>
         (function($) {
             "use strict";
-            // If user is not logged in: Force login popup on slider, banner, deal or coupon clicks
-            $(document).on('click', '.slider-banner-link, .single-slide-link, .getDeal, .getCoupon, .vertical-coupon-card', function(e) {
+            // For direct affiliate redirects where cashback activation requires login
+            $(document).on('click', '.slider-banner-link, .single-slide-link', function(e) {
                 e.preventDefault();
                 $('#loginRequiredModal').modal('show');
                 return false;
+            });
+
+            // Cross-tab auto-detection when user logs in on another tab
+            var isReloading = false;
+            function reloadIfLoggedIn() {
+                if (isReloading) return;
+
+                var hasSync = false;
+                try {
+                    hasSync = !!localStorage.getItem('couponsefra_auth_sync');
+                } catch(e) {}
+
+                var hasCookie = document.cookie.indexOf('couponsefra_logged_in=1') !== -1;
+
+                if (hasSync || hasCookie) {
+                    isReloading = true;
+                    try { localStorage.removeItem('couponsefra_auth_sync'); } catch(e) {}
+                    window.location.reload();
+                    return;
+                }
+
+                // Verify with server endpoint when tab is focused
+                fetch('{{ route("check.auth") }}', { credentials: 'same-origin' })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data && data.logged_in) {
+                            isReloading = true;
+                            try { localStorage.removeItem('couponsefra_auth_sync'); } catch(e) {}
+                            window.location.reload();
+                        }
+                    })
+                    .catch(function() {});
+            }
+
+            // 1. BroadcastChannel API for instantaneous cross-tab sync
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    var authChannel = new BroadcastChannel('couponsefra_auth_channel');
+                    authChannel.onmessage = function(ev) {
+                        if (ev && ev.data && ev.data.type === 'LOGIN') {
+                            reloadIfLoggedIn();
+                        }
+                    };
+                } catch(e) {}
+            }
+
+            // 2. Storage event (fires instantly in other tabs on localStorage.setItem)
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'couponsefra_auth_sync' && e.newValue) {
+                    reloadIfLoggedIn();
+                }
+            });
+
+            // 3. Tab visibilitychange (fires when user switches back to this tab)
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    reloadIfLoggedIn();
+                }
+            });
+
+            // 4. Tab focus
+            window.addEventListener('focus', function() {
+                reloadIfLoggedIn();
+            });
+
+            // 5. Back-forward cache / pageshow
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    reloadIfLoggedIn();
+                }
             });
         })(jQuery);
     </script>
@@ -547,6 +518,18 @@
     <script>
         (function($) {
             "use strict";
+
+            // Signal to other open tabs that user is logged in
+            try {
+                localStorage.setItem('couponsefra_auth_sync', Date.now().toString());
+                document.cookie = "couponsefra_logged_in=1; path=/; max-age=2592000";
+                if (typeof BroadcastChannel !== 'undefined') {
+                    var authBc = new BroadcastChannel('couponsefra_auth_channel');
+                    authBc.postMessage({ type: 'LOGIN', timestamp: Date.now() });
+                    authBc.close();
+                }
+            } catch(e) {}
+
             var currentTrackingId = '{{ str_replace(["-", " "], "", auth()->user()->username) }}_{{ auth()->user()->id }}';
 
             function addTrackingSource(url) {

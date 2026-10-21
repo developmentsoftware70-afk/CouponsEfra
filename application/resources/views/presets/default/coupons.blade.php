@@ -26,11 +26,9 @@
                                 @endif
                             </div>
                             
-                            <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
-                                data-id="{{$item->id}}" data-title="{{$item->title}}" 
-                                data-code="{{$item->code}}" data-description="{{$item->description}}" 
-                                data-link="{{$item->link}}">
-                                Grab Deal
+                            <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="vertical-grab-btn getCoupon" 
+                                data-id="{{$item->id}}" data-slug="{{$item->slug}}">
+                                @lang('Grab Deal')
                             </a>
                         </div>
                     </div>
@@ -76,11 +74,9 @@
                                         {{ Str::limit($relItem->title, 35) }}
                                     </h6>
                                 </div>
-                                <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
-                                    data-id="{{$relItem->id}}" data-title="{{$relItem->title}}" 
-                                    data-code="{{$relItem->code}}" data-description="{{$relItem->description}}" 
-                                    data-link="{{$relItem->link}}">
-                                    Grab Deal
+                                <a href="{{ route('coupon.details', $relItem->slug ?? $relItem->id) }}" class="vertical-grab-btn getCoupon" 
+                                    data-id="{{$relItem->id}}" data-slug="{{$relItem->slug}}">
+                                    @lang('Grab Deal')
                                 </a>
                             </div>
                         </div>

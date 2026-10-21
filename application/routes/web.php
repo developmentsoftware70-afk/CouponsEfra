@@ -92,7 +92,8 @@ Route::controller('SiteController')->group(function () {
     // subscriber
     Route::post('/subscribe','subscribe')->name('subscribe');
 
-    Route::get('/coupon-details/{id}', 'couponDetails')->name('coupon.details');
+    Route::get('/coupon/{slug}', 'couponDetails')->name('coupon.details');
+    Route::get('/coupon-details/{id}', 'couponDetails');
     Route::get('/deal-details/{id}', 'dealDetails')->name('deal.details');
     Route::get('/go/{id}', 'goStore')->name('coupon.redirect');
     Route::get('/deal/go/{id}', 'goDeal')->name('deal.redirect');
@@ -106,3 +107,10 @@ Route::controller('SiteController')->group(function () {
 // Google Auth Routes
 Route::get('/api/auth/google/redirect', [\App\Http\Controllers\SocialLoginController::class, 'redirect'])->name('google.redirect');
 Route::get('/api/auth/google/callback', [\App\Http\Controllers\SocialLoginController::class, 'callback'])->name('google.callback');
+
+// Cross-tab Auth Sync Endpoint
+Route::get('/api/check-auth', function () {
+    return response()->json([
+        'logged_in' => auth()->check(),
+    ]);
+})->name('check.auth');

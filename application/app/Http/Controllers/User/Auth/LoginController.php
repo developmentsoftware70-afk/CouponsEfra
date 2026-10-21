@@ -48,6 +48,12 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         $pageTitle = "Login";
+        if (!session()->has('url.intended')) {
+            $prev = url()->previous();
+            if ($prev && $prev != url()->current() && !str_contains($prev, '/user/login') && !str_contains($prev, '/user/register') && !str_contains($prev, '/password/')) {
+                session()->put('url.intended', $prev);
+            }
+        }
         return view($this->activeTemplate . 'user.auth.login', compact('pageTitle'));
     }
 
@@ -114,6 +120,7 @@ class LoginController extends Controller
         $this->guard()->logout();
 
         request()->session()->invalidate();
+        \Cookie::queue(\Cookie::forget('couponsefra_logged_in'));
 
         $notify[] = ['success', 'You have been logged out.'];
         return to_route('user.login')->withNotify($notify);
@@ -153,7 +160,14 @@ class LoginController extends Controller
         $userLogin->os = @$userAgent['os_platform'];
         $userLogin->save();
 
-        return to_route('user.home');
+        \Cookie::queue('couponsefra_logged_in', '1', 60 * 24 * 30, '/', null, false, false);
+
+        $intendedUrl = session()->pull('url.intended');
+        if ($intendedUrl) {
+            return redirect()->to($intendedUrl);
+        }
+
+        return redirect()->intended(route('home'));
     }
 
 

@@ -43,10 +43,8 @@
                             $theme = $ckTheme[3];
                         @endphp
                         <div class="slick-slide-inner">
-                            <a href="javascript:void(0)" class="getCoupon ck-style-card-link"
-                                data-id="{{ $item->id }}" data-title="{{ $item->title }}"
-                                data-code="{{ $item->code }}" data-description="{{ $item->description }}"
-                                data-link="{{ $item->link }}">
+                            <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="getCoupon ck-style-card-link"
+                                data-id="{{ $item->id }}" data-slug="{{ $item->slug }}">
                                 @if(isset($item->is_background) && $item->is_background == 0 && $item->image)
                                     <div class="ck-style-card ck-banner-only-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
                                         <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}" class="ck-banner-only-img" loading="lazy">
@@ -57,6 +55,9 @@
                                                 <i class="far fa-heart"></i>
                                             @endif
                                         </button>
+                                        <span class="flash-banner-grab-deal-btn">
+                                            @lang('Grab Deal')
+                                        </span>
                                     </div>
                                 @else
                                     <div class="ck-style-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s" style="background: {{ $theme['bg'] }};">

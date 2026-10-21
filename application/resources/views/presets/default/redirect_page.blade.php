@@ -209,6 +209,17 @@
     </div>
     
     <script>
+        // Broadcast authentication across open tabs immediately
+        try {
+            localStorage.setItem('couponsefra_auth_sync', Date.now().toString());
+            document.cookie = "couponsefra_logged_in=1; path=/; max-age=2592000";
+            if (typeof BroadcastChannel !== 'undefined') {
+                var authBc = new BroadcastChannel('couponsefra_auth_channel');
+                authBc.postMessage({ type: 'LOGIN', timestamp: Date.now() });
+                authBc.close();
+            }
+        } catch(e) {}
+
         function copyFinalLink() {
             var finalLink = "{!! $link !!}";
             navigator.clipboard.writeText(finalLink).then(function() {

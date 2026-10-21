@@ -228,7 +228,12 @@ class RegisterController extends Controller
 
     public function registered()
     {
-        return to_route('user.home');
+        $intendedUrl = session()->pull('url.intended');
+        if ($intendedUrl) {
+            return redirect()->to($intendedUrl);
+        }
+
+        return redirect()->route('home');
     }
 
 }

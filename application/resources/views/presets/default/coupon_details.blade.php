@@ -16,8 +16,39 @@
     </div>
 
     <div class="container position-relative" style="z-index: 2;">
-        {{-- Back Navigation --}}
-        <div class="ck-top-nav-row">
+        {{-- Breadcrumb Navigation (SEO & User-friendly) --}}
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <nav aria-label="breadcrumb" class="ck-breadcrumb-nav">
+                <ol class="ck-breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+                    <li class="ck-breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a href="{{ route('home') }}" itemprop="item"><span itemprop="name">@lang('Home')</span></a>
+                        <meta itemprop="position" content="1" />
+                    </li>
+                    <li class="ck-breadcrumb-separator"><i class="fas fa-chevron-right"></i></li>
+                    @if($coupon->store)
+                        <li class="ck-breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a href="{{ route('store.coupons', $coupon->store_id) }}" itemprop="item">
+                                <span itemprop="name">{{ $coupon->store->name }}</span>
+                            </a>
+                            <meta itemprop="position" content="2" />
+                        </li>
+                        <li class="ck-breadcrumb-separator"><i class="fas fa-chevron-right"></i></li>
+                    @elseif($coupon->category)
+                        <li class="ck-breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a href="{{ route('category.coupons', $coupon->category_id) }}" itemprop="item">
+                                <span itemprop="name">{{ $coupon->category->name }}</span>
+                            </a>
+                            <meta itemprop="position" content="2" />
+                        </li>
+                        <li class="ck-breadcrumb-separator"><i class="fas fa-chevron-right"></i></li>
+                    @endif
+                    <li class="ck-breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <span itemprop="name">{{ Str::limit($coupon->title, 40) }}</span>
+                        <meta itemprop="position" content="{{ ($coupon->store || $coupon->category) ? 3 : 2 }}" />
+                    </li>
+                </ol>
+            </nav>
+
             <a href="{{ url()->previous() == url()->current() ? route('home') : url()->previous() }}" class="ck-back-link">
                 <i class="fas fa-arrow-left me-1"></i> @lang('Back to Deals')
             </a>
@@ -51,16 +82,32 @@
                         </p>
                     @endif
 
-                    {{-- CashKaro Style Cashback Badge Pill --}}
-                    <div class="ck-cashback-pill-box">
-                        <span class="ck-cb-brand-tag">CK</span>
-                        <span class="ck-cb-text">
-                            @if($coupon->is_cashback == 1)
-                                Upto {{ $coupon->cashback_amount }}% Cashback
-                            @else
-                                Verified Direct Deal
-                            @endif
-                        </span>
+                    {{-- CashKaro Style Cashback Badge Pill & Expiry Badge --}}
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="ck-cashback-pill-box">
+                            <span class="ck-cb-brand-tag">CK</span>
+                            <span class="ck-cb-text">
+                                @if($coupon->is_cashback == 1)
+                                    Upto {{ $coupon->cashback_amount }}% Cashback
+                                @else
+                                    Verified Direct Deal
+                                @endif
+                            </span>
+                        </div>
+
+                        @if($coupon->expire_date)
+                            @php
+                                $isExpired = \Carbon\Carbon::parse($coupon->expire_date)->isPast();
+                            @endphp
+                            <div class="ck-expiry-pill-badge {{ $isExpired ? 'ck-badge-expired' : '' }}" title="@lang('Offer Expiry Date')">
+                                <i class="far fa-clock me-1"></i>
+                                @if($isExpired)
+                                    @lang('Expired')
+                                @else
+                                    @lang('Exp: ') {{ \Carbon\Carbon::parse($coupon->expire_date)->format('d M, Y') }}
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -131,6 +178,16 @@
                             <li>@lang('No coupon code required — direct discount will be automatically applied on checkout')</li>
                         @endif
                         <li>@lang('Applicable on selected and qualifying categories')</li>
+                        @if($coupon->expire_date)
+                            <li>
+                                @lang('Offer Expiry:'): <strong>{{ \Carbon\Carbon::parse($coupon->expire_date)->format('d M, Y') }}</strong>
+                                @if(\Carbon\Carbon::parse($coupon->expire_date)->isPast())
+                                    <span class="badge bg-danger ms-1">@lang('Expired')</span>
+                                @else
+                                    <span class="badge bg-success ms-1">@lang('Verified & Active')</span>
+                                @endif
+                            </li>
+                        @endif
                         <li>@lang('Tested and verified by our deals curation team')</li>
                     </ul>
                 </div>
@@ -243,7 +300,7 @@
                                     </span>
                                 </div>
                                 <h6 class="ck-sidebar-item-title">
-                                    <a href="{{ route('coupon.details', $rel->id) }}">
+                                    <a href="{{ route('coupon.details', $rel->slug ?? $rel->id) }}">
                                         {{ Str::limit($rel->title, 42) }}
                                     </a>
                                 </h6>
@@ -251,7 +308,7 @@
                                     <span class="ck-sidebar-uses">
                                         <i class="far fa-eye me-1"></i>{{ $rel->click_count ?? 0 }} @lang('views')
                                     </span>
-                                    <a href="{{ route('coupon.details', $rel->id) }}" class="ck-sidebar-grab-btn">
+                                    <a href="{{ route('coupon.details', $rel->slug ?? $rel->id) }}" class="ck-sidebar-grab-btn">
                                         @lang('Grab Deal') <i class="fas fa-arrow-right ms-1"></i>
                                     </a>
                                 </div>
@@ -308,6 +365,61 @@
 .breadcumb {
     display: none !important;
 }
+
+/* Breadcrumb Navigation */
+.ck-breadcrumb-nav {
+    display: inline-block;
+}
+.ck-breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+}
+.ck-breadcrumb-item a {
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.ck-breadcrumb-item a:hover {
+    color: #0f172a;
+    text-decoration: underline;
+}
+.ck-breadcrumb-item.active span {
+    color: #0f172a;
+    font-weight: 600;
+}
+.ck-breadcrumb-separator {
+    margin: 0 8px;
+    color: #cbd5e1;
+    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Expiry Pill Badge on Card */
+.ck-expiry-pill-badge {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.ck-expiry-pill-badge.ck-badge-expired {
+    background: #ef4444 !important;
+    border-color: #dc2626 !important;
+}
+
 /* CashKaro Style Top Stage - Sleek Tech Dot-Grid & Centered Ambient Spotlight */
 .ck-top-stage-section {
     position: relative;
@@ -1449,6 +1561,41 @@
         setInterval(updateTimer, 1000);
     })();
 </script>
+@endpush
+
+@push('seo')
+    <meta name="description" content="{{ Str::limit(strip_tags($coupon->description ?: $coupon->title), 160) }}">
+    <meta property="og:title" content="{{ $coupon->title }} | CouponsEfra">
+    <meta property="og:description" content="{{ Str::limit(strip_tags($coupon->description ?: $coupon->title), 160) }}">
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="{{ route('coupon.details', $coupon->slug ?? $coupon->id) }}">
+    @if($coupon->image)
+        <meta property="og:image" content="{{ getImage(getFilePath('coupon').'/'.$coupon->image) }}">
+    @elseif($coupon->store && $coupon->store->image)
+        <meta property="og:image" content="{{ getImage(getFilePath('store').'/'.$coupon->store->image) }}">
+    @endif
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $coupon->title }}">
+    <meta name="twitter:description" content="{{ Str::limit(strip_tags($coupon->description ?: $coupon->title), 160) }}">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SaleEvent",
+      "name": "{{ addslashes($coupon->title) }}",
+      "description": "{{ addslashes(Str::limit(strip_tags($coupon->description ?: $coupon->title), 200)) }}",
+      "url": "{{ route('coupon.details', $coupon->slug ?? $coupon->id) }}",
+      @if($coupon->start_date)
+      "startDate": "{{ \Carbon\Carbon::parse($coupon->start_date)->toIso8601String() }}",
+      @endif
+      @if($coupon->expire_date)
+      "endDate": "{{ \Carbon\Carbon::parse($coupon->expire_date)->toIso8601String() }}",
+      @endif
+      "organizer": {
+        "@type": "Organization",
+        "name": "{{ addslashes(@$coupon->store->name ?? 'CouponsEfra') }}"
+      }
+    }
+    </script>
 @endpush
 
 @endsection

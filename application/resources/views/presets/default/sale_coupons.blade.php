@@ -71,14 +71,15 @@
                 <div class="row gy-4">
                     @forelse($saleCoupons as $index => $item)
                     <div class="col-lg-4 col-md-6 col-sm-6">
-                        <a href="javascript:void(0)" class="getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">
-                            <div class="coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
+                        <div class="coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
                             <div class="card-thumb">
-                                @if($item->image)
-                                <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" class="img-fluid" alt="@lang('Coupon Image')">
-                                @else
-                                <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" class="img-fluid" alt="@lang('Store Image')">
-                                @endif
+                                <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}">
+                                    @if($item->image)
+                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" class="img-fluid" alt="@lang('Coupon Image')">
+                                    @else
+                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" class="img-fluid" alt="@lang('Store Image')">
+                                    @endif
+                                </a>
                                 <div class="card-ribbon-wrap">
                                     <div class="ex-cta">
                                         @if($item->is_sale == 1)
@@ -97,12 +98,17 @@
                                 </div>
                             </div>
                             <div class="card-content-wrap">
-                                <p class="card-title">{{__($item->title)}}</p>
-                                <a href="javascript:void(0)" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-title="{{$item->title}}" data-code="{{$item->code}}" data-description="{{$item->description}}" data-link="{{$item->link}}">Grab Deal</a>
-                                 <p class="card-action">{!! isExpired($item->id) !!}</p>
+                                <p class="card-title">
+                                    <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="text-dark">
+                                        {{__($item->title)}}
+                                    </a>
+                                </p>
+                                <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="btn btn--base w-100 getCoupon" data-id="{{$item->id}}" data-slug="{{$item->slug}}">
+                                    @lang('Grab Deal')
+                                </a>
+                                <p class="card-action">{!! isExpired($item->id) !!}</p>
                             </div>
                         </div>
-                        </a>
                     </div>
                     
                     @empty

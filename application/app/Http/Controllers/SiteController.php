@@ -54,16 +54,29 @@ class SiteController extends Controller
     }
 
 
-    public function couponDetails($id)
+    public function couponDetails($slug)
     {
-        $coupon = Coupon::with(['store', 'category'])->findOrFail($id);
+        $coupon = Coupon::with(['store', 'category'])
+            ->where(function($q) use ($slug) {
+                $q->where('slug', $slug);
+                if (is_numeric($slug)) {
+                    $q->orWhere('id', $slug);
+                }
+            })
+            ->firstOrFail();
+
+        // 301 Canonical redirect if accessed via old numeric ID and slug exists
+        if (is_numeric($slug) && !empty($coupon->slug) && $slug != $coupon->slug) {
+            return redirect()->route('coupon.details', $coupon->slug, 301);
+        }
+
         $pageTitle = $coupon->title;
 
         // Fetch related coupons strictly from the SAME category (e.g. Shoes / Footwear)
         // Shows offers from other brands of the same category, prioritizing same store first if any
         $relatedQuery = Coupon::with(['store', 'category'])
             ->where('status', 1)
-            ->where('id', '!=', $id);
+            ->where('id', '!=', $coupon->id);
 
         if ($coupon->category_id) {
             $relatedQuery->where('category_id', $coupon->category_id);

@@ -14,6 +14,12 @@ class SocialLoginController extends Controller
     // Redirect user to Google
     public function redirect()
     {
+        if (!session()->has('url.intended')) {
+            $prev = url()->previous();
+            if ($prev && $prev != url()->current() && !str_contains($prev, '/user/login') && !str_contains($prev, '/user/register')) {
+                session()->put('url.intended', $prev);
+            }
+        }
         return Socialite::driver('google')->stateless()->with(['prompt' => 'select_account'])->redirect();
     }
 
@@ -48,8 +54,14 @@ class SocialLoginController extends Controller
             // Using Auth::login to persist session for the Blade application 
             // instead of redirect()->away with tokens.
             Auth::login($user);
+            \Cookie::queue('couponsefra_logged_in', '1', 60 * 24 * 30, '/', null, false, false);
 
-            return redirect()->route('user.home');
+            $intendedUrl = session()->pull('url.intended');
+            if ($intendedUrl) {
+                return redirect()->to($intendedUrl);
+            }
+
+            return redirect()->intended(route('home'));
 
         } catch (\Exception $e) {
             \Log::error('Google Login Error: ' . $e->getMessage());

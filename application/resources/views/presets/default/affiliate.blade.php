@@ -53,11 +53,9 @@
                         @endif
                     </div>
                     
-                    <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
-                        data-id="{{$item->id}}" data-title="{{$item->title}}" 
-                        data-code="{{$item->code}}" data-description="{{$item->description}}" 
-                        data-link="{{$item->link}}">
-                        Grab Deal
+                    <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="vertical-grab-btn getCoupon" 
+                        data-id="{{$item->id}}" data-slug="{{$item->slug}}">
+                        @lang('Grab Deal')
                     </a>
                 </div>
             </div>
@@ -95,11 +93,9 @@
                         @endif
                     </div>
                     
-                    <a href="javascript:void(0)" class="vertical-grab-btn getCoupon" 
-                        data-id="{{$item->id}}" data-title="{{$item->title}}" 
-                        data-code="{{$item->code}}" data-description="{{$item->description}}" 
-                        data-link="{{$item->link}}">
-                        Grab Deal
+                    <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="vertical-grab-btn getCoupon" 
+                        data-id="{{$item->id}}" data-slug="{{$item->slug}}">
+                        @lang('Grab Deal')
                     </a>
                 </div>
             </div>

@@ -44,13 +44,14 @@
                                     @endif
                                 </button>
 
-                                <a href="javascript:void(0)" class="getCoupon flash-card-link"
-                                    data-id="{{ $item->id }}" data-title="{{ $item->title }}"
-                                    data-code="{{ $item->code }}" data-description="{{ $item->description }}"
-                                    data-link="{{ $item->link }}">
+                                <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="getCoupon flash-card-link"
+                                    data-id="{{ $item->id }}" data-slug="{{ $item->slug }}">
                                     @if(isset($item->is_background) && $item->is_background == 0 && $item->image)
                                         <div class="flash-deal-card flash-banner-only-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.15 + ($index * 0.08) }}s">
                                             <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ __($item->title) }}" class="flash-banner-only-img" loading="lazy">
+                                            <span class="flash-banner-grab-deal-btn">
+                                                @lang('Grab Deal')
+                                            </span>
                                         </div>
                                     @else
                                         <div class="flash-deal-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.15 + ($index * 0.08) }}s">
@@ -205,6 +206,41 @@
 
 .flash-banner-only-card:hover .flash-banner-only-img {
     transform: scale(1.02);
+}
+
+.flash-banner-grab-deal-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 4;
+    background: #2563eb;
+    color: #ffffff !important;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 13px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: background 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+.flash-deal-card:hover .flash-banner-grab-deal-btn {
+    background: #1d4ed8;
+    transform: scale(1.03);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+}
+
+@media (max-width: 768px) {
+    .flash-banner-grab-deal-btn {
+        bottom: 12px;
+        right: 12px;
+        font-size: 11.5px;
+        padding: 5px 14px;
+    }
 }
 
 .flash-card-inner {
