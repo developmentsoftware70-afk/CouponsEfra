@@ -17,66 +17,179 @@
 </div>
 @endif
 <div class="row gy-4">
-    {{-- 
-    <div class="col-xl-6">
-
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">@lang('Monthly Deposit & Withdraw Report') (@lang('This year'))</h5>
-                <div id="account-chart"></div>
+<div class="row gy-4 mb-2">
+    <!-- Clicks Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-metric-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="kpi-icon-box kpi-icon-clicks">
+                        <i class="las la-mouse-pointer"></i>
+                    </div>
+                    <span class="kpi-header-title">@lang('Clicks')</span>
+                </div>
+                <a href="{{ route('admin.orders.index') }}" class="kpi-badge-link">
+                    @lang('Orders') <i class="las la-angle-right"></i>
+                </a>
+            </div>
+            <div class="kpi-stat-grid">
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Today')</span>
+                    <span class="kpi-stat-val" id="kpi-clicks-today">{{ formatShortNumber($kpiMetrics['clicks']['today']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Yesterday')</span>
+                    <span class="kpi-stat-val text-muted" id="kpi-clicks-yesterday">{{ formatShortNumber($kpiMetrics['clicks']['yesterday']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('MTD')</span>
+                    <span class="kpi-stat-val text-primary" id="kpi-clicks-mtd">{{ formatShortNumber($kpiMetrics['clicks']['mtd']) }}</span>
+                </div>
             </div>
         </div>
     </div>
-     --}}
+
+    <!-- Impressions Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-metric-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="kpi-icon-box kpi-icon-impressions">
+                        <i class="las la-eye"></i>
+                    </div>
+                    <span class="kpi-header-title">@lang('Impressions')</span>
+                </div>
+                <span class="kpi-badge-tag">@lang('Offers')</span>
+            </div>
+            <div class="kpi-stat-grid">
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Today')</span>
+                    <span class="kpi-stat-val" id="kpi-impressions-today">{{ formatShortNumber($kpiMetrics['impressions']['today']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Yesterday')</span>
+                    <span class="kpi-stat-val text-muted" id="kpi-impressions-yesterday">{{ formatShortNumber($kpiMetrics['impressions']['yesterday']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('MTD')</span>
+                    <span class="kpi-stat-val text-primary" id="kpi-impressions-mtd">{{ formatShortNumber($kpiMetrics['impressions']['mtd']) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payout Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-metric-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="kpi-icon-box kpi-icon-payout">
+                        <i class="las la-wallet"></i>
+                    </div>
+                    <span class="kpi-header-title">@lang('Payout')</span>
+                </div>
+                <a href="{{ route('admin.payouts.index') }}" class="kpi-badge-link">
+                    @lang('Payouts') <i class="las la-angle-right"></i>
+                </a>
+            </div>
+            <div class="kpi-stat-grid">
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Today')</span>
+                    <span class="kpi-stat-val text-success" id="kpi-payout-today-usd">$ {{ convertInrToUsd($kpiMetrics['payout']['today']) }}</span>
+                    <span class="kpi-stat-sub" id="kpi-payout-today-inr">₹ {{ formatShortNumber($kpiMetrics['payout']['today']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Yesterday')</span>
+                    <span class="kpi-stat-val text-muted" id="kpi-payout-yesterday-usd">$ {{ convertInrToUsd($kpiMetrics['payout']['yesterday']) }}</span>
+                    <span class="kpi-stat-sub" id="kpi-payout-yesterday-inr">₹ {{ formatShortNumber($kpiMetrics['payout']['yesterday']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('MTD')</span>
+                    <span class="kpi-stat-val text-success" id="kpi-payout-mtd-usd">$ {{ convertInrToUsd($kpiMetrics['payout']['mtd']) }}</span>
+                    <span class="kpi-stat-sub" id="kpi-payout-mtd-inr">₹ {{ formatShortNumber($kpiMetrics['payout']['mtd']) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unique Logins Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-metric-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="kpi-icon-box kpi-icon-logins">
+                        <i class="las la-user-check"></i>
+                    </div>
+                    <span class="kpi-header-title">@lang('Logins')</span>
+                </div>
+                <a href="{{ route('admin.report.login.history') }}" class="kpi-badge-link">
+                    @lang('History') <i class="las la-angle-right"></i>
+                </a>
+            </div>
+            <div class="kpi-stat-grid">
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Today')</span>
+                    <span class="kpi-stat-val text-primary" id="kpi-logins-today">{{ formatShortNumber($kpiMetrics['logins']['today']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Yesterday')</span>
+                    <span class="kpi-stat-val text-muted" id="kpi-logins-yesterday">{{ formatShortNumber($kpiMetrics['logins']['yesterday']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('MTD')</span>
+                    <span class="kpi-stat-val text-primary" id="kpi-logins-mtd">{{ formatShortNumber($kpiMetrics['logins']['mtd']) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">@lang('Daily Logins') (@lang('Last 10 days'))</h5>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">@lang('Performance Report')</h5>
+                    <div class="position-relative">
+                        <button type="button" class="btn btn-outline--primary btn-sm d-flex align-items-center gap-2" id="perfDateRangeBtn">
+                            <i class="las la-calendar"></i>
+                            <span id="selectedRangeText">{{ $performanceData['rangeLabel'] }}</span>
+                            <i class="las la-angle-down"></i>
+                        </button>
+
+                        <div id="perfDateDropdown" class="perf-dropdown-menu shadow border rounded p-3 bg-white" style="display: none; position: absolute; right: 0; top: 110%; z-index: 1050; min-width: 220px; width: 230px;">
+                            <div class="d-flex flex-column gap-1 mb-3">
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'today' ? 'active' : '' }}" data-preset="today">@lang('Today')</button>
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'yesterday' ? 'active' : '' }}" data-preset="yesterday">@lang('Yesterday')</button>
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'last_7_days' ? 'active' : '' }}" data-preset="last_7_days">@lang('Last 7 Days')</button>
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'last_30_days' ? 'active' : '' }}" data-preset="last_30_days">@lang('Last 30 Days')</button>
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'this_month' ? 'active' : '' }}" data-preset="this_month">@lang('This Month')</button>
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'last_month' ? 'active' : '' }}" data-preset="last_month">@lang('Last Month')</button>
+                                <button type="button" class="btn btn-sm text-start perf-preset-btn {{ $performanceData['preset'] == 'custom' ? 'active' : '' }}" data-preset="custom">@lang('Custom')</button>
+                            </div>
+
+                            <div id="customDateContainer" class="mb-3" style="display: {{ $performanceData['preset'] == 'custom' ? 'block' : 'none' }};">
+                                <div class="mb-2">
+                                    <label class="form-label small text-muted mb-1">@lang('Start Date')</label>
+                                    <input type="date" class="form-control form-control-sm" id="perfStartDate" value="{{ $performanceData['startDate'] }}">
+                                </div>
+                                <div>
+                                    <label class="form-label small text-muted mb-1">@lang('End Date')</label>
+                                    <input type="date" class="form-control form-control-sm" id="perfEndDate" value="{{ $performanceData['endDate'] }}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between gap-2 pt-2 border-top">
+                                <button type="button" class="btn btn-sm btn--success flex-grow-1" id="perfApplyBtn">@lang('Submit')</button>
+                                <button type="button" class="btn btn-sm btn--dark" id="perfCancelBtn">@lang('Cancel')</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div id="login-chart"></div>
             </div>
         </div>
     </div>
     <div class="col-xl-6">
         <div class="row gy-4">
-            {{-- 
-            <div class="col-sm-6">
-                <a href="{{route('admin.deposit.list')}}">
-                    <div class="card prod-p-card background-pattern">
-                        <div class="card-body">
-                            <div class="row align-items-center m-b-0">
-                                <div class="col">
-                                    <h6 class="m-b-5">@lang('Total Deposited')</h6>
-                                    <h3 class="m-b-0">{{ $general->cur_sym
-                                        }}{{showAmount($deposit['total_deposit_amount'])}}</h3>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="dashboard-widget__icon fas fa-hand-holding-usd"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-6">
-                <a href="{{route('admin.deposit.list')}}">
-                    <div class="card prod-p-card background-pattern-white bg--primary">
-                        <div class="card-body">
-                            <div class="row align-items-center m-b-0">
-                                <div class="col">
-                                    <h6 class="m-b-5 text-white">@lang('Deposited Charge')</h6>
-                                    <h3 class="m-b-0 text-white">{{ $general->cur_sym
-                                        }}{{showAmount($deposit['total_deposit_charge'])}}</h3>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="dashboard-widget__icon fas fa-percentage text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-             --}}
-        
             <div class="col-sm-12">
                 <div class="card p-3 rounded-3">
                     <div class="row g-0">
@@ -88,7 +201,7 @@
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
                                         href="{{route('admin.users.all')}}"></a>
-                                    <h5>{{$widget['total_users']}}</h5>
+                                    <h5 id="widget-total-users">{{$widget['total_users']}}</h5>
                                     <span>@lang('Total Users')</span>
                                 </div>
                             </div>
@@ -101,7 +214,7 @@
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
                                         href="{{route('admin.users.active')}}"></a>
-                                    <h5>{{$widget['verified_users']}}</h5>
+                                    <h5 id="widget-verified-users">{{$widget['verified_users']}}</h5>
                                     <span>@lang('Active Users')</span>
                                 </div>
                             </div>
@@ -114,42 +227,12 @@
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
                                         href="{{route('admin.users.email.unverified')}}"></a>
-                                    <h5>{{$widget['email_unverified_users']}}</h5>
+                                    <h5 id="widget-email-unverified-users">{{$widget['email_unverified_users']}}</h5>
                                     <span>@lang('Email Unverified')</span>
                                 </div>
 
                             </div>
                         </div>
-                       {{-- 
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
-                            <div class="dashboard-widget">
-                                <div class="dashboard-widget__icon">
-                                    <i class="dashboard-card-icon las la-spinner"></i>
-                                </div>
-                                <div class="dashboard-widget__content">
-                                    <a title="@lang('View all')" class="dashboard-widget-link"
-                                        href="{{route('admin.deposit.pending')}}"></a>
-                                    <h5>{{$deposit['total_deposit_pending']}}</h5>
-                                    <span>@lang('Pending Deposits')</span>
-                                </div>
-                            </div>
-                        </div>
-                         
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
-                            <div class="dashboard-widget">
-                                <div class="dashboard-widget__icon">
-                                    <i class="dashboard-card-icon las la-ban"></i>
-                                </div>
-                                <div class="dashboard-widget__content">
-                                    <a title="@lang('View all')" class="dashboard-widget-link"
-                                        href="{{route('admin.deposit.rejected')}}">
-                                    </a>
-                                    <h5>{{$deposit['total_deposit_rejected']}}</h5>
-                                    <span>@lang('Rejected Deposits')</span>
-                                </div>
-                            </div>
-                        </div>
-                        --}}
                         <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
@@ -158,7 +241,7 @@
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
                                         href="{{route('admin.coupon.index')}}"></a>
-                                    <h5>{{$widget['totalCoupon']}}</h5>
+                                    <h5 id="widget-total-coupons">{{$widget['totalCoupon']}}</h5>
                                     <span>@lang('Total Coupons')</span>
                                 </div>
 
@@ -173,7 +256,7 @@
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
                                         href="{{route('admin.category.index')}}"></a>
-                                    <h5>{{$widget['totalCategory']}}</h5>
+                                    <h5 id="widget-total-categories">{{$widget['totalCategory']}}</h5>
                                     <span>@lang('Total Categories')</span>
                                 </div>
 
@@ -187,7 +270,7 @@
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
                                         href="{{route('admin.store.index')}}"></a>
-                                    <h5>{{$widget['totalStore']}}</h5>
+                                    <h5 id="widget-total-stores">{{$widget['totalStore']}}</h5>
                                     <span>@lang('Total Stores')</span>
                                 </div>
 
@@ -242,113 +325,407 @@
 
 <script>
     "use strict";
-    // [ account-chart ] start
-    (function () {
-        var options = {
-            chart: {
-                type: 'area',
-                stacked: false,
-                height: '310px'
-            },
-            stroke: {
-                width: [0, 3],
-                curve: 'smooth'
-            },
-            plotOptions: {
-                bar: {
-                    columnWidth: '50%'
-                }
-            },
-            colors: ['#00adad', '#67BAA7'],
-            series: [{
-        name: '@lang("Deposits")',
-        type: 'area',
-        data: @json($depositsChart['values'])
-    }],
-    fill: {
-        opacity: [0.85, 1],
-                },
-    labels: @json($depositsChart['labels']),
-    markers: {
-        size: 0
-    },
-    xaxis: {
-        type: 'text'
-    },
-    yaxis: {
-        min: 0
-    },
-    tooltip: {
-        shared: true,
-            intersect: false,
-                y: {
-            formatter: function (y) {
-                if (typeof y !== "undefined") {
-                    return "$ " + y.toFixed(0);
-                }
-                return y;
-
-            }
-        }
-    },
-    legend: {
-        labels: {
-            useSeriesColors: true
-        },
-        markers: {
-            customHTML: [
-                function () {
-                    return ''
-                },
-                function () {
-                    return ''
-                }
-            ]
-        }
-    }
-            }
-    var chart = new ApexCharts(
-        document.querySelector("#account-chart"),
-        options
-    );
-    chart.render();
-        }) ();
 
     // [ login-chart ] start
     (function () {
+        var perfData = @json($performanceData);
+        var selectedPreset = perfData.preset || 'last_7_days';
+
         var options = {
-            series: [{
-                name: "User Count",
-                data: @json($userLogins['values'])
-    }],
-    chart: {
-        height: '310px',
-            type: 'area',
+            series: [
+                {
+                    name: "Clicks",
+                    data: perfData.clicks
+                },
+                {
+                    name: "Impressions",
+                    data: perfData.impressions
+                },
+                {
+                    name: "Payout",
+                    data: perfData.payout
+                },
+                {
+                    name: "Unique Logins",
+                    data: perfData.logins
+                }
+            ],
+            chart: {
+                height: '310px',
+                type: 'area',
                 zoom: {
-            enabled: false
-        }
-    },
-    dataLabels: {
-        enabled: false
-    },
-    stroke: {
-        curve: 'smooth'
-    },
-    colors: ['#00adad'],
-        labels: @json($userLogins['labels']),
-    xaxis: {
-        type: 'date',
+                    enabled: false
+                }
             },
-    yaxis: {
-        opposite: true
-    },
-    legend: {
-        horizontalAlign: 'left'
-    }
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: ['#00adad', '#5b69bc', '#ff9f43', '#28c76f'],
+            labels: perfData.dates,
+            xaxis: {
+                type: 'date',
+            },
+            yaxis: {
+                opposite: false
+            },
+            legend: {
+                horizontalAlign: 'left'
+            }
         };
 
-    var chart = new ApexCharts(document.querySelector("#login-chart"), options);
-    chart.render();
+        var chart = new ApexCharts(document.querySelector("#login-chart"), options);
+        chart.render();
+
+        // Date Range interactions
+        var dateBtn = $('#perfDateRangeBtn');
+        var dropdown = $('#perfDateDropdown');
+        var customContainer = $('#customDateContainer');
+        var applyBtn = $('#perfApplyBtn');
+        var cancelBtn = $('#perfCancelBtn');
+
+        dateBtn.on('click', function (e) {
+            e.stopPropagation();
+            dropdown.toggle();
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('#perfDateRangeBtn, #perfDateDropdown').length) {
+                dropdown.hide();
+            }
+        });
+
+        cancelBtn.on('click', function () {
+            dropdown.hide();
+        });
+
+        $('.perf-preset-btn').on('click', function () {
+            $('.perf-preset-btn').removeClass('active');
+            $(this).addClass('active');
+            selectedPreset = $(this).data('preset');
+
+            if (selectedPreset === 'custom') {
+                customContainer.slideDown(150);
+            } else {
+                customContainer.slideUp(150);
+            }
+        });
+
+        applyBtn.on('click', function () {
+            var startDate = $('#perfStartDate').val();
+            var endDate = $('#perfEndDate').val();
+            dropdown.hide();
+
+            $.ajax({
+                url: "{{ route('admin.dashboard.performance.chart') }}",
+                type: 'GET',
+                data: {
+                    preset: selectedPreset,
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function (res) {
+                    if (res && res.dates) {
+                        $('#selectedRangeText').text(res.rangeLabel);
+
+                        chart.updateOptions({
+                            labels: res.dates,
+                            xaxis: {
+                                categories: res.dates
+                            }
+                        });
+
+                        chart.updateSeries([
+                            { name: "Clicks", data: res.clicks },
+                            { name: "Impressions", data: res.impressions },
+                            { name: "Payout", data: res.payout },
+                            { name: "Unique Logins", data: res.logins }
+                        ]);
+                    }
+                }
+            });
+        });
+
+        // Smoothly update KPI text with subtle animation if value has changed
+        function updateSmoothVal(selector, newVal) {
+            var $el = $(selector);
+            if ($el.length && $el.text().trim() !== String(newVal).trim()) {
+                $el.addClass('kpi-val-updating');
+                setTimeout(function() {
+                    $el.text(newVal);
+                    $el.removeClass('kpi-val-updating').addClass('kpi-val-updated');
+                    setTimeout(function() {
+                        $el.removeClass('kpi-val-updated');
+                    }, 1400);
+                }, 120);
+            }
+        }
+
+        // Realtime Polling (Every 3 seconds without page reload)
+        var isPolling = false;
+        function pollRealtimeDashboard() {
+            if (isPolling) {
+                return;
+            }
+            isPolling = true;
+
+            var startDate = (selectedPreset === 'custom') ? $('#perfStartDate').val() : null;
+            var endDate = (selectedPreset === 'custom') ? $('#perfEndDate').val() : null;
+
+            $.ajax({
+                url: "{{ route('admin.dashboard.realtime.metrics') }}",
+                type: 'GET',
+                data: {
+                    preset: selectedPreset,
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.kpi) {
+                        // Clicks
+                        updateSmoothVal('#kpi-clicks-today', res.kpi.clicks.today);
+                        updateSmoothVal('#kpi-clicks-yesterday', res.kpi.clicks.yesterday);
+                        updateSmoothVal('#kpi-clicks-mtd', res.kpi.clicks.mtd);
+
+                        // Impressions
+                        updateSmoothVal('#kpi-impressions-today', res.kpi.impressions.today);
+                        updateSmoothVal('#kpi-impressions-yesterday', res.kpi.impressions.yesterday);
+                        updateSmoothVal('#kpi-impressions-mtd', res.kpi.impressions.mtd);
+
+                        // Payout
+                        updateSmoothVal('#kpi-payout-today-usd', res.kpi.payout.today_usd);
+                        updateSmoothVal('#kpi-payout-today-inr', res.kpi.payout.today_inr);
+                        updateSmoothVal('#kpi-payout-yesterday-usd', res.kpi.payout.yesterday_usd);
+                        updateSmoothVal('#kpi-payout-yesterday-inr', res.kpi.payout.yesterday_inr);
+                        updateSmoothVal('#kpi-payout-mtd-usd', res.kpi.payout.mtd_usd);
+                        updateSmoothVal('#kpi-payout-mtd-inr', res.kpi.payout.mtd_inr);
+
+                        // Logins
+                        if (res.kpi.logins) {
+                            updateSmoothVal('#kpi-logins-today', res.kpi.logins.today);
+                            updateSmoothVal('#kpi-logins-yesterday', res.kpi.logins.yesterday);
+                            updateSmoothVal('#kpi-logins-mtd', res.kpi.logins.mtd);
+                        }
+                    }
+
+                    // Smooth widgets update
+                    if (res && res.widgets) {
+                        updateSmoothVal('#widget-total-users', res.widgets.total_users);
+                        updateSmoothVal('#widget-verified-users', res.widgets.verified_users);
+                        updateSmoothVal('#widget-email-unverified-users', res.widgets.email_unverified_users);
+                        updateSmoothVal('#widget-total-coupons', res.widgets.totalCoupon);
+                        updateSmoothVal('#widget-total-categories', res.widgets.totalCategory);
+                        updateSmoothVal('#widget-total-stores', res.widgets.totalStore);
+                    }
+
+                    // Smooth chart update
+                    if (res && res.chart && res.chart.dates) {
+                        chart.updateSeries([
+                            { name: "Clicks", data: res.chart.clicks },
+                            { name: "Impressions", data: res.chart.impressions },
+                            { name: "Payout", data: res.chart.payout },
+                            { name: "Unique Logins", data: res.chart.logins }
+                        ], true);
+                    }
+                },
+                complete: function () {
+                    isPolling = false;
+                }
+            });
+        }
+
+        // Poll every 3 seconds for fast, smooth live updates
+        setInterval(pollRealtimeDashboard, 3000);
+
+        // Immediate poll on window focus or visibility change
+        $(window).on('focus', pollRealtimeDashboard);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                pollRealtimeDashboard();
+            }
+        });
     }) ();
 </script>
+@endpush
+
+@push('style')
+<style>
+.perf-preset-btn {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 5px 10px;
+    width: 100%;
+}
+.perf-preset-btn:hover {
+    background-color: #edf2f7;
+    color: #1e293b;
+}
+.perf-preset-btn.active {
+    background-color: #00adad !important;
+    border-color: #00adad !important;
+    color: #ffffff !important;
+}
+.perf-dropdown-menu {
+    border-color: #e2e8f0;
+}
+.kpi-metric-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    padding: 16px 12px 18px 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.kpi-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+.kpi-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.2px;
+}
+.kpi-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.kpi-icon-clicks {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+.kpi-icon-impressions {
+    background: #fef3c7;
+    color: #d97706;
+}
+.kpi-icon-payout {
+    background: #dcfce7;
+    color: #16a34a;
+}
+.kpi-icon-logins {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+.kpi-badge-link {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #0284c7;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    padding: 3px 7px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+.kpi-badge-link:hover {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+.kpi-badge-tag {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 3px 7px;
+    white-space: nowrap;
+}
+.kpi-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #edf2f7;
+    padding: 10px 4px;
+}
+.kpi-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2px 2px;
+    min-width: 0;
+}
+.kpi-stat-item:not(:last-child) {
+    border-right: 1px solid #e2e8f0;
+}
+.kpi-stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    color: #64748b;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.kpi-stat-val,
+.kpi-stat-sub,
+#widget-total-users,
+#widget-verified-users,
+#widget-email-unverified-users,
+#widget-total-coupons,
+#widget-total-categories,
+#widget-total-stores {
+    display: inline-block;
+    transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease;
+}
+.kpi-stat-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+.kpi-stat-sub {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 3px;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+.kpi-val-updating {
+    opacity: 0.35;
+    transform: scale(0.94);
+}
+.kpi-val-updated {
+    animation: kpiValPulse 1.4s ease;
+}
+@keyframes kpiValPulse {
+    0% {
+        transform: scale(1.15);
+        color: #00adad !important;
+        text-shadow: 0 0 10px rgba(0, 173, 173, 0.45);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        text-shadow: none;
+    }
+}
+</style>
 @endpush

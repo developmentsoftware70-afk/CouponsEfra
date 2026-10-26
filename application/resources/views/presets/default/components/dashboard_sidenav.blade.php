@@ -89,6 +89,18 @@
                 </div>
             </li>
             @endif
+            <li class="sidebar-menu-list__item {{ Route::is('user.orders') ? 'active' : '' }}">
+                <a href="{{ route('user.orders') }}" class="sidebar-menu-list__link">
+                    <span class="icon"><i class="fas fa-shopping-bag"></i></span>
+                    @lang('My Orders')
+                </a>
+            </li>
+            <li class="sidebar-menu-list__item {{ Route::is('user.payouts') ? 'active' : '' }}">
+                <a href="{{ route('user.payouts') }}" class="sidebar-menu-list__link">
+                    <span class="icon"><i class="fas fa-hand-holding-usd"></i></span>
+                    @lang('Payout / Withdraw')
+                </a>
+            </li>
             <li class="sidebar-menu-list__item {{ Route::is('user.my.wishlist') ? 'active' : '' }}">
                 <a href="{{ route('user.my.wishlist') }}" class="sidebar-menu-list__link">
                     <span class="icon"><i class="far fa-heart"></i></span>

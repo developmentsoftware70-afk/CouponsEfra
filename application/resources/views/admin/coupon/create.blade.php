@@ -71,6 +71,13 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
+                                    <label class="fw-bold">@lang('Product Price / Amount (₹)') </label>
+                                    <input type="number" step="0.01" class="form-control" placeholder="@lang('e.g. 1499.00')"
+                                        name="price" value="{{ old('price', '') }}" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
                                     <label class="fw-bold">@lang('Start Date') </label>
                                     <input type="date" class="form-control" placeholder="@lang('Start Date')"
                                         name="start_date" value="" required />

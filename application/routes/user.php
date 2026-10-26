@@ -56,6 +56,11 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('wishlist','addWishlist')->name('wishlist.add');
                 Route::get('wishlist/remove/{id}','removeWishlist')->name('wishlist.remove');
                 Route::get('wishlist-list','myWishlist')->name('my.wishlist');
+                // Orders tracking
+                Route::get('orders', 'orders')->name('orders');
+                // Payouts & Withdrawals
+                Route::get('payouts', 'payouts')->name('payouts');
+                Route::post('payouts/request', 'payoutRequest')->name('payouts.request');
                 // my earnings
                 Route::get('earnings-list','myEarnings')->name('my.earnings');
                 Route::get('earnings','viewEarnings')->name('earnings.view');

@@ -37,6 +37,7 @@ class DealController extends Controller
             $deal->title=$request->title;
             $deal->deal_category_id=$request->deal_category_id;
             $deal->button_label=$request->button_label;
+            $deal->price=$request->price ?? 0;
             $deal->link=$request->link;
             $deal->is_affiliate=$request->is_affiliate ? 1 : 0;
             $deal->is_earning=$request->is_earning ? 1 : 0;
@@ -84,6 +85,7 @@ class DealController extends Controller
             $deal->title=$request->title;
             $deal->deal_category_id=$request->deal_category_id;
             $deal->button_label=$request->button_label;
+            $deal->price=$request->price ?? 0;
             $deal->link=$request->link;
             $deal->is_affiliate=$request->is_affiliate ? 1 : 0;
             $deal->is_earning=$request->is_earning ? 1 : 0;
