@@ -32,16 +32,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $general = gs();
-        $activeTemplate = activeTemplate();
-        $viewShare['general'] = $general;
-        $viewShare['activeTemplate'] = $activeTemplate;
-        $viewShare['activeTemplateTrue'] = activeTemplate(true);
-        $viewShare['language'] = \Illuminate\Support\Facades\Cache::remember('all_languages', 86400, function() {
-            return Language::all();
-        });
-        $viewShare['emptyMessage'] = 'No data';
-        view()->share($viewShare);
+        try {
+            $general = gs();
+            $activeTemplate = activeTemplate();
+            $viewShare['general'] = $general;
+            $viewShare['activeTemplate'] = $activeTemplate;
+            $viewShare['activeTemplateTrue'] = activeTemplate(true);
+            $viewShare['language'] = \Illuminate\Support\Facades\Cache::remember('all_languages', 86400, function() {
+                return Language::all();
+            });
+            $viewShare['emptyMessage'] = 'No data';
+            view()->share($viewShare);
+        } catch (\Throwable $e) {
+            // Gracefully handle build time / uninitialized database
+        }
         
         view()->composer('admin.components.tabs.user', function ($view) {
             $view->with([

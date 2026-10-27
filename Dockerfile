@@ -26,8 +26,8 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html
 
-# Install composer dependencies
-RUN cd /var/www/html/application && composer install --no-dev --optimize-autoloader
+# Install composer dependencies without running scripts during image build
+RUN cd /var/www/html/application && composer install --no-dev --no-scripts --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/application/storage /var/www/html/application/bootstrap/cache \
@@ -38,4 +38,4 @@ RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/Allo
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD ["/bin/sh", "-c", "cd /var/www/html/application && php artisan package:discover --ansi && apache2-foreground"]
