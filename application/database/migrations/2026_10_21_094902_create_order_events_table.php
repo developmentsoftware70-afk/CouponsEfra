@@ -11,10 +11,31 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_events', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('order_events')) {
+            Schema::create('order_events', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('order_id')->index();
+                $table->string('status', 50)->nullable();
+                $table->text('detail')->nullable();
+                $table->timestamp('event_at')->nullable();
+                $table->timestamps();
+            });
+        } else {
+            Schema::table('order_events', function (Blueprint $table) {
+                if (!Schema::hasColumn('order_events', 'order_id')) {
+                    $table->unsignedBigInteger('order_id')->index()->after('id');
+                }
+                if (!Schema::hasColumn('order_events', 'status')) {
+                    $table->string('status', 50)->nullable()->after('order_id');
+                }
+                if (!Schema::hasColumn('order_events', 'detail')) {
+                    $table->text('detail')->nullable()->after('status');
+                }
+                if (!Schema::hasColumn('order_events', 'event_at')) {
+                    $table->timestamp('event_at')->nullable()->after('detail');
+                }
+            });
+        }
     }
 
     /**

@@ -35,9 +35,14 @@ return new class extends Migration {
             });
         }
 
-        if (Schema::hasTable('orders') && !Schema::hasColumn('orders', 'click_id')) {
+        if (Schema::hasTable('orders')) {
             Schema::table('orders', function (Blueprint $table) {
-                $table->string('click_id', 64)->nullable()->after('id')->index();
+                if (!Schema::hasColumn('orders', 'click_id')) {
+                    $table->string('click_id', 64)->nullable()->after('id')->index();
+                }
+                if (!Schema::hasColumn('orders', 'payout_amount')) {
+                    $table->decimal('payout_amount', 12, 2)->default(0)->after('amount');
+                }
             });
         }
     }
