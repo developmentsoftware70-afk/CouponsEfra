@@ -90,6 +90,7 @@ Route::controller('SiteController')->group(function () {
 
     //Single coupon Search 
     Route::get('coupon/search', 'singleCouponSearch')->name('single.coupon.search');
+    Route::get('search/suggest', 'searchSuggest')->name('search.suggest');
 
     // subscriber
     Route::post('/subscribe','subscribe')->name('subscribe');

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Order extends Model
 {
     protected $fillable = [
+        'click_id',
         'user_id',
         'merchant_id',
         'merchant_order_id',

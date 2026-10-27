@@ -17,6 +17,19 @@ class WebhookController extends Controller
     public function handleMerchantCallback(Request $request)
     {
         $orderId = $request->input('order_id') ?? $request->input('track_id');
+        $clickId = $request->input('click_id') ?? $request->input('irclid');
+
+        if (!$orderId && $clickId) {
+            $matchedOrder = Order::where('click_id', $clickId)->first();
+            if ($matchedOrder) {
+                $orderId = $matchedOrder->id;
+            } else {
+                $click = \App\Models\Click::where('click_id', $clickId)->first();
+                if ($click && $click->order_id) {
+                    $orderId = $click->order_id;
+                }
+            }
+        }
 
         // If track_id format like username_userId_orderId
         if ($orderId && !is_numeric($orderId) && str_contains($orderId, '_')) {
