@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deals', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->integer('user_id')->default(0);
-            $table->string('description')->nullable();
-            $table->string('link')->nullable();
-            $table->string('image')->nullable();
-            $table->string('button_label')->nullable();
-            $table->integer('is_popular');
-            $table->boolean('is_show')->default(1);   // Show on front
-            $table->boolean('status')->default(1); // Active status
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('deals')) {
+            Schema::create('deals', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->integer('user_id')->default(0);
+                $table->string('description')->nullable();
+                $table->string('link')->nullable();
+                $table->string('image')->nullable();
+                $table->string('button_label')->nullable();
+                $table->integer('is_popular');
+                $table->boolean('is_show')->default(1);   // Show on front
+                $table->boolean('status')->default(1); // Active status
+                $table->timestamps();
+            });
+        }
     }
 
     /**
