@@ -47,6 +47,7 @@ class CouponController extends Controller
             $coupon->sale=$request->sale;
             $coupon->discount_offer=$request->discount_offer;
             $coupon->cashback_amount=$request->cashback_amount;
+            $coupon->price=$request->price ?? 0;
             $coupon->is_featured=$request->is_featured ? 1 : 0;
             $coupon->is_exclusive=$request->is_exclusive ? 1 : 0;
             $coupon->is_popular=$request->is_popular ? 1 : 0;
@@ -106,6 +107,7 @@ class CouponController extends Controller
             $coupon->sale=$request->sale;
             $coupon->discount_offer=$request->discount_offer;
             $coupon->cashback_amount=$request->cashback_amount;
+            $coupon->price=$request->price ?? 0;
             $coupon->is_featured=$request->is_featured ? 1 : 0;
             $coupon->is_exclusive=$request->is_exclusive ? 1 : 0;
             $coupon->is_popular=$request->is_popular ? 1 : 0;

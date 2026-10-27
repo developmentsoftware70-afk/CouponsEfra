@@ -19,9 +19,43 @@ use App\Models\DealCategory;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Order;
+use App\Models\DailyMetric;
+use App\Models\Click;
+use App\Lib\ClientInfo;
 
 class SiteController extends Controller
 {
+    /**
+     * Record real-time impressions for rendered items without depending on clicks.
+     */
+    protected function recordImpressions($items, $type = 'coupon')
+    {
+        try {
+            if (!$items) return;
+            if ($items instanceof \Illuminate\Pagination\LengthAwarePaginator || $items instanceof \Illuminate\Support\Collection) {
+                $ids = $items->pluck('id')->filter()->all();
+            } elseif (is_array($items)) {
+                $ids = array_filter($items);
+            } elseif (is_numeric($items)) {
+                $ids = [(int)$items];
+            } else {
+                $ids = [];
+            }
+
+            if (!empty($ids)) {
+                if ($type === 'coupon') {
+                    Coupon::whereIn('id', $ids)->increment('impression_count');
+                } elseif ($type === 'deal') {
+                    Deal::whereIn('id', $ids)->increment('impression_count');
+                }
+                DailyMetric::incrementImpressions(count($ids));
+            }
+        } catch (\Throwable $e) {
+            // Failsafe: never break page rendering
+        }
+    }
+
     public function index(){
         $reference = @$_GET['reference'];
         if ($reference) {
@@ -42,6 +76,13 @@ class SiteController extends Controller
         $slider = Cache::remember('home_sliders_active', 1800, function () {
             return Slider::where('status', '1')->get();
         });
+
+        // Record real-time impressions for active offers on home page
+        $homeCoupons = Coupon::where('status', 1)->latest()->take(12)->pluck('id')->all();
+        $homeDeals   = Deal::where('status', 1)->latest()->take(12)->pluck('id')->all();
+        $this->recordImpressions($homeCoupons, 'coupon');
+        $this->recordImpressions($homeDeals, 'deal');
+
         return view($this->activeTemplate . 'home', compact('pageTitle','sections','categories','slider'));
     }
 
@@ -64,6 +105,8 @@ class SiteController extends Controller
                 }
             })
             ->firstOrFail();
+
+        $coupon->increment('impression_count');
 
         // 301 Canonical redirect if accessed via old numeric ID and slug exists
         if (is_numeric($slug) && !empty($coupon->slug) && $slug != $coupon->slug) {
@@ -96,6 +139,7 @@ class SiteController extends Controller
     public function dealDetails($id)
     {
         $deal = Deal::with('deal_category')->findOrFail($id);
+        $deal->increment('impression_count');
         $pageTitle = $deal->title;
 
         // Find matching store & coupon if available by brand/category name
@@ -142,10 +186,67 @@ class SiteController extends Controller
             return redirect()->route('user.login');
         }
 
-        $coupon = Coupon::findOrFail($id);
+        $coupon = Coupon::with('store')->findOrFail($id);
         $coupon->increment('click_count');
+        DailyMetric::incrementClicks(1);
         
-        $link = appendTrackingSource($coupon->link);
+        $clickId = 'clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10));
+        $ip = getRealIP();
+        $userAgent = request()->userAgent() ?? 'Unknown';
+        $osBrowser = ClientInfo::osBrowser();
+        $os = $osBrowser['os_platform'] ?? 'Unknown';
+        $browser = $osBrowser['browser'] ?? 'Unknown';
+        $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
+        $campaign = request('utm_campaign', request('campaign', 'coupon_campaign'));
+
+        // ---- Create temporary order for coupon store visit ----
+        $productImage = $coupon->image ?? @$coupon->store->image ?? null;
+
+        $tempOrder = Order::create([
+            'click_id'      => $clickId,
+            'user_id'       => auth()->id(),
+            'merchant_id'   => $coupon->store_id ?? null,
+            'product_name'  => $coupon->title,
+            'product_image' => $productImage,
+            'amount'        => 0,
+            'payout_amount' => 0,
+            'currency'      => 'INR',
+            'status'        => 'pending',
+            'source'        => 'coupon_section',
+        ]);
+
+        $options = [
+            'click_id'     => $clickId,
+            'merchant'     => @$coupon->store->name ?? 'store',
+            'campaign'     => $campaign,
+            'title'        => $coupon->title,
+            'utm_source'   => request('utm_source', auth()->user()->username),
+            'utm_medium'   => request('utm_medium', 'affiliate'),
+            'utm_term'     => request('utm_term', $coupon->slug ?? $coupon->title),
+        ];
+
+        $link = appendTrackingSource($coupon->link, auth()->user(), $tempOrder->id, $options);
+
+        // Store granular click data
+        Click::create([
+            'click_id'        => $clickId,
+            'user_id'         => auth()->id(),
+            'coupon_id'       => $coupon->id,
+            'store_id'        => $coupon->store_id ?? null,
+            'order_id'        => $tempOrder->id,
+            'campaign'        => $campaign,
+            'utm_source'      => $options['utm_source'],
+            'utm_medium'      => $options['utm_medium'],
+            'utm_campaign'    => $campaign,
+            'utm_term'        => $options['utm_term'],
+            'ip_address'      => $ip,
+            'device_type'     => $deviceType,
+            'browser'         => $browser,
+            'os'              => $os,
+            'user_agent'      => $userAgent,
+            'destination_url' => $coupon->link,
+            'final_url'       => $link,
+        ]);
 
         // Render an intermediate tracking page instead of instant redirect
         $pageTitle = "Activating Cashback...";
@@ -160,7 +261,62 @@ class SiteController extends Controller
         }
 
         $deal = Deal::findOrFail($id);
-        $link = appendTrackingSource($deal->link);
+        $deal->increment('click_count');
+        DailyMetric::incrementClicks(1);
+
+        $clickId = 'clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10));
+        $ip = getRealIP();
+        $userAgent = request()->userAgent() ?? 'Unknown';
+        $osBrowser = ClientInfo::osBrowser();
+        $os = $osBrowser['os_platform'] ?? 'Unknown';
+        $browser = $osBrowser['browser'] ?? 'Unknown';
+        $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
+        $campaign = request('utm_campaign', request('campaign', 'deal_campaign'));
+
+        $tempOrder = Order::create([
+            'click_id'      => $clickId,
+            'user_id'       => auth()->id(),
+            'merchant_id'   => $deal->store_id ?? null,
+            'product_name'  => $deal->title,
+            'product_image' => $deal->image ?? null,
+            'amount'        => 0,
+            'payout_amount' => 0,
+            'currency'      => 'INR',
+            'status'        => 'pending',
+            'source'        => 'deal_section',
+        ]);
+
+        $options = [
+            'click_id'     => $clickId,
+            'merchant'     => 'deal_store',
+            'campaign'     => $campaign,
+            'title'        => $deal->title,
+            'utm_source'   => request('utm_source', auth()->user()->username),
+            'utm_medium'   => request('utm_medium', 'affiliate'),
+            'utm_term'     => request('utm_term', $deal->title),
+        ];
+
+        $link = appendTrackingSource($deal->link, auth()->user(), $tempOrder->id, $options);
+
+        Click::create([
+            'click_id'        => $clickId,
+            'user_id'         => auth()->id(),
+            'deal_id'         => $deal->id,
+            'store_id'        => $deal->store_id ?? null,
+            'order_id'        => $tempOrder->id,
+            'campaign'        => $campaign,
+            'utm_source'      => $options['utm_source'],
+            'utm_medium'      => $options['utm_medium'],
+            'utm_campaign'    => $campaign,
+            'utm_term'        => $options['utm_term'],
+            'ip_address'      => $ip,
+            'device_type'     => $deviceType,
+            'browser'         => $browser,
+            'os'              => $os,
+            'user_agent'      => $userAgent,
+            'destination_url' => $deal->link,
+            'final_url'       => $link,
+        ]);
 
         $pageTitle = "Activating Cashback...";
         return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'deal'));
@@ -174,7 +330,60 @@ class SiteController extends Controller
         }
 
         $slider = \App\Models\Slider::findOrFail($id);
-        $link = appendTrackingSource($slider->link);
+        DailyMetric::incrementClicks(1);
+
+        $clickId = 'clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10));
+        $ip = getRealIP();
+        $userAgent = request()->userAgent() ?? 'Unknown';
+        $osBrowser = ClientInfo::osBrowser();
+        $os = $osBrowser['os_platform'] ?? 'Unknown';
+        $browser = $osBrowser['browser'] ?? 'Unknown';
+        $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
+        $campaign = request('utm_campaign', request('campaign', 'slider_campaign'));
+
+        $tempOrder = Order::create([
+            'click_id'      => $clickId,
+            'user_id'       => auth()->id(),
+            'merchant_id'   => $slider->store_id ?? null,
+            'product_name'  => $slider->title ?? 'Featured Offer',
+            'product_image' => $slider->image ?? null,
+            'amount'        => 0,
+            'payout_amount' => 0,
+            'currency'      => 'INR',
+            'status'        => 'pending',
+            'source'        => 'slider_section',
+        ]);
+
+        $options = [
+            'click_id'     => $clickId,
+            'merchant'     => 'featured_store',
+            'campaign'     => $campaign,
+            'title'        => $slider->title ?? 'Featured Offer',
+            'utm_source'   => request('utm_source', auth()->user()->username),
+            'utm_medium'   => request('utm_medium', 'affiliate'),
+            'utm_term'     => request('utm_term', $slider->title ?? 'offer'),
+        ];
+
+        $link = appendTrackingSource($slider->link, auth()->user(), $tempOrder->id, $options);
+
+        Click::create([
+            'click_id'        => $clickId,
+            'user_id'         => auth()->id(),
+            'store_id'        => $slider->store_id ?? null,
+            'order_id'        => $tempOrder->id,
+            'campaign'        => $campaign,
+            'utm_source'      => $options['utm_source'],
+            'utm_medium'      => $options['utm_medium'],
+            'utm_campaign'    => $campaign,
+            'utm_term'        => $options['utm_term'],
+            'ip_address'      => $ip,
+            'device_type'     => $deviceType,
+            'browser'         => $browser,
+            'os'              => $os,
+            'user_agent'      => $userAgent,
+            'destination_url' => $slider->link,
+            'final_url'       => $link,
+        ]);
 
         $pageTitle = "Activating Cashback...";
         return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'slider'));
@@ -377,6 +586,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Exclusive Coupon";
         $exclusiveCoupons = Coupon::with(['category', 'store', 'wishlists'])->where('status', 1)->where('is_exclusive', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($exclusiveCoupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
         return view($this->activeTemplate . 'exclusive_coupons',compact('pageTitle', 'exclusiveCoupons', 'categories', 'stores'));
@@ -385,6 +595,7 @@ class SiteController extends Controller
     public function coupons() {
         $pageTitle = "Coupons";
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
+        $this->recordImpressions($coupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
         return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
@@ -402,6 +613,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Featured Coupon";
         $featureCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_featured', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($featureCoupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
       
@@ -412,6 +624,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Latest Coupon";
         $featureCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($featureCoupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
       
@@ -422,6 +635,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Popular Coupon";
         $popularCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_popular', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($popularCoupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
       
@@ -432,6 +646,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Sale Coupon";
         $saleCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_sale', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($saleCoupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
       
@@ -442,6 +657,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Cashback Coupon";
         $cashbackCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($cashbackCoupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
       
@@ -515,6 +731,7 @@ class SiteController extends Controller
     {
         $pageTitle = "Popular Deals";
         $deals = Deal::with(['deal_category'])->where('status', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($deals, 'deal');
         $dealCategories = DealCategory::where('status', 1)->latest()->get();
       
         return view($this->activeTemplate . 'deals', compact('pageTitle', 'deals', 'dealCategories'));
@@ -523,6 +740,7 @@ class SiteController extends Controller
     public function deals() {
         $pageTitle = "Deals";
         $deals = Deal::with(['deal_category'])->where('status', 1)->latest()->paginate(getPaginate());
+        $this->recordImpressions($deals, 'deal');
         $dealCategories = DealCategory::where('status', 1)->latest()->get();
         return  view($this->activeTemplate . 'deals',compact('pageTitle', 'deals', 'dealCategories'));
     }
@@ -545,6 +763,7 @@ class SiteController extends Controller
         }
 
         $deals = $query->get();
+        $this->recordImpressions($deals, 'deal');
         $view = View::make($this->activeTemplate.'dealFilter.deal_search', compact('deals', 'dealCategories'))->render();
 
         return response()->json([
@@ -606,6 +825,7 @@ class SiteController extends Controller
         }
 
         $coupons = $query->get();
+        $this->recordImpressions($coupons, 'coupon');
         $view = View::make($this->activeTemplate.'couponFilter.coupon_search', compact('coupons', 'categories', 'stores'))->render();
 
         return response()->json([
@@ -618,6 +838,7 @@ class SiteController extends Controller
         $category = Category::find($id);
         $pageTitle =  $category->name;
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('category_id', $id)->latest()->paginate(getPaginate());
+        $this->recordImpressions($coupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
        
@@ -630,6 +851,7 @@ class SiteController extends Controller
         $store = Store::findOrFail($id);
         $pageTitle =  $store->name;
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('store_id', $id)->latest()->paginate(getPaginate());
+        $this->recordImpressions($coupons, 'coupon');
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
 
@@ -646,6 +868,7 @@ class SiteController extends Controller
                 ->latest()
                 ->take(6)
                 ->get();
+            $this->recordImpressions($relatedCategoryCoupons, 'coupon');
         }
 
         return view($this->activeTemplate . 'coupons', compact('pageTitle', 'store', 'coupons', 'categories', 'stores', 'primaryCategory', 'relatedCategoryCoupons'));
@@ -653,21 +876,86 @@ class SiteController extends Controller
 
     public function singleCouponSearch(Request $request) {
         $pageTitle = "Search Coupon";
-        $search =$request->search;
-        if(empty( $search)) {
+        $search = trim($request->search ?? '');
+        if(empty($search)) {
             $notify[] = ['error','Invalid Search value'];
             return back()->withNotify($notify);
         }
+        $lowerSearch = strtolower($search);
         $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1);
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%$search%");  
-            });
+                $q->where('title', 'LIKE', "%$search%")
+                  ->orWhereHas('store', function ($sq) use ($search) {
+                      $sq->where('name', 'LIKE', "%$search%");
+                  });
+            })
+            ->orderByRaw("CASE WHEN LOWER(title) = ? THEN 1 WHEN LOWER(title) LIKE ? THEN 2 ELSE 3 END", [$lowerSearch, $lowerSearch . '%']);
         }
         $coupons = $query->paginate(getPaginate());
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
         return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
+    }
+
+    public function searchSuggest(Request $request) {
+        $search = trim($request->search ?? $request->q ?? '');
+        if (empty($search)) {
+            return response()->json([
+                'status' => 'success',
+                'stores' => [],
+                'coupons' => []
+            ]);
+        }
+
+        $lowerSearch = strtolower($search);
+
+        // Stores matching search, exact match first, then starting with, then containing
+        $stores = Store::where('status', 1)
+            ->where('name', 'LIKE', "%$search%")
+            ->orderByRaw("CASE WHEN LOWER(name) = ? THEN 1 WHEN LOWER(name) LIKE ? THEN 2 ELSE 3 END", [$lowerSearch, $lowerSearch . '%'])
+            ->take(5)
+            ->get()
+            ->map(function ($store) {
+                return [
+                    'id' => $store->id,
+                    'name' => $store->name,
+                    'image' => getImage(getFilePath('store') . '/' . $store->image),
+                    'url' => route('store.coupons', $store->id),
+                ];
+            });
+
+        // Coupons matching search title or related store, prefix match first
+        $coupons = Coupon::where('status', 1)
+            ->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', "%$search%")
+                  ->orWhereHas('store', function ($sq) use ($search) {
+                      $sq->where('name', 'LIKE', "%$search%");
+                  });
+            })
+            ->with('store')
+            ->orderByRaw("CASE WHEN LOWER(title) = ? THEN 1 WHEN LOWER(title) LIKE ? THEN 2 ELSE 3 END", [$lowerSearch, $lowerSearch . '%'])
+            ->take(6)
+            ->get()
+            ->map(function ($coupon) {
+                return [
+                    'id' => $coupon->id,
+                    'title' => $coupon->title,
+                    'type' => $coupon->coupon_type == 1 ? 'Code' : 'Deal',
+                    'code' => $coupon->coupon_code,
+                    'store_name' => @$coupon->store->name ?? '',
+                    'store_image' => @$coupon->store->image ? getImage(getFilePath('store') . '/' . $coupon->store->image) : null,
+                    'url' => route('coupon.details', $coupon->slug ?? $coupon->id),
+                ];
+            });
+
+        return response()->json([
+            'status' => 'success',
+            'query' => $search,
+            'search_url' => route('single.coupon.search') . '?search=' . urlencode($search),
+            'stores' => $stores,
+            'coupons' => $coupons
+        ]);
     }
 
     public function subscribe(Request $request){

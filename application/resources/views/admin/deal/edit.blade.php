@@ -38,8 +38,13 @@
                                         name="button_label" value="{{ $deal->button_label }}">
                                 </div>
                             </div>
-                            
-                           
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="fw-bold">@lang('Product Price / Amount (₹)') </label>
+                                    <input type="number" step="0.01" class="form-control" placeholder="@lang('e.g. 1799.00')"
+                                        name="price" value="{{ old('price', $deal->price > 0 ? $deal->price : '') }}">
+                                </div>
+                            </div>
                             <div class="col-md-2">
                                 <div class="form-group mt-4">
                                     <label class="fw-bold" for="is_affiliate">@lang('Affiliate')</label>

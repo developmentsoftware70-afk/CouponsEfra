@@ -14,6 +14,9 @@ use Illuminate\Http\Request;
 use App\Models\Wishlist;
 use App\Models\EarningReport;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\PayoutRequest;
+use App\Models\AdminNotification;
 
 class UserController extends Controller
 {
@@ -23,6 +26,7 @@ class UserController extends Controller
         $user = auth()->user();
         $couponsCount = Coupon::where('user_id',$user->id)->count();
         $wishLists = Wishlist::with('coupon')->where('user_id', $user->id)->latest()->paginate(getPaginate(10));
+        $orders = Order::where('user_id', $user->id)->latest()->take(10)->get();
         $earningReportList = EarningReport::with('user')->where('user_id', $user->id)->latest()->paginate(getPaginate(10));
         $pendingCoupon = Coupon::where('status', 0)->where('user_id',$user->id)->count();
         $activeCoupon = Coupon::where('status', 1)->where('user_id',$user->id)->count();
@@ -30,11 +34,162 @@ class UserController extends Controller
         $activeStore = Store::where('status', 1)->where('user_id',$user->id)->count();
         $pendingStore = Store::where('status', 0)->where('user_id',$user->id)->count();
         $coupons = Coupon::with(['category', 'store'])->where('user_id',$user->id)->latest()->paginate(getPaginate(10));
-        $totalEarningsAmount = EarningReport::where('user_id', $user->id)->where('report_type', 'Daily')->sum('earning_amount');
-        $pendingPaymentAmount = EarningReport::where('user_id', $user->id)->whereIn('report_type', ['Monthly', 'Daily'])->where('payment_status', 0)->sum('earning_amount');
-        $disbursedAmount = EarningReport::where('user_id', $user->id)->whereIn('report_type', ['Monthly', 'Daily'])->where('payment_status', 2)->sum('earning_amount');
+        // Real Calculations for the 3 Dashboard Cards:
+        // 1. Total Earning: Jitna kamaya (confirmed cashback from orders + reports)
+        $confirmedCashback = (float) Order::where('user_id', $user->id)
+            ->where('status', 'confirmed')
+            ->sum('payout_amount');
+        $legacyEarnings = (float) EarningReport::where('user_id', $user->id)->sum('earning_amount');
+        $totalEarningsAmount = $confirmedCashback + $legacyEarnings;
 
-        return view($this->activeTemplate . 'user.dashboard', compact('pageTitle', 'user', 'wishLists', 'earningReportList','coupons','couponsCount','activeCoupon','pendingCoupon','storeCount','pendingStore','activeStore', 'totalEarningsAmount', 'pendingPaymentAmount', 'disbursedAmount'));
+        // 2. Pending Payment: Jo payment ke liye apply kiya but abhi approval/payment nahi hui
+        $pendingPayouts = (float) PayoutRequest::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'under_review', 'unreviewed'])
+            ->sum('amount');
+        $legacyPending = (float) EarningReport::where('user_id', $user->id)
+            ->where('payment_status', 0)
+            ->sum('earning_amount');
+        $pendingPaymentAmount = $pendingPayouts + $legacyPending;
+
+        // 3. Disbursed Amount: Jo approval ho gaya matlab nikal gaya hai (paid / confirmed payouts)
+        $paidPayouts = (float) PayoutRequest::where('user_id', $user->id)
+            ->whereIn('status', ['confirmed', 'paid'])
+            ->sum('amount');
+        $legacyDisbursed = (float) EarningReport::where('user_id', $user->id)
+            ->where('payment_status', 2)
+            ->sum('earning_amount');
+        $disbursedAmount = $paidPayouts + $legacyDisbursed;
+
+        return view($this->activeTemplate . 'user.dashboard', compact(
+            'pageTitle', 'user', 'wishLists', 'orders', 'earningReportList',
+            'coupons', 'couponsCount', 'activeCoupon', 'pendingCoupon',
+            'storeCount', 'pendingStore', 'activeStore',
+            'totalEarningsAmount', 'pendingPaymentAmount', 'disbursedAmount'
+        ));
+    }
+
+    public function orders()
+    {
+        $pageTitle = 'My Orders';
+        $user = auth()->user();
+        $orders = Order::where('user_id', $user->id)->latest()->paginate(getPaginate(10));
+        return view($this->activeTemplate . 'user.orders', compact('pageTitle', 'orders'));
+    }
+
+    public function payouts()
+    {
+        $pageTitle = 'Payouts & Withdrawals';
+        $user = auth()->user();
+
+        // 1. Total Confirmed Cashback from orders
+        $confirmedOrders = Order::where('user_id', $user->id)
+            ->where('status', 'confirmed')
+            ->get();
+
+        $totalConfirmedCashback = $confirmedOrders->sum('payout_amount');
+
+        // 2. Net-45 (15th of next month) eligibility calculation
+        $eligibleCashback = 0;
+        $upcomingCashback = 0;
+        $nextEligibleDate = null;
+
+        foreach ($confirmedOrders as $order) {
+            $payoutDate = \Carbon\Carbon::parse($order->created_at)->addMonthNoOverflow()->startOfMonth()->addDays(14);
+            if (now()->startOfDay()->gte($payoutDate->startOfDay())) {
+                $eligibleCashback += (float)$order->payout_amount;
+            } else {
+                $upcomingCashback += (float)$order->payout_amount;
+                if (!$nextEligibleDate || $payoutDate->lt($nextEligibleDate)) {
+                    $nextEligibleDate = $payoutDate;
+                }
+            }
+        }
+
+        // 3. Amount already requested or paid
+        $alreadyRequested = PayoutRequest::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'under_review', 'confirmed', 'paid'])
+            ->sum('amount');
+
+        $availableBalance = max(0, $totalConfirmedCashback - $alreadyRequested);
+
+        // Current Month Cycle & Payable Date
+        $currentMonthCycle  = now()->format('F Y');
+        $currentPayableDate = now()->addMonthNoOverflow()->startOfMonth()->addDays(14);
+
+        // Payout history
+        $payoutRequests = PayoutRequest::where('user_id', $user->id)->latest()->paginate(getPaginate(10));
+
+        return view($this->activeTemplate . 'user.payouts', compact(
+            'pageTitle',
+            'user',
+            'totalConfirmedCashback',
+            'eligibleCashback',
+            'upcomingCashback',
+            'nextEligibleDate',
+            'availableBalance',
+            'alreadyRequested',
+            'currentMonthCycle',
+            'currentPayableDate',
+            'payoutRequests'
+        ));
+    }
+
+    public function payoutRequest(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'amount'              => 'required|numeric|min:1',
+            'payment_method'      => 'required|in:bank_transfer,upi',
+            'account_holder_name' => 'required_if:payment_method,bank_transfer|nullable|string|max:100',
+            'bank_name'           => 'required_if:payment_method,bank_transfer|nullable|string|max:100',
+            'account_number'      => 'required_if:payment_method,bank_transfer|nullable|string|max:50',
+            'ifsc_code'           => 'required_if:payment_method,bank_transfer|nullable|string|max:20',
+            'upi_id'              => 'required_if:payment_method,upi|nullable|string|max:100',
+        ]);
+
+        $totalConfirmedCashback = Order::where('user_id', $user->id)
+            ->where('status', 'confirmed')
+            ->sum('payout_amount');
+
+        $alreadyRequested = PayoutRequest::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'under_review', 'confirmed', 'paid'])
+            ->sum('amount');
+
+        $availableBalance = max(0, $totalConfirmedCashback - $alreadyRequested);
+
+        if ($availableBalance > 0 && $request->amount > $availableBalance) {
+            $notify[] = ['error', 'Insufficient balance. You can request up to ₹' . showAmount($availableBalance)];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        $monthCycle  = now()->format('F Y');
+        $payableDate = now()->addMonthNoOverflow()->startOfMonth()->addDays(14)->toDateString();
+
+        $payout = PayoutRequest::create([
+            'user_id'             => $user->id,
+            'amount'              => $request->amount,
+            'payment_method'      => $request->payment_method,
+            'account_holder_name' => $request->account_holder_name,
+            'bank_name'           => $request->bank_name,
+            'account_number'      => $request->account_number,
+            'ifsc_code'           => $request->ifsc_code,
+            'upi_id'              => $request->upi_id,
+            'status'              => 'pending',
+            'month_cycle'         => $monthCycle,
+            'eligible_at'         => $payableDate,
+        ]);
+
+        try {
+            $adminNotification = new AdminNotification();
+            $adminNotification->user_id = $user->id;
+            $adminNotification->title = 'New Payout Request: ₹' . showAmount($payout->amount) . ' from ' . $user->username;
+            $adminNotification->click_url = urlPath('admin.payouts.index');
+            $adminNotification->save();
+        } catch (\Exception $e) {}
+
+        $notify[] = ['success', 'Payout request of ₹' . showAmount($payout->amount) . ' submitted successfully! Payment will be processed after 15th ' . now()->addMonthNoOverflow()->format('F') . '.'];
+        return back()->withNotify($notify);
     }
 
     public function depositHistory(Request $request)

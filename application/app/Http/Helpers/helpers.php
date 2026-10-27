@@ -192,7 +192,7 @@ function getPageSections($arr = false)
 function getImage($image, $size = null)
 {
     $clean = '';
-    if (file_exists($image) && is_file($image)) {
+    if ((file_exists($image) && is_file($image)) || (file_exists(base_path('../' . $image)) && is_file(base_path('../' . $image)))) {
         return asset($image) . $clean;
     }
     if ($size) {
@@ -466,37 +466,130 @@ function isExpired($couponId) {
     }
 }
 
-function appendTrackingSource($link, $user = null)
+function appendTrackingSource($link, $user = null, $orderId = null, $options = [])
 {
     if (!$user && auth()->check()) {
         $user = auth()->user();
     }
-    if (!$user || empty($link)) {
+    if (empty($link)) {
         return $link;
     }
 
-    $cleanUsername = str_replace(['-', ' '], '', $user->username);
-    $trackingId = $cleanUsername . '_' . $user->id;
-
-    // 1. Replace placeholder tags if present in the affiliate link
-    if (strpos($link, '{publisher_id}_{source}') !== false) {
-        $link = str_replace('{publisher_id}_{source}', $trackingId, $link);
-    }
-    if (strpos($link, '{source}') !== false) {
-        $link = str_replace('{source}', $trackingId, $link);
+    $cleanUsername = $user ? str_replace(['-', ' '], '', $user->username) : 'guest';
+    $userId = $user ? $user->id : 0;
+    $trackingId = $cleanUsername . '_' . $userId;
+    if ($orderId) {
+        $trackingId .= '_' . $orderId;
     }
 
-    // 2. If exact query parameter "source=" already exists (not utm_source), replace its value
-    if (preg_match('/([?&]source=)[^&]*/', $link)) {
-        $link = preg_replace('/([?&]source=)[^&]*/', '${1}' . $trackingId, $link);
-    } else {
-        // 3. Otherwise append source parameter
-        $sep = (strpos($link, '?') !== false) ? '&' : '?';
-        $link = $link . $sep . 'source=' . $trackingId;
+    // 1. Generate or retrieve unique click_id
+    $clickId = $options['click_id'] ?? ('clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10)));
+
+    // 2. Dynamic generation based on user, campaign, and merchant
+    $siteName = config('app.name', 'CouponsEfra');
+    $utmSource = !empty($options['utm_source']) 
+        ? $options['utm_source'] 
+        : request('utm_source', ($user ? $cleanUsername : strtolower(str_replace(' ', '', $siteName))));
+    
+    $utmMedium = !empty($options['utm_medium']) 
+        ? $options['utm_medium'] 
+        : request('utm_medium', 'affiliate');
+
+    $merchantSlug = !empty($options['merchant']) 
+        ? \Illuminate\Support\Str::slug($options['merchant']) 
+        : 'general_merchant';
+
+    $campaign = !empty($options['campaign']) 
+        ? \Illuminate\Support\Str::slug($options['campaign']) 
+        : request('utm_campaign', request('campaign', 'deals_campaign'));
+
+    $utmTerm = !empty($options['utm_term']) 
+        ? \Illuminate\Support\Str::slug($options['utm_term']) 
+        : request('utm_term', (!empty($options['title']) ? \Illuminate\Support\Str::slug($options['title']) : $merchantSlug));
+
+    // 3. Replace placeholder tags (both raw and urlencoded)
+    $macros = [
+        '{publisher_id}_{source}'         => $trackingId,
+        '%7Bpublisher_id%7D_%7Bsource%7D' => $trackingId,
+        '{source}'                       => $trackingId,
+        '%7Bsource%7D'                   => $trackingId,
+        '{user_id}'                      => $userId,
+        '%7Buser_id%7D'                  => $userId,
+        '{order_id}'                     => $orderId ?? 0,
+        '%7Border_id%7D'                 => $orderId ?? 0,
+        '{click_id}'                     => $clickId,
+        '%7Bclick_id%7D'                 => $clickId,
+        '{irclid}'                       => $clickId,
+        '%7Birclid%7D'                   => $clickId,
+        '{sub1}'                         => $userId,
+        '%7Bsub1%7D'                     => $userId,
+        '{sub2}'                         => $orderId ?? 0,
+        '%7Bsub2%7D'                     => $orderId ?? 0,
+        '{p1}'                           => $clickId,
+        '%7Bp1%7D'                       => $clickId,
+        '{p2}'                           => $trackingId,
+        '%7Bp2%7D'                       => $trackingId,
+        '{p3}'                           => $orderId ?? 0,
+        '%7Bp3%7D'                       => $orderId ?? 0,
+    ];
+
+    foreach ($macros as $find => $replace) {
+        if (strpos($link, $find) !== false) {
+            $link = str_replace($find, $replace, $link);
+        }
     }
 
-    // Replace other common placeholders if present
-    $link = str_replace('{click_id}', getNumber(10), $link);
+    // 4. Parse URL and append required tracking parameters
+    $parsedUrl = parse_url($link);
+    $existingParams = [];
+    if (!empty($parsedUrl['query'])) {
+        parse_str($parsedUrl['query'], $existingParams);
+    }
 
-    return $link;
+    // Target tracking params: click_id, irclid, utm_source, utm_medium, utm_campaign, utm_term, source
+    $trackingParams = [
+        'click_id'     => $clickId,
+        'irclid'       => $clickId,
+        'utm_source'   => $utmSource,
+        'utm_medium'   => $utmMedium,
+        'utm_campaign' => $campaign,
+        'utm_term'     => $utmTerm,
+        'source'       => $trackingId,
+    ];
+
+    foreach ($trackingParams as $key => $val) {
+        if (!isset($existingParams[$key])) {
+            $existingParams[$key] = $val;
+        }
+    }
+
+    $scheme   = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '';
+    $host     = $parsedUrl['host'] ?? '';
+    $port     = isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
+    $path     = $parsedUrl['path'] ?? '';
+    $fragment = isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : '';
+    $query    = !empty($existingParams) ? '?' . http_build_query($existingParams) : '';
+
+    return $scheme . $host . $port . $path . $query . $fragment;
+}
+
+function formatShortNumber($num, $precision = 2) {
+    $num = (float) $num;
+    if ($num >= 1000000) {
+        $val = round($num / 1000000, $precision);
+        return ($val == floor($val) ? (int)$val : $val) . 'M';
+    } elseif ($num >= 1000) {
+        $val = round($num / 1000, $precision);
+        return ($val == floor($val) ? (int)$val : $val) . 'K';
+    }
+    return floor($num) == $num ? (string)(int)$num : number_format($num, 2);
+}
+
+function convertInrToUsd($inr, $rate = 89.1) {
+    if (!$inr || $inr <= 0) return '0';
+    $usd = (float)$inr / $rate;
+    if ($usd >= 1000) {
+        return formatShortNumber($usd, 2);
+    }
+    return number_format($usd, 2);
 }

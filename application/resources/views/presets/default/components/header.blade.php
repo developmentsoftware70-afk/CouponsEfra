@@ -18,7 +18,12 @@
     overflow: visible !important; /* Ensure children can spill out */
 }
 
-.header .container-fluid, .header .row {
+.header .container-fluid, 
+.header .row, 
+.header-wrapper, 
+.menu-right-wrapper, 
+.menu-right-wrapper ul,
+.hero-search-bar {
     overflow: visible !important;
 }
 
@@ -87,45 +92,52 @@
     max-width: 650px !important;
     margin-left: 40px !important;
     margin-right: auto !important;
+    position: relative !important;
+    z-index: 999999 !important;
 }
 .hero-search-bar form {
-    position: relative !important; /* Bulletproof positioning */
+    position: relative !important;
     display: flex !important;
     align-items: center !important;
     background: #f4f5f8 !important; 
-    border-radius: 8px !important; 
-    border: 1px solid transparent !important;
-    height: 44px !important; /* Reverted search bar height */
-    padding: 0 !important; 
+    border-radius: 50px !important; 
+    border: 1px solid #e5e7eb !important;
+    height: 44px !important;
+    padding: 0 18px !important; /* Safe space inside the pill curve */
+    gap: 10px !important; /* Proper distance between icon and text */
     transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
     overflow: hidden !important;
 }
 .hero-search-bar form:focus-within {
-    border-color: #d1d5db !important;
+    border-color: #cbd5e1 !important;
     background: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
 }
 .hero-search-bar button.search-btn {
-    position: absolute !important;
-    left: 0 !important; /* Move search icon to the LEFT */
-    top: 0 !important;
-    height: 100% !important;
-    width: 45px !important; /* Reverted width */
+    position: static !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     background: transparent !important;
     border: none !important;
-    color: #5a6675 !important;
-    font-size: 16px !important; /* Reverted icon size */
+    box-shadow: none !important;
+    color: #64748b !important;
+    font-size: 15px !important;
     cursor: pointer !important;
     padding: 0 !important;
     margin: 0 !important;
-    z-index: 2 !important;
+    width: auto !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
 }
 .hero-search-bar button.search-btn i {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    font-size: 15px !important;
+    color: #64748b !important;
 }
 .hero-search-bar button.search-btn span {
     display: none !important; /* Hide extra text */
@@ -133,16 +145,17 @@
 .hero-search-bar input.form--control {
     background: transparent !important;
     border: none !important;
-    font-size: 14px !important; /* Reverted search text size */
-    color: #111111 !important;
+    font-size: 14px !important;
+    color: #1e293b !important;
     width: 100% !important;
+    flex: 1 !important;
     height: 100% !important;
     outline: none !important;
     box-shadow: none !important;
-    padding: 0 15px 0 45px !important; /* Space on left for the absolute button */
+    padding: 0 !important; /* Natural starting position */
+    margin: 0 !important;
     font-family: 'Inter', sans-serif !important;
-    position: relative !important;
-    z-index: 1 !important;
+    line-height: 44px !important;
 }
 .hero-search-bar input.form--control::placeholder {
     color: #7b8593 !important;
@@ -485,6 +498,7 @@
         margin: 0 !important;
         padding: 0 !important;
         list-style: none !important;
+        position: relative !important;
     }
     .hero-search-bar form {
         display: flex !important;
@@ -494,10 +508,10 @@
         width: 100% !important;
         border-radius: 20px !important;
         background: #f4f5f8 !important;
-        padding: 0 10px !important;
+        padding: 0 14px !important;
+        gap: 10px !important;
     }
     .hero-search-bar form input {
-        order: 2 !important;
         font-size: 14px !important;
         padding: 0 !important;
         width: 100% !important;
@@ -507,13 +521,12 @@
         flex-grow: 1 !important;
     }
     .hero-search-bar button.search-btn {
-        order: 1 !important;
         position: static !important;
         width: auto !important;
         background: transparent !important;
         border: none !important;
-        color: #666 !important;
-        padding: 0 8px 0 0 !important;
+        color: #64748b !important;
+        padding: 0 !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -525,11 +538,399 @@
 @media (min-width: 992px) {
     .mobile-header-auth { display: none !important; }
 }
+
+/* CashKaro-Style 2-Column Search Recommendation Box */
+.search-recommendation-box {
+    display: none;
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    width: 680px !important;
+    max-width: 92vw !important;
+    background: #ffffff !important;
+    border: 1px solid #d9e2ec !important;
+    border-radius: 16px !important;
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+    z-index: 9999999 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    text-align: left !important;
+}
+
+/* Open on focus, click, or active class */
+.hero-search-bar:focus-within .search-recommendation-box,
+.search-recommendation-box.active {
+    display: block !important;
+}
+
+.ck-dropdown-grid {
+    display: flex !important;
+    min-height: 380px !important;
+}
+
+/* Left Column */
+.ck-left-col {
+    width: 48% !important;
+    background: #edf1f6 !important;
+    border-right: 1px solid #dbe3ed !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.ck-col-header {
+    padding: 14px 18px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    background: #e2e8f0 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+    letter-spacing: -0.1px !important;
+}
+
+.ck-trending-list {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    max-height: 340px !important;
+}
+
+.ck-list-item {
+    padding: 10px 18px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    display: block !important;
+    text-decoration: none !important;
+    transition: background 0.15s ease !important;
+}
+.ck-list-item:last-child {
+    border-bottom: none !important;
+}
+.ck-list-item:hover {
+    background: #dbe4ef !important;
+}
+.ck-item-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.35 !important;
+}
+.ck-item-tag {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #1d4ed8 !important;
+    display: block !important;
+    margin-top: 1px !important;
+}
+
+/* Right Column */
+.ck-right-col {
+    width: 52% !important;
+    background: #ffffff !important;
+    padding: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+}
+
+/* Big Hero Card */
+.ck-hero-card {
+    background: #f1f4f9 !important;
+    border-radius: 12px !important;
+    padding: 24px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    gap: 12px !important;
+    transition: all 0.2s ease !important;
+    flex-grow: 1 !important;
+}
+.ck-hero-card:hover {
+    background: #e9eff7 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+}
+.ck-hero-logo {
+    height: 48px !important;
+    max-width: 170px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.ck-hero-logo img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+}
+.ck-hero-cashback {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: #1d4ed8 !important;
+    letter-spacing: -0.2px !important;
+    text-align: center !important;
+}
+
+/* Bottom Picks Grid */
+.ck-picks-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+}
+.ck-pick-card {
+    background: #f1f4f9 !important;
+    border-radius: 10px !important;
+    padding: 12px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    justify-content: space-between !important;
+    min-height: 125px !important;
+    transition: all 0.2s ease !important;
+}
+.ck-pick-card:hover {
+    background: #e9eff7 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+}
+.ck-pick-header {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    text-align: center !important;
+    margin-bottom: 6px !important;
+}
+.ck-pick-logo {
+    height: 26px !important;
+    max-width: 85px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 6px !important;
+}
+.ck-pick-brand {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.5px !important;
+    margin: 6px 0 8px 0 !important;
+    line-height: 1 !important;
+}
+.ck-pick-brand.ck-amazon {
+    font-family: inherit !important;
+    color: #111111 !important;
+}
+.ck-pick-brand.ck-amazon span {
+    color: #ea580c !important;
+    font-size: 14px !important;
+}
+.ck-pick-desc {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    line-height: 1.3 !important;
+    text-align: center !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+/* Live Search Results (typing state) */
+.search-rec-results {
+    padding: 16px !important;
+}
+.search-rec-section {
+    margin-bottom: 16px !important;
+}
+.search-rec-section:last-child {
+    margin-bottom: 0 !important;
+}
+.search-rec-title {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    color: #64748b !important;
+    margin-bottom: 10px !important;
+}
+.search-rec-title span i {
+    margin-right: 6px !important;
+}
+.search-rec-items-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+.search-rec-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    transition: background 0.15s ease !important;
+}
+.search-rec-item:hover {
+    background: #f1f5f9 !important;
+}
+.search-rec-item-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+}
+.search-rec-item-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+}
+.search-rec-item-icon img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+}
+.search-rec-item-info {
+    min-width: 0 !important;
+    flex-grow: 1 !important;
+}
+.search-rec-item-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+.search-rec-item-sub {
+    font-size: 11px !important;
+    color: #64748b !important;
+}
+.search-rec-badge {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    padding: 3px 8px !important;
+    border-radius: 4px !important;
+    letter-spacing: 0.5px !important;
+    flex-shrink: 0 !important;
+}
+.search-rec-badge.badge-code {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+}
+.search-rec-badge.badge-deal {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+}
+.search-rec-badge.badge-store {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+}
+.search-rec-footer-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-top: 10px !important;
+    padding: 10px 14px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    color: #334155 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease !important;
+}
+.search-rec-footer-btn:hover {
+    background: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    color: #ffffff !important;
+}
+.search-rec-loading, .search-rec-empty {
+    text-align: center !important;
+    padding: 20px 16px !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .search-recommendation-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        left: 0 !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
+    }
+    .ck-dropdown-grid {
+        flex-direction: column !important;
+    }
+    .ck-left-col, .ck-right-col {
+        width: 100% !important;
+        border-right: none !important;
+    }
+    .ck-trending-list {
+        max-height: 240px !important;
+    }
 </style>
 @php
-$languages = App\Models\Language::all();
 $pages = App\Models\Page::where('tempname', $activeTemplate)->get();
 $user = auth()->user();
+
+// Trending Stores for Left List (Flipkart, Amazon, Myntra / top stores)
+$trendingStores = App\Models\Store::where('status', 1)
+    ->orderByRaw("CASE WHEN name LIKE '%Flipkart%' THEN 1 WHEN name LIKE '%Nilkamal%' THEN 2 WHEN name LIKE '%Bacca%' THEN 3 ELSE 4 END")
+    ->take(3)
+    ->get();
+
+// Trending Products / Coupons for Left List
+$trendingCoupons = App\Models\Coupon::with('store')
+    ->where('status', 1)
+    ->latest()
+    ->take(4)
+    ->get();
+
+// Hero Store (Right Column Top Card)
+$heroStore = App\Models\Store::where('status', 1)
+    ->where('name', 'LIKE', '%Flipkart%')
+    ->first() ?? App\Models\Store::where('status', 1)->first();
+$heroCoupon = App\Models\Coupon::where('status', 1)
+    ->where('store_id', @$heroStore->id)
+    ->first();
+
+// Pick of the Day (Right Column Bottom Left)
+$pickOfDayStore = App\Models\Store::where('status', 1)
+    ->where('id', '!=', @$heroStore->id)
+    ->first();
+$pickOfDayCoupon = App\Models\Coupon::where('status', 1)
+    ->where('store_id', @$pickOfDayStore->id)
+    ->first();
+
+// Pick of the Week (Right Column Bottom Right)
+$pickOfWeekStore = App\Models\Store::where('status', 1)
+    ->whereNotIn('id', array_filter([@$heroStore->id, @$pickOfDayStore->id]))
+    ->first();
+$pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
+    ->where('store_id', @$pickOfWeekStore->id)
+    ->first();
 @endphp
 <div class="header" id="header">
     <div class="container-fluid container-custom position-relative">
@@ -558,24 +959,118 @@ $user = auth()->user();
                 @endauth
                 <div class="menu-right-wrapper">
                     <ul>
-                        {{-- 
-                        <li class="language">
-                            <div class="language-box">
-                                <select class="select langSel">
-                                    @foreach ($languages as $language)
-                                    <option value="{{ $language->code }}" @if (Session::get('lang')===$language->
-                                        code) selected @endif>
-                                        {{ __($language->name) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </li>
-                         --}}
-                        <li class="hero-search-bar">
-                            <form action="{{route('single.coupon.search')}}" method="get">
-                                <input class="form--control" name="search" type="text" placeholder="@lang('Search') ...">
-                                <button class="search-btn btn btn--base" type="submit"> <i class="fas fa-search"></i></button>
+                        <li class="hero-search-bar" id="heroSearchBarContainer">
+                            <form action="{{route('single.coupon.search')}}" method="get" id="headerSearchForm" autocomplete="off">
+                                <button class="search-btn" type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
+                                <input class="form--control" id="headerSearchInput" name="search" type="text" placeholder="@lang('Search for any brand or product')" autocomplete="off" value="{{ request()->search ?? '' }}">
                             </form>
+
+                            <!-- SMART RECOMMENDATIONS DROPDOWN (CashKaro Exact 2-Column Replica) -->
+                            <div class="search-recommendation-box" id="searchRecommendationBox">
+                                <!-- Loading Spinner -->
+                                <div class="search-rec-loading" id="searchRecLoading" style="display: none;">
+                                    <i class="fas fa-spinner fa-spin"></i> @lang('Searching offers & stores...')
+                                </div>
+
+                                <!-- Initial Recommendations (Dynamic from User's Database) -->
+                                <div class="search-rec-initial" id="searchRecInitial">
+                                    <div class="ck-dropdown-grid">
+                                        <!-- LEFT COLUMN: Trending Deals (Real Stores & Real Offers from Database) -->
+                                        <div class="ck-left-col">
+                                            <div class="ck-col-header">
+                                                Trending Deals:
+                                            </div>
+                                            <div class="ck-trending-list">
+                                                @foreach($trendingStores as $tStore)
+                                                <a href="{{ route('store.coupons', $tStore->id) }}" class="ck-list-item">
+                                                    <span class="ck-item-title">{{ $tStore->name }}</span>
+                                                    <span class="ck-item-tag">in Stores</span>
+                                                </a>
+                                                @endforeach
+
+                                                @foreach($trendingCoupons as $tCoupon)
+                                                <a href="{{ route('coupon.details', $tCoupon->slug ?? $tCoupon->id) }}" class="ck-list-item">
+                                                    <span class="ck-item-title">{{ Str::limit($tCoupon->title, 42) }}</span>
+                                                    <span class="ck-item-tag">in Products</span>
+                                                </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
+                                        <!-- RIGHT COLUMN: Hero Store + Picks (From Database) -->
+                                        <div class="ck-right-col">
+                                            <!-- Big Hero Store Card (Top Store from DB, e.g. Flipkart) -->
+                                            @if($heroStore)
+                                            <a href="{{ route('store.coupons', $heroStore->id) }}" class="ck-hero-card">
+                                                <div class="ck-hero-logo">
+                                                    <img src="{{ getImage(getFilePath('store').'/'.$heroStore->image) }}" alt="{{ $heroStore->name }}">
+                                                </div>
+                                                <div class="ck-hero-cashback">
+                                                    {{ @$heroCoupon ? Str::limit($heroCoupon->title, 32) : 'Up To 6.5% Cashback' }}
+                                                </div>
+                                            </a>
+                                            @endif
+
+                                            <!-- Bottom 2 Pick Cards -->
+                                            <div class="ck-picks-grid">
+                                                <!-- Pick of the Day -->
+                                                @if($pickOfDayStore)
+                                                <a href="{{ route('store.coupons', $pickOfDayStore->id) }}" class="ck-pick-card">
+                                                    <div class="ck-pick-header">Pick of the Day</div>
+                                                    <div class="ck-pick-logo">
+                                                        <img src="{{ getImage(getFilePath('store').'/'.$pickOfDayStore->image) }}" alt="{{ $pickOfDayStore->name }}">
+                                                    </div>
+                                                    <div class="ck-pick-desc">{{ @$pickOfDayCoupon->title ? Str::limit($pickOfDayCoupon->title, 38) : $pickOfDayStore->name }}</div>
+                                                </a>
+                                                @endif
+
+                                                <!-- Pick of the Week -->
+                                                @if($pickOfWeekStore)
+                                                <a href="{{ route('store.coupons', $pickOfWeekStore->id) }}" class="ck-pick-card">
+                                                    <div class="ck-pick-header">Pick of the Week</div>
+                                                    <div class="ck-pick-logo">
+                                                        <img src="{{ getImage(getFilePath('store').'/'.$pickOfWeekStore->image) }}" alt="{{ $pickOfWeekStore->name }}">
+                                                    </div>
+                                                    <div class="ck-pick-desc">{{ @$pickOfWeekCoupon->title ? Str::limit($pickOfWeekCoupon->title, 38) : $pickOfWeekStore->name }}</div>
+                                                </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Live Search Results (shown when typing) -->
+                                <div class="search-rec-results" id="searchRecResults" style="display: none;">
+                                    <!-- Stores Results -->
+                                    <div class="search-rec-section" id="searchRecStoresSec" style="display: none;">
+                                        <div class="search-rec-title">
+                                            <span><i class="fas fa-store text-primary"></i> @lang('Stores')</span>
+                                        </div>
+                                        <div class="search-rec-items-list" id="searchRecStoresList"></div>
+                                    </div>
+
+                                    <!-- Coupons Results -->
+                                    <div class="search-rec-section mb-0" id="searchRecCouponsSec" style="display: none;">
+                                        <div class="search-rec-title">
+                                            <span><i class="fas fa-ticket-alt text-success"></i> @lang('Coupons & Offers')</span>
+                                        </div>
+                                        <div class="search-rec-items-list" id="searchRecCouponsList"></div>
+                                    </div>
+
+                                    <!-- No Results Found -->
+                                    <div class="search-rec-empty" id="searchRecEmpty" style="display: none;">
+                                        <i class="fas fa-search-minus fa-2x text-muted mb-2"></i>
+                                        <p>@lang('No stores or coupons match your search.')</p>
+                                        <small class="text-muted">@lang('Press Enter to see all related results')</small>
+                                    </div>
+
+                                    <!-- View All Footer -->
+                                    <a href="#" id="searchRecViewAllBtn" class="search-rec-footer-btn">
+                                        <span>@lang('See all results for') "<strong id="searchRecQueryText"></strong>"</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </li>
                         
                         <!-- Moved Nav Links Here -->
@@ -708,4 +1203,156 @@ $user = auth()->user();
         </ul>
     </div>
 </div>
+
+<script>
+(function() {
+    function setupSearchDropdown() {
+        var input = document.getElementById('headerSearchInput');
+        var box = document.getElementById('searchRecommendationBox');
+        var container = document.getElementById('heroSearchBarContainer');
+        var initial = document.getElementById('searchRecInitial');
+        var results = document.getElementById('searchRecResults');
+        var loading = document.getElementById('searchRecLoading');
+        var storesSec = document.getElementById('searchRecStoresSec');
+        var storesList = document.getElementById('searchRecStoresList');
+        var couponsSec = document.getElementById('searchRecCouponsSec');
+        var couponsList = document.getElementById('searchRecCouponsList');
+        var empty = document.getElementById('searchRecEmpty');
+        var viewAllBtn = document.getElementById('searchRecViewAllBtn');
+        var queryText = document.getElementById('searchRecQueryText');
+        var suggestUrl = "{{ route('search.suggest') }}";
+        var debounceTimer = null;
+
+        if (!input || !box) return;
+
+        function showBox(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            box.classList.add('active');
+            var val = input.value.trim();
+            if (val.length === 0) {
+                if (initial) initial.style.display = 'block';
+                if (results) results.style.display = 'none';
+                if (loading) loading.style.display = 'none';
+            } else {
+                handleSearch(val);
+            }
+        }
+
+        function hideBox() {
+            box.classList.remove('active');
+        }
+
+        input.addEventListener('focus', showBox);
+        input.addEventListener('click', showBox);
+        input.addEventListener('mousedown', showBox);
+
+        document.addEventListener('click', function(e) {
+            if (container && !container.contains(e.target)) {
+                hideBox();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideBox();
+            }
+        });
+
+        input.addEventListener('input', function() {
+            var val = input.value.trim();
+            clearTimeout(debounceTimer);
+
+            if (val.length === 0) {
+                if (loading) loading.style.display = 'none';
+                if (results) results.style.display = 'none';
+                if (initial) initial.style.display = 'block';
+                return;
+            }
+
+            if (initial) initial.style.display = 'none';
+            if (loading) loading.style.display = 'block';
+            if (results) results.style.display = 'none';
+
+            debounceTimer = setTimeout(function() {
+                handleSearch(val);
+            }, 200);
+        });
+
+        function handleSearch(val) {
+            fetch(suggestUrl + '?search=' + encodeURIComponent(val))
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (loading) loading.style.display = 'none';
+                    if (results) results.style.display = 'block';
+
+                    if (queryText) queryText.textContent = val;
+                    if (viewAllBtn) viewAllBtn.href = data.search_url;
+
+                    var hasStores = data.stores && data.stores.length > 0;
+                    var hasCoupons = data.coupons && data.coupons.length > 0;
+
+                    if (hasStores && storesSec && storesList) {
+                        storesSec.style.display = 'block';
+                        storesList.innerHTML = data.stores.map(function(store) {
+                            return '<a href="' + store.url + '" class="search-rec-item">' +
+                                '<div class="search-rec-item-left">' +
+                                    '<div class="search-rec-item-icon"><img src="' + store.image + '" alt="' + escapeHtml(store.name) + '"></div>' +
+                                    '<div class="search-rec-item-info">' +
+                                        '<div class="search-rec-item-title">' + escapeHtml(store.name) + '</div>' +
+                                        '<div class="search-rec-item-sub">Store & Coupons</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<span class="search-rec-badge badge-store">Store</span>' +
+                            '</a>';
+                        }).join('');
+                    } else if (storesSec) {
+                        storesSec.style.display = 'none';
+                        if (storesList) storesList.innerHTML = '';
+                    }
+
+                    if (hasCoupons && couponsSec && couponsList) {
+                        couponsSec.style.display = 'block';
+                        couponsList.innerHTML = data.coupons.map(function(coupon) {
+                            return '<a href="' + coupon.url + '" class="search-rec-item">' +
+                                '<div class="search-rec-item-left">' +
+                                    '<div class="search-rec-item-icon"><i class="fas fa-tag"></i></div>' +
+                                    '<div class="search-rec-item-info">' +
+                                        '<div class="search-rec-item-title">' + escapeHtml(coupon.title) + '</div>' +
+                                        '<div class="search-rec-item-sub">' + (coupon.store_name ? escapeHtml(coupon.store_name) + ' • ' : '') + (coupon.code ? escapeHtml(coupon.code) : coupon.type) + '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<span class="search-rec-badge ' + (coupon.type === 'Code' ? 'badge-code' : 'badge-deal') + '">' + coupon.type + '</span>' +
+                            '</a>';
+                        }).join('');
+                    } else if (couponsSec) {
+                        couponsSec.style.display = 'none';
+                        if (couponsList) couponsList.innerHTML = '';
+                    }
+
+                    if (!hasStores && !hasCoupons && empty) {
+                        empty.style.display = 'block';
+                    } else if (empty) {
+                        empty.style.display = 'none';
+                    }
+                })
+                .catch(function() {
+                    if (loading) loading.style.display = 'none';
+                });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupSearchDropdown);
+    } else {
+        setupSearchDropdown();
+    }
+})();
+</script>
 

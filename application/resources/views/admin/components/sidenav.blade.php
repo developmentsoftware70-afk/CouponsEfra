@@ -54,7 +54,24 @@
                     <a href="{{route("admin.earning-reports.index")}}" class="nav-link ">
                         <i class="menu-icon las la-wallet"></i>
                         <span class="menu-title">@lang('Earning Report')</span>
-                        
+                    </a>
+                </li>
+                <li class="sidebar-menu-item {{menuActive('admin.orders.*')}}">
+                    <a href="{{route('admin.orders.index')}}" class="nav-link ">
+                        <i class="menu-icon las la-shopping-bag"></i>
+                        <span class="menu-title">@lang('Orders & Tracking')</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item {{menuActive('admin.payouts.*')}}">
+                    <a href="{{route('admin.payouts.index')}}" class="nav-link ">
+                        <i class="menu-icon las la-hand-holding-usd"></i>
+                        <span class="menu-title">@lang('Payout Requests')</span>
+                        @php
+                            $pendingPayoutsCount = \App\Models\PayoutRequest::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingPayoutsCount > 0)
+                            <span class="badge badge--warning py-1 px-2 rounded-pill ms-auto">{{ $pendingPayoutsCount }}</span>
+                        @endif
                     </a>
                 </li>
                 {{-- 

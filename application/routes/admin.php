@@ -31,6 +31,8 @@ Route::namespace('Auth')->group(function () {
 Route::middleware('admin')->group(function () {
     Route::controller('AdminController')->group(function(){
         Route::get('dashboard', 'dashboard')->name('dashboard');
+        Route::get('dashboard/performance-chart', 'performanceChart')->name('dashboard.performance.chart');
+        Route::get('dashboard/realtime-metrics', 'realtimeMetrics')->name('dashboard.realtime.metrics');
         Route::get('profile', 'profile')->name('profile');
         Route::post('profile', 'profileUpdate')->name('profile.update');
         Route::post('password', 'passwordUpdate')->name('password.update');
@@ -158,6 +160,20 @@ Route::middleware('admin')->group(function () {
         Route::get('approved','approved')->name('approved');
         Route::get('pending','pending')->name('pending');
         Route::post('/change','changeStatus')->name('status.change');
+    });
+
+    // Orders & Tracking Management
+    Route::controller('OrderController')->name('orders.')->prefix('orders')->group(function(){
+        Route::get('/', 'index')->name('index');
+        Route::post('/update/{id}', 'update')->name('update');
+    });
+
+    // Payout Requests Management
+    Route::controller('PayoutController')->name('payouts.')->prefix('payouts')->group(function(){
+        Route::get('/', 'index')->name('index');
+        Route::post('/update/{id}', 'updateStatus')->name('update');
+        Route::post('/bulk-action', 'bulkAction')->name('bulk.action');
+        Route::post('/pay-single/{id}', 'paySingle')->name('pay.single');
     });
     
     // plan

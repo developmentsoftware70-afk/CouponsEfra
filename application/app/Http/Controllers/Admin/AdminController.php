@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Lib\CurlRequest;
 use App\Models\AdminNotification;
-use App\Models\Deposit;
-use App\Models\Transaction;
 use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\Store;
 use App\Models\User;
 use App\Models\UserLogin;
 use App\Models\SupportTicket;
+use App\Models\PayoutRequest;
+use App\Models\DailyMetric;
 use App\Rules\FileTypeValidate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -28,44 +28,233 @@ class AdminController extends Controller
 
         // User Info
         $widget['total_users']             = User::count();
-        $widget['verified_users']          = User::where('status', 1)->where('ev',1)->where('sv',1)->count();
+        $widget['verified_users']          = User::where('status', 1)->where('ev', 1)->where('sv', 1)->count();
         $widget['email_unverified_users']  = User::emailUnverified()->count();
         $widget['mobile_unverified_users'] = User::mobileUnverified()->count();
 
-        $deposit['total_deposit_amount']        = Deposit::successful()->sum('amount');
-        $deposit['total_deposit_pending']       = Deposit::pending()->count();
-        $deposit['total_deposit_rejected']      = Deposit::rejected()->count();
-        $deposit['total_deposit_charge']        = Deposit::successful()->sum('charge');
-
-        // Monthly Deposit & Withdraw Report Graph
-        $deposits = Deposit::selectRaw("SUM(amount) as amount, MONTHNAME(created_at) as month_name, MONTH(created_at) as month_num")
-            ->whereYear('created_at', date('Y'))
-            ->whereStatus(1)
-            ->groupBy('month_name', 'month_num')
-            ->orderBy('month_num')
-            ->get();
-        $depositsChart['labels'] = $deposits->pluck('month_name');
-        $depositsChart['values'] = $deposits->pluck('amount');
-        // Monthly Deposit & Withdraw Report Graph
-
-
-        $widget['totalCoupon'] = Coupon::count();
+        $widget['totalCoupon']   = Coupon::count();
         $widget['totalCategory'] = Category::count();
-        $widget['totalStore'] = Store::count();
+        $widget['totalStore']    = Store::count();
 
+        // Key Real-time Metrics: Clicks, Impressions, Payout, Logins (Today, Yesterday, MTD)
+        $kpiMetrics = $this->getKpiMetrics();
 
-        // UserLogin Report Graph
-        $userLoginsReport = UserLogin::selectRaw("COUNT(*) as login_count, DATE_FORMAT(created_at, '%Y-%m-%d') as login_date")
-            ->orderBy('login_date', 'desc')
-            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m-%d')")
-            ->limit(10)
-            ->pluck('login_count', 'login_date');
-        $userLogins['labels'] = $userLoginsReport->keys();
-        $userLogins['values'] = $userLoginsReport->values();
-        // UserLogin Report Graph
+        // Fallbacks for other widgets
+        $widget['total_clicks']        = $kpiMetrics['clicks']['mtd'];
+        $widget['total_payout_amount'] = $kpiMetrics['payout']['mtd'];
+        $widget['total_impressions']   = $kpiMetrics['impressions']['mtd'];
+
+        $performanceData = $this->getPerformanceData();
 
         $newTickets = SupportTicket::with('user')->orderBy('created_at', 'desc')->whereStatus(0)->limit(5)->get();
-        return view('admin.dashboard', compact('pageTitle', 'widget', 'depositsChart', 'deposit','userLogins', 'newTickets'));
+        return view('admin.dashboard', compact('pageTitle', 'widget', 'newTickets', 'kpiMetrics', 'performanceData'));
+    }
+
+    public function getKpiMetrics()
+    {
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+        $startOfMonth = Carbon::now()->startOfMonth();
+
+        return [
+            'clicks' => [
+                'today'     => (int) (DailyMetric::where('metric_date', $today->toDateString())->value('clicks') ?? 0),
+                'yesterday' => (int) (DailyMetric::where('metric_date', $yesterday->toDateString())->value('clicks') ?? 0),
+                'mtd'       => (int) DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())->sum('clicks'),
+            ],
+            'impressions' => [
+                'today'     => (int) (DailyMetric::where('metric_date', $today->toDateString())->value('impressions') ?? 0),
+                'yesterday' => (int) (DailyMetric::where('metric_date', $yesterday->toDateString())->value('impressions') ?? 0),
+                'mtd'       => (int) DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())->sum('impressions'),
+            ],
+            'payout' => [
+                'today'     => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->whereDate('updated_at', $today)->sum('amount'),
+                'yesterday' => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->whereDate('updated_at', $yesterday)->sum('amount'),
+                'mtd'       => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->where('updated_at', '>=', $startOfMonth)->sum('amount'),
+            ],
+            'logins' => [
+                'today'     => (int) UserLogin::where('created_at', '>=', $today)->whereNotNull('user_id')->distinct('user_id')->count('user_id'),
+                'yesterday' => (int) UserLogin::whereBetween('created_at', [$yesterday, $today])->whereNotNull('user_id')->distinct('user_id')->count('user_id'),
+                'mtd'       => (int) UserLogin::where('created_at', '>=', $startOfMonth)->whereNotNull('user_id')->distinct('user_id')->count('user_id'),
+            ],
+        ];
+    }
+
+    public function realtimeMetrics(Request $request)
+    {
+        $kpi = $this->getKpiMetrics();
+        $preset = $request->input('preset', 'last_7_days');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $chart = $this->getPerformanceData($startDate, $endDate, $preset);
+
+        $widgets = [
+            'total_users'            => User::count(),
+            'verified_users'         => User::where('status', 1)->where('ev', 1)->where('sv', 1)->count(),
+            'email_unverified_users' => User::emailUnverified()->count(),
+            'totalCoupon'            => Coupon::count(),
+            'totalCategory'          => Category::count(),
+            'totalStore'             => Store::count(),
+        ];
+
+        return response()->json([
+            'kpi' => [
+                'clicks' => [
+                    'today' => formatShortNumber($kpi['clicks']['today']),
+                    'yesterday' => formatShortNumber($kpi['clicks']['yesterday']),
+                    'mtd' => formatShortNumber($kpi['clicks']['mtd']),
+                ],
+                'impressions' => [
+                    'today' => formatShortNumber($kpi['impressions']['today']),
+                    'yesterday' => formatShortNumber($kpi['impressions']['yesterday']),
+                    'mtd' => formatShortNumber($kpi['impressions']['mtd']),
+                ],
+                'payout' => [
+                    'today_usd' => '$ ' . convertInrToUsd($kpi['payout']['today']),
+                    'today_inr' => '₹ ' . formatShortNumber($kpi['payout']['today']),
+                    'yesterday_usd' => '$ ' . convertInrToUsd($kpi['payout']['yesterday']),
+                    'yesterday_inr' => '₹ ' . formatShortNumber($kpi['payout']['yesterday']),
+                    'mtd_usd' => '$ ' . convertInrToUsd($kpi['payout']['mtd']),
+                    'mtd_inr' => '₹ ' . formatShortNumber($kpi['payout']['mtd']),
+                ],
+                'logins' => [
+                    'today' => formatShortNumber($kpi['logins']['today']),
+                    'yesterday' => formatShortNumber($kpi['logins']['yesterday']),
+                    'mtd' => formatShortNumber($kpi['logins']['mtd']),
+                ]
+            ],
+            'chart' => $chart,
+            'widgets' => $widgets
+        ]);
+    }
+
+    public function performanceChart(Request $request)
+    {
+        $data = $this->getPerformanceData(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('preset', 'last_7_days')
+        );
+        return response()->json($data);
+    }
+
+    public function getPerformanceData($startDateStr = null, $endDateStr = null, $preset = 'last_7_days')
+    {
+        $today = Carbon::today();
+
+        switch ($preset) {
+            case 'today':
+                $start = $today->copy();
+                $end = $today->copy();
+                break;
+            case 'yesterday':
+                $start = $today->copy()->subDay();
+                $end = $today->copy()->subDay();
+                break;
+            case 'last_30_days':
+                $start = $today->copy()->subDays(29);
+                $end = $today->copy();
+                break;
+            case 'this_month':
+                $start = $today->copy()->startOfMonth();
+                $end = $today->copy();
+                break;
+            case 'last_month':
+                $start = $today->copy()->subMonth()->startOfMonth();
+                $end = $today->copy()->subMonth()->endOfMonth();
+                break;
+            case 'custom':
+                try {
+                    $start = $startDateStr ? Carbon::parse($startDateStr)->startOfDay() : $today->copy()->subDays(6);
+                    $end = $endDateStr ? Carbon::parse($endDateStr)->startOfDay() : $today->copy();
+                    if ($start->gt($end)) {
+                        $temp = $start;
+                        $start = $end;
+                        $end = $temp;
+                    }
+                } catch (\Exception $e) {
+                    $start = $today->copy()->subDays(6);
+                    $end = $today->copy();
+                }
+                break;
+            case 'last_7_days':
+            default:
+                $preset = 'last_7_days';
+                $start = $today->copy()->subDays(6);
+                $end = $today->copy();
+                break;
+        }
+
+        $metrics = DailyMetric::whereBetween('metric_date', [$start->toDateString(), $end->toDateString()])
+            ->get()
+            ->keyBy(function($item) {
+                return Carbon::parse($item->metric_date)->toDateString();
+            });
+
+        $payouts = PayoutRequest::whereIn('status', ['confirmed', 'paid'])
+            ->whereBetween('updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            ->selectRaw("DATE(updated_at) as date, SUM(amount) as total")
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        $logins = UserLogin::whereNotNull('user_id')
+            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            ->selectRaw("DATE(created_at) as date, COUNT(DISTINCT user_id) as total")
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        $dates = [];
+        $clicksData = [];
+        $impressionsData = [];
+        $payoutData = [];
+        $loginData = [];
+
+        $totalClicks = 0;
+        $totalImpressions = 0;
+        $totalPayout = 0;
+        $totalLogins = 0;
+
+        $curr = $start->copy();
+        while ($curr->lte($end)) {
+            $d = $curr->toDateString();
+            $dates[] = $d;
+
+            $c = isset($metrics[$d]) ? (int) $metrics[$d]->clicks : 0;
+            $i = isset($metrics[$d]) ? (int) $metrics[$d]->impressions : 0;
+            $p = isset($payouts[$d]) ? (float) $payouts[$d] : 0.0;
+            $l = isset($logins[$d]) ? (int) $logins[$d] : 0;
+
+            $clicksData[] = $c;
+            $impressionsData[] = $i;
+            $payoutData[] = $p;
+            $loginData[] = $l;
+
+            $totalClicks += $c;
+            $totalImpressions += $i;
+            $totalPayout += $p;
+            $totalLogins += $l;
+
+            $curr->addDay();
+        }
+
+        return [
+            'preset' => $preset,
+            'startDate' => $start->toDateString(),
+            'endDate' => $end->toDateString(),
+            'rangeLabel' => $start->format('Y-m-d') . ' - ' . $end->format('Y-m-d'),
+            'dates' => $dates,
+            'clicks' => $clicksData,
+            'impressions' => $impressionsData,
+            'payout' => $payoutData,
+            'logins' => $loginData,
+            'totals' => [
+                'clicks' => $totalClicks,
+                'impressions' => $totalImpressions,
+                'payout' => round($totalPayout, 2),
+                'logins' => $totalLogins,
+            ]
+        ];
     }
 
 

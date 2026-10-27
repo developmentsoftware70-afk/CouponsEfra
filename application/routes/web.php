@@ -2,6 +2,8 @@
 
 use App\Lib\Router;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WebhookController;
 
 Route::get('/clear', function(){
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
@@ -88,6 +90,7 @@ Route::controller('SiteController')->group(function () {
 
     //Single coupon Search 
     Route::get('coupon/search', 'singleCouponSearch')->name('single.coupon.search');
+    Route::get('search/suggest', 'searchSuggest')->name('search.suggest');
 
     // subscriber
     Route::post('/subscribe','subscribe')->name('subscribe');
@@ -114,3 +117,7 @@ Route::get('/api/check-auth', function () {
         'logged_in' => auth()->check(),
     ]);
 })->name('check.auth');
+
+// Merchant Order Webhook / Postback (GET & POST)
+Route::match(['get', 'post'], '/api/webhook/order', [WebhookController::class, 'handleMerchantCallback'])->name('webhook.order');
+

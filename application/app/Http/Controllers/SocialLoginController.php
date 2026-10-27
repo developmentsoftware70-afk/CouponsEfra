@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use App\Models\UserLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -54,6 +55,7 @@ class SocialLoginController extends Controller
             // Using Auth::login to persist session for the Blade application 
             // instead of redirect()->away with tokens.
             Auth::login($user);
+            UserLogin::recordLogin($user);
             \Cookie::queue('couponsefra_logged_in', '1', 60 * 24 * 30, '/', null, false, false);
 
             $intendedUrl = session()->pull('url.intended');
