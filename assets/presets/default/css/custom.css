@@ -627,20 +627,14 @@ h4.n15-color a {
     margin: 0px 0px 30px 0px;
 }
 
-/* Universal Modern Slider Slide Buttons (Always Visible) */
+/* Slider Slide Buttons: ONLY on Deal Sliders (Neemans, Nilkamal, Noise Top Deals) and Coupons Section */
 .deal-slider,
-.popular-slider,
-.store-slider,
 .ck-latest-slider {
     position: relative;
 }
 
 .deal-slider .slick-prev,
 .deal-slider .slick-next,
-.popular-slider .slick-prev,
-.popular-slider .slick-next,
-.store-slider .slick-prev,
-.store-slider .slick-next,
 .ck-latest-slider .slick-prev,
 .ck-latest-slider .slick-next {
     position: absolute !important;
@@ -665,16 +659,12 @@ h4.n15-color a {
 }
 
 .deal-slider .slick-prev,
-.popular-slider .slick-prev,
-.store-slider .slick-prev,
 .ck-latest-slider .slick-prev {
     left: -14px !important;
     right: auto !important;
 }
 
 .deal-slider .slick-next,
-.popular-slider .slick-next,
-.store-slider .slick-next,
 .ck-latest-slider .slick-next {
     right: -14px !important;
     left: auto !important;
@@ -682,10 +672,6 @@ h4.n15-color a {
 
 .deal-slider .slick-prev:hover,
 .deal-slider .slick-next:hover,
-.popular-slider .slick-prev:hover,
-.popular-slider .slick-next:hover,
-.store-slider .slick-prev:hover,
-.store-slider .slick-next:hover,
 .ck-latest-slider .slick-prev:hover,
 .ck-latest-slider .slick-next:hover {
     background: #f8fafc !important;
@@ -697,10 +683,6 @@ h4.n15-color a {
 
 .deal-slider .slick-prev i,
 .deal-slider .slick-next i,
-.popular-slider .slick-prev i,
-.popular-slider .slick-next i,
-.store-slider .slick-prev i,
-.store-slider .slick-next i,
 .ck-latest-slider .slick-prev i,
 .ck-latest-slider .slick-next i {
     font-size: 16px !important;
@@ -708,18 +690,25 @@ h4.n15-color a {
     display: inline-block !important;
 }
 
+/* Hide arrows completely on auto-scrolling sliders (store, popular) */
+.store-slider .slick-prev,
+.store-slider .slick-next,
+.popular-slider .slick-prev,
+.popular-slider .slick-next {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 @media (max-width: 768px) {
     .deal-slider .slick-prev,
-    .popular-slider .slick-prev,
-    .store-slider .slick-prev,
     .ck-latest-slider .slick-prev {
         left: 2px !important;
         width: 36px !important;
         height: 36px !important;
     }
     .deal-slider .slick-next,
-    .popular-slider .slick-next,
-    .store-slider .slick-next,
     .ck-latest-slider .slick-next {
         right: 2px !important;
         width: 36px !important;
@@ -727,10 +716,6 @@ h4.n15-color a {
     }
     .deal-slider .slick-prev i,
     .deal-slider .slick-next i,
-    .popular-slider .slick-prev i,
-    .popular-slider .slick-next i,
-    .store-slider .slick-prev i,
-    .store-slider .slick-next i,
     .ck-latest-slider .slick-prev i,
     .ck-latest-slider .slick-next i {
         font-size: 13px !important;

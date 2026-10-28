@@ -182,7 +182,7 @@
       fade: true,
       cssEase: 'linear'
     });
-    // for store
+    // for store (auto-scroll: no arrows)
     $('.store-slider').slick({
       slidesToShow: 5,
       slidesToScroll: 1,
@@ -192,14 +192,12 @@
       infinite: false,
       pauseOnHover: false,
       dots: false,
-      arrows: true,
-      prevArrow: '<button type="button" class="slick-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>',
-      nextArrow: '<button type="button" class="slick-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>',
+      arrows: false,
       responsive: [
         {
           breakpoint: 1199,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 5,
             dots: false,
           }
@@ -207,27 +205,27 @@
         {
           breakpoint: 991,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 3
           }
         },
         {
           breakpoint: 767,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 2
           }
         },
         {
           breakpoint: 424,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 1.2
           }
         }
       ]
     });
-    // for popular coupons
+    // for popular coupons (auto-scroll: no arrows)
     $('.popular-slider').slick({
       slidesToShow: 4,
       slidesToScroll: 1,
@@ -237,14 +235,12 @@
       infinite: true,
       pauseOnHover: false,
       dots: false,
-      arrows: true,
-      prevArrow: '<button type="button" class="slick-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>',
-      nextArrow: '<button type="button" class="slick-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>',
+      arrows: false,
       responsive: [
         {
           breakpoint: 1199,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 4,
             dots: false,
           }
@@ -252,21 +248,21 @@
         {
           breakpoint: 991,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 3
           }
         },
         {
           breakpoint: 767,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 2
           }
         },
         {
           breakpoint: 424,
           settings: {
-            arrows: true,
+            arrows: false,
             slidesToShow: 1.2
           }
         }
