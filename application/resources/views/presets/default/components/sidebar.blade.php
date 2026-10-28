@@ -219,7 +219,7 @@
         $firstAd = App\Models\Ad::first();
         $secondAd = App\Models\Ad::skip(1)->first();
     @endphp
-    @if($firstAd)
+    @if(($showAds ?? true) && $firstAd)
         <div class="categories">
             <!-- ad image start -->
             <div class="sidebar-add-wrap position-relative">
@@ -232,7 +232,7 @@
             <!-- ad image end -->
         </div>
     @endif
-    @if($secondAd)
+    @if(($showAds ?? true) && $secondAd)
         <div class="categories">
             <!-- ad image start -->
             <div class="sidebar-add-wrap position-relative">

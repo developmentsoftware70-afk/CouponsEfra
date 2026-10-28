@@ -809,7 +809,7 @@ class SiteController extends Controller
         $stores = $request->input('stores', []);
         $search = $request->input('search');
 
-        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0);
+        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1);
 
         if (!empty($categories)) {
             $query->whereIn('category_id', $categories);
@@ -820,7 +820,10 @@ class SiteController extends Controller
         }
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%$search%");  
+                $q->where('title', 'LIKE', "%$search%")
+                  ->orWhereHas('store', function ($sq) use ($search) {
+                      $sq->where('name', 'LIKE', "%$search%");
+                  });
             });
         }
 
@@ -895,7 +898,7 @@ class SiteController extends Controller
         $coupons = $query->paginate(getPaginate());
         $categories = Category::where('status', 1)->latest()->get();
         $stores = Store::where('status', 1)->latest()->get();
-        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
+        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores', 'search'));
     }
 
     public function searchSuggest(Request $request) {
