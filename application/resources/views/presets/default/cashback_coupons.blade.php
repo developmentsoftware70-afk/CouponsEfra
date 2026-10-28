@@ -92,7 +92,7 @@
         height: 100vh;
         background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(3px);
-        z-index: 9998;
+        z-index: 100000000 !important;
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
@@ -109,7 +109,7 @@
         max-width: 90vw;
         height: 100vh;
         background: #ffffff;
-        z-index: 9999;
+        z-index: 100000001 !important;
         box-shadow: -8px 0 30px rgba(0, 0, 0, 0.15);
         display: flex;
         flex-direction: column;
