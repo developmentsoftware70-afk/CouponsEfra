@@ -240,35 +240,35 @@
 
 /* Store Avatar Box */
 .store-avatar-box {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
+    width: 75px;
+    height: 60px;
+    min-width: 75px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
+    padding: 3px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .store-avatar-img {
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
 }
 
 .store-avatar-placeholder {
     color: #94a3b8;
-    font-size: 18px;
+    font-size: 22px;
 }
 
 .product-info-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-    line-height: 1.4;
+    font-size: 12px;
+    font-weight: 500;
+    color: #334155;
+    line-height: 1.35;
 }
 
 .order-amount-display .amount-val {
@@ -380,6 +380,113 @@
     align-items: center;
     justify-content: center;
     font-size: 24px;
+}
+
+/* ========================================================
+   MOBILE ORDER TRACKER: NATIVE APP ORDER CARDS
+   ======================================================== */
+@media (max-width: 991px) {
+    .order-tracker-card {
+        border-radius: 12px;
+        box-shadow: none;
+        background: transparent;
+        border: none;
+    }
+    .order-tracker-card__header {
+        border-radius: 12px;
+        border: 1px solid #e9edf4;
+        margin-bottom: 12px;
+        padding: 14px 16px;
+        background: #ffffff;
+    }
+    .order-tracker-title {
+        font-size: 16px;
+    }
+    .table-responsive {
+        overflow-x: visible !important;
+    }
+    .modern-order-table thead {
+        display: none !important;
+    }
+    .modern-order-table, 
+    .modern-order-table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    .modern-order-table tbody tr {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 14px !important;
+        margin-bottom: 14px !important;
+        padding: 12px 14px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        row-gap: 8px !important;
+    }
+    .modern-order-table tbody tr td {
+        display: block !important;
+        padding: 0 !important;
+        border: none !important;
+        width: auto !important;
+        min-width: unset !important;
+    }
+    /* Top Left: Order ID */
+    .modern-order-table tbody tr td:nth-child(1) {
+        order: 1 !important;
+        flex: 0 0 auto !important;
+    }
+    /* Top Right: Status */
+    .modern-order-table tbody tr td:nth-child(6) {
+        order: 2 !important;
+        flex: 0 0 auto !important;
+        text-align: right !important;
+    }
+    /* Middle: Product & Store (Full 100% Width) */
+    .modern-order-table tbody tr td:nth-child(2) {
+        order: 3 !important;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        padding: 8px 0 !important;
+        border-top: 1px dashed #f1f5f9 !important;
+        border-bottom: 1px dashed #f1f5f9 !important;
+    }
+    .modern-order-table tbody tr td:nth-child(2) > div {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+    .modern-order-table tbody tr td:nth-child(2) .product-info-wrap {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    /* Bottom Left: Amount / Cashback */
+    .modern-order-table tbody tr td:nth-child(3) {
+        order: 4 !important;
+        flex: 0 0 auto !important;
+    }
+    .modern-order-table tbody tr td:nth-child(3)::before {
+        display: none !important;
+    }
+    /* Bottom Right: Date & Time */
+    .modern-order-table tbody tr td:nth-child(5) {
+        order: 5 !important;
+        flex: 0 0 auto !important;
+        text-align: right !important;
+    }
+    /* Hide internal technical source pill on mobile card to remove clutter */
+    .modern-order-table tbody tr td:nth-child(4) {
+        display: none !important;
+    }
+    .modern-order-table tbody tr td[colspan="100%"] {
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
 }
 </style>
 @endpush

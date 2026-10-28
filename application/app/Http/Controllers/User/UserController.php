@@ -26,7 +26,8 @@ class UserController extends Controller
         $user = auth()->user();
         $couponsCount = Coupon::where('user_id',$user->id)->count();
         $wishLists = Wishlist::with('coupon')->where('user_id', $user->id)->latest()->paginate(getPaginate(10));
-        $orders = Order::where('user_id', $user->id)->latest()->take(10)->get();
+        $orders = Order::where('user_id', $user->id)->latest()->take(3)->get();
+        $totalOrdersCount = Order::where('user_id', $user->id)->count();
         $earningReportList = EarningReport::with('user')->where('user_id', $user->id)->latest()->paginate(getPaginate(10));
         $pendingCoupon = Coupon::where('status', 0)->where('user_id',$user->id)->count();
         $activeCoupon = Coupon::where('status', 1)->where('user_id',$user->id)->count();
@@ -61,7 +62,7 @@ class UserController extends Controller
         $disbursedAmount = $paidPayouts + $legacyDisbursed;
 
         return view($this->activeTemplate . 'user.dashboard', compact(
-            'pageTitle', 'user', 'wishLists', 'orders', 'earningReportList',
+            'pageTitle', 'user', 'wishLists', 'orders', 'totalOrdersCount', 'earningReportList',
             'coupons', 'couponsCount', 'activeCoupon', 'pendingCoupon',
             'storeCount', 'pendingStore', 'activeStore',
             'totalEarningsAmount', 'pendingPaymentAmount', 'disbursedAmount'

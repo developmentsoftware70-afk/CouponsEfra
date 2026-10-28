@@ -887,8 +887,199 @@
         width: 100% !important;
         border-right: none !important;
     }
-    .ck-trending-list {
-        max-height: 240px !important;
+    /* ==============================================================
+       CASHKARO 1:1 MOBILE DRAWER (TOP-TO-BOTTOM CATEGORIES DRAWER)
+       ============================================================== */
+    body.drawer-open {
+        overflow: hidden !important;
+    }
+
+    .sidebar-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(2px) !important;
+        -webkit-backdrop-filter: blur(2px) !important;
+        z-index: 99999998 !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        transition: opacity 0.25s ease, visibility 0.25s ease !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .sidebar-overlay.show {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .sidebar-menu-wrapper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 300px !important;
+        max-width: 82vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        background: #ffffff !important;
+        transform: translateX(-105%) !important;
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-shadow: 6px 0 25px rgba(0, 0, 0, 0.2) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        z-index: 99999999 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    .sidebar-menu-wrapper.show {
+        transform: translateX(0) !important;
+    }
+
+    /* CashKaro Drawer Top Header */
+    .ck-drawer-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 16px 20px !important;
+        background: #ffffff !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        flex-shrink: 0 !important;
+        height: 58px !important;
+    }
+    .ck-drawer-title {
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        letter-spacing: -0.2px !important;
+    }
+    .ck-drawer-close {
+        background: transparent !important;
+        border: none !important;
+        color: #374151 !important;
+        font-size: 19px !important;
+        cursor: pointer !important;
+        padding: 4px !important;
+        line-height: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .ck-drawer-close:hover {
+        color: #e11d48 !important;
+    }
+
+    /* CashKaro Drawer Scrollable Body */
+    .ck-drawer-body {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 6px 0 30px 0 !important;
+    }
+    .ck-drawer-nav {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .ck-drawer-nav li {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .ck-nav-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 12px 20px !important;
+        font-size: 14.5px !important;
+        font-weight: 600 !important;
+        color: #1f2937 !important;
+        text-decoration: none !important;
+        transition: background 0.15s ease, color 0.15s ease !important;
+        border: none !important;
+    }
+    .ck-nav-item:hover, .ck-nav-item:active {
+        background: #f8fafc !important;
+        color: #e11d48 !important;
+    }
+    .ck-nav-item.active {
+        color: #e11d48 !important;
+    }
+    .ck-nav-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
+    }
+    .ck-nav-left i {
+        font-size: 16px !important;
+        color: #1f2937 !important;
+        width: 22px !important;
+        text-align: center !important;
+    }
+    .ck-nav-item.active .ck-nav-left i {
+        color: #e11d48 !important;
+    }
+    .ck-nav-arrow {
+        font-size: 12px !important;
+        color: #9ca3af !important;
+    }
+    .ck-drawer-divider {
+        height: 1px !important;
+        background: #f1f5f9 !important;
+        margin: 8px 18px !important;
+    }
+    .ck-drawer-section-label {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        color: #9ca3af !important;
+        padding: 8px 20px 4px 20px !important;
+    }
+    .ck-drawer-user-card {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 12px 20px !important;
+        background: #f8fafc !important;
+    }
+    .ck-drawer-user-avatar {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 50% !important;
+        background: #e11d48 !important;
+        color: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        overflow: hidden !important;
+        flex-shrink: 0 !important;
+    }
+    .ck-drawer-user-avatar img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
+    .ck-drawer-user-meta h6 {
+        margin: 0 !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+    }
+    .ck-drawer-user-meta a {
+        font-size: 12px !important;
+        color: #e11d48 !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        margin-top: 2px !important;
     }
 </style>
 @php
@@ -1136,69 +1327,145 @@ $pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
     </div>
 </div>
 
+<!-- CashKaro Style Category Drawer -->
 <div class="sidebar-menu-wrapper">
-    <div class="offcanvas-header">
-        <div class="logo">
-            <div class="header-menu-wrapper align-items-center d-flex">
-                <div class="logo-wrapper">
-                    <a href="{{ route('home') }}" class="normal-logo" id="offcanvas-logo-normal"> <img
-                            src="{{ getImage(getFilePath('logoIcon') . '/logo.png') }}"
-                            alt="{{ config('app.name') }}" height="60"></a>
-                </div>
-            </div>
-        </div>
-        <button type="button" class="btn--close sidebar close-hide-show"><i class="fas fa-times"></i></button>
+    <!-- Top Bar with Category title and Close (✕) button -->
+    <div class="ck-drawer-header">
+        <span class="ck-drawer-title">@lang('Category')</span>
+        <button type="button" class="ck-drawer-close close-hide-show" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-    <div class="offcanvas-body">
+
+    <!-- Scrollable Drawer Body -->
+    <div class="ck-drawer-body">
         @auth
-        <div class="user-info bg--img"
-            style="background: url({{ asset($activeTemplateTrue . 'images/bg/user2.jpg') }})">
-            <div class="user-thumb">
-                <a href="javascript:void(0)">
-
-                    <img src="{{ getImage(getFilePath('userProfile') . '/' . $user->image, getFileSize('userProfile')) }}"
-                        alt="agent">
-                </a>
-            </div>
-            <a href="javascript:void(0)">
-                <h4>{{ __($user->fullname) }}</h4>
-            </a>
-        </div>
-        @endauth
-        <ul class="side-Nav">
-
-            @auth
-            <li>
-                <a class="{{ Request::routeIs('user.home') ? 'active' : 'aaa' }}"
-                    href="{{ route('user.home') }}">@lang('Dashboard')</a>
-            </li>
-            @endauth
-            <li>
-                <a class="{{ Request::routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">@lang('Home')</a>
-            </li>
-            <li>
-
-                @foreach ($pages as $page)
-                @if ($page->slug != '/')
-                <a class="{{ request()->url() === route('pages', [$page->slug]) ? 'active' : '' }}" aria-current="page"
-                    href="{{ route('pages', [$page->slug]) }}">{{ __($page->name) }}
-                </a>
+        @php
+            $name = $user->fullname ?? $user->firstname ?? $user->username;
+            $initial = strtoupper(substr($name, 0, 1));
+        @endphp
+        <div class="ck-drawer-user-card">
+            <div class="ck-drawer-user-avatar">
+                @if(!empty($user->image) && file_exists(getFilePath('userProfile') . '/' . $user->image))
+                    <img src="{{ getImage(getFilePath('userProfile') . '/' . $user->image, getFileSize('userProfile')) }}" alt="{{ $name }}">
+                @else
+                    <span>{{ $initial }}</span>
                 @endif
-                @endforeach
-            </li>
+            </div>
+            <div class="ck-drawer-user-meta">
+                <h6>{{ $name }}</h6>
+                <a href="{{ route('user.home') }}"><i class="fas fa-th-large"></i> @lang('My Dashboard')</a>
+            </div>
+        </div>
+        <div class="ck-drawer-divider"></div>
+        @endauth
 
-            @auth
+        <!-- Main Navigation Links -->
+        <ul class="ck-drawer-nav">
             <li>
-                <a href="{{ route('user.logout') }}"> <span>
-                    </span>@lang('Logout')</a>
-            </li>
-            @else
-            <li>
-                <a href="{{ route('user.login') }}" class="">
-                    <i class="fa fa-user"></i>
-                     @lang('Login/Signup')
+                <a href="{{ route('home') }}" class="ck-nav-item {{ Request::routeIs('home') ? 'active' : '' }}">
+                    <span class="ck-nav-left"><i class="fas fa-home"></i> @lang('Home')</span>
+                    <i class="fas fa-chevron-right ck-nav-arrow"></i>
                 </a>
             </li>
+
+            @foreach ($pages as $page)
+                @if ($page->slug != '/')
+                    @php
+                        $pName = strtolower($page->name);
+                        $pIcon = 'fas fa-tag';
+                        if (str_contains($pName, 'coupon')) $pIcon = 'fas fa-ticket-alt';
+                        elseif (str_contains($pName, 'cashback')) $pIcon = 'fas fa-coins';
+                        elseif (str_contains($pName, 'deal')) $pIcon = 'fas fa-fire';
+                        elseif (str_contains($pName, 'affiliate')) $pIcon = 'fas fa-users';
+                        elseif (str_contains($pName, 'blog')) $pIcon = 'fas fa-newspaper';
+                    @endphp
+                    <li>
+                        <a href="{{ route('pages', [$page->slug]) }}" class="ck-nav-item {{ request()->url() === route('pages', [$page->slug]) ? 'active' : '' }}">
+                            <span class="ck-nav-left"><i class="{{ $pIcon }}"></i> {{ __($page->name) }}</span>
+                            <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                        </a>
+                    </li>
+                @endif
+            @endforeach
+
+            @if(Route::has('feature.store'))
+            <li>
+                <a href="{{ route('feature.store') }}" class="ck-nav-item {{ Request::routeIs('feature.store') ? 'active' : '' }}">
+                    <span class="ck-nav-left"><i class="fas fa-store"></i> @lang('All Stores')</span>
+                    <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                </a>
+            </li>
+            @endif
+        </ul>
+
+        <!-- Top Categories from Database (CashKaro replica) -->
+        @php
+            $drawerCats = App\Models\Category::where('status', 1)->take(8)->get();
+        @endphp
+        @if($drawerCats && $drawerCats->count() > 0)
+            <div class="ck-drawer-divider"></div>
+            <div class="ck-drawer-section-label">@lang('Top Categories')</div>
+            <ul class="ck-drawer-nav">
+                @foreach($drawerCats as $cat)
+                    @php
+                        $cName = strtolower($cat->name);
+                        $cIcon = 'fas fa-shapes';
+                        if (str_contains($cName, 'mobile') || str_contains($cName, 'phone')) $cIcon = 'fas fa-mobile-alt';
+                        elseif (str_contains($cName, 'laptop') || str_contains($cName, 'computer')) $cIcon = 'fas fa-laptop';
+                        elseif (str_contains($cName, 'fashion') || str_contains($cName, 'cloth')) $cIcon = 'fas fa-tshirt';
+                        elseif (str_contains($cName, 'shoe') || str_contains($cName, 'footwear')) $cIcon = 'fas fa-shoe-prints';
+                        elseif (str_contains($cName, 'beauty') || str_contains($cName, 'cosmetic')) $cIcon = 'fas fa-gem';
+                        elseif (str_contains($cName, 'grocery') || str_contains($cName, 'food')) $cIcon = 'fas fa-shopping-basket';
+                        elseif (str_contains($cName, 'electronic')) $cIcon = 'fas fa-tv';
+                        elseif (str_contains($cName, 'health')) $cIcon = 'fas fa-heartbeat';
+                        elseif (str_contains($cName, 'travel')) $cIcon = 'fas fa-plane';
+                    @endphp
+                    <li>
+                        <a href="{{ route('category.coupons', $cat->id) }}" class="ck-nav-item">
+                            <span class="ck-nav-left">
+                                <i class="{{ $cIcon }}"></i>
+                                {{ $cat->name }}
+                            </span>
+                            <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+
+        <div class="ck-drawer-divider"></div>
+
+        <!-- Account Section -->
+        <ul class="ck-drawer-nav">
+            @auth
+                <li>
+                    <a href="{{ route('user.home') }}" class="ck-nav-item {{ Request::routeIs('user.home') ? 'active' : '' }}">
+                        <span class="ck-nav-left"><i class="fas fa-tachometer-alt"></i> @lang('Dashboard')</span>
+                        <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                    </a>
+                </li>
+                @if(Route::has('user.my.earnings'))
+                <li>
+                    <a href="{{ route('user.my.earnings') }}" class="ck-nav-item {{ Request::routeIs('user.my.earnings') ? 'active' : '' }}">
+                        <span class="ck-nav-left"><i class="fas fa-wallet"></i> @lang('My Earnings')</span>
+                        <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                    </a>
+                </li>
+                @endif
+                <li>
+                    <a href="{{ route('user.logout') }}" class="ck-nav-item" style="color: #ef4444 !important;">
+                        <span class="ck-nav-left"><i class="fas fa-sign-out-alt" style="color: #ef4444 !important;"></i> @lang('Logout')</span>
+                        <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                    </a>
+                </li>
+            @else
+                <li>
+                    <a href="{{ route('user.login') }}" class="ck-nav-item">
+                        <span class="ck-nav-left"><i class="fas fa-user-circle"></i> @lang('Login / Signup')</span>
+                        <i class="fas fa-chevron-right ck-nav-arrow"></i>
+                    </a>
+                </li>
             @endauth
         </ul>
     </div>
@@ -1352,6 +1619,40 @@ $pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
         document.addEventListener('DOMContentLoaded', setupSearchDropdown);
     } else {
         setupSearchDropdown();
+    }
+
+    // CashKaro Drawer open/close controls and background scroll lock
+    function initDrawerControls() {
+        var ham = document.querySelector('.sidebar-menu-show-hide');
+        var sidebar = document.querySelector('.sidebar-menu-wrapper');
+        var overlay = document.querySelector('.sidebar-overlay');
+        var closeBtns = document.querySelectorAll('.close-hide-show');
+
+        function openDrawer(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (sidebar) sidebar.classList.add('show');
+            if (overlay) overlay.classList.add('show');
+            document.body.classList.add('drawer-open');
+        }
+
+        function closeDrawer(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (sidebar) sidebar.classList.remove('show');
+            if (overlay) overlay.classList.remove('show');
+            document.body.classList.remove('drawer-open');
+        }
+
+        if (ham) ham.addEventListener('click', openDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        closeBtns.forEach(function(btn) {
+            btn.addEventListener('click', closeDrawer);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDrawerControls);
+    } else {
+        initDrawerControls();
     }
 })();
 </script>
