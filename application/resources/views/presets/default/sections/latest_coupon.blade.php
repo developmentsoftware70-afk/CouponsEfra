@@ -520,7 +520,7 @@
         if ($('.ck-latest-slider').length > 0) {
             $('.ck-latest-slider').slick({
                 dots: false,
-                infinite: true,
+                infinite: false,
                 speed: 350,
                 slidesToShow: 3.2,
                 slidesToScroll: 1,

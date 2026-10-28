@@ -99,14 +99,20 @@ $bgClass = ['bg-light', 'bg-white'];
         font-size: 16px !important;
         color: #0f172a !important;
     }
+    .deal-slider .slick-disabled {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        transition: opacity 0.2s ease, visibility 0.2s ease !important;
+    }
     @media (max-width: 768px) {
         .deal-slider .slick-prev {
-            left: 2px !important;
+            left: -6px !important;
             width: 36px !important;
             height: 36px !important;
         }
         .deal-slider .slick-next {
-            right: 2px !important;
+            right: -6px !important;
             width: 36px !important;
             height: 36px !important;
         }

@@ -128,15 +128,15 @@
         }
       ]
     });
-    // for deal section
+    // for deal section (Neemans, Nilkamal, Noise Top Deals)
     $('.deal-slider').slick({
       slidesToShow: 3,
       slidesToScroll: 1,
       autoplaySpeed: 2500,
       speed: 1500,
       autoplay: false,
-      loop: true,
-      infinite: true,
+      loop: false,
+      infinite: false,
       pauseOnHover: true,
       arrows: true,
       prevArrow: '<button type="button" class="slick-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>',
@@ -161,14 +161,14 @@
           breakpoint: 767,
           settings: {
             arrows: true,
-            slidesToShow: 1.2
+            slidesToShow: 1.15
           }
         },
         {
           breakpoint: 424,
           settings: {
             arrows: true,
-            slidesToShow: 1.1
+            slidesToShow: 1.15
           }
         }
       ]

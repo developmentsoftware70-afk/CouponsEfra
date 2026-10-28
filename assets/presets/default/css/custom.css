@@ -690,6 +690,15 @@ h4.n15-color a {
     display: inline-block !important;
 }
 
+/* Hide arrows when disabled (e.g. at slide 0, left arrow hides so it doesn't cover card text) */
+.deal-slider .slick-disabled,
+.ck-latest-slider .slick-disabled {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease !important;
+}
+
 /* Hide arrows completely on auto-scrolling sliders (store, popular) */
 .store-slider .slick-prev,
 .store-slider .slick-next,
@@ -704,13 +713,13 @@ h4.n15-color a {
 @media (max-width: 768px) {
     .deal-slider .slick-prev,
     .ck-latest-slider .slick-prev {
-        left: 2px !important;
+        left: -6px !important;
         width: 36px !important;
         height: 36px !important;
     }
     .deal-slider .slick-next,
     .ck-latest-slider .slick-next {
-        right: 2px !important;
+        right: -6px !important;
         width: 36px !important;
         height: 36px !important;
     }
