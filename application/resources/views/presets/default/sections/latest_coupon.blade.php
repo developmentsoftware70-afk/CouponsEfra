@@ -443,43 +443,53 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
     z-index: 10;
     color: #0f172a !important;
-    font-size: 0;
+    font-size: 16px;
     display: flex !important;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    border: none !important;
+    border: 1.5px solid #e2e8f0 !important;
     transition: all 0.2s ease;
 }
 
 .flash-deals-slider-wrap .slick-prev {
-    left: -12px;
+    left: -14px;
 }
 
 .flash-deals-slider-wrap .slick-next {
-    right: -12px;
+    right: -14px;
 }
 
 .flash-deals-slider-wrap .slick-prev:hover,
 .flash-deals-slider-wrap .slick-next:hover {
     background: #f8fafc !important;
     transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+    color: #0053c8 !important;
 }
 
-.flash-deals-slider-wrap .slick-prev::before {
-    content: '\f053';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-size: 16px;
-    color: #0f172a;
+.flash-deals-slider-wrap .slick-prev i,
+.flash-deals-slider-wrap .slick-next i {
+    font-size: 16px !important;
+    color: #0f172a !important;
+    display: inline-block !important;
 }
 
-.flash-deals-slider-wrap .slick-next::before {
-    content: '\f054';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-size: 16px;
-    color: #0f172a;
+@media (max-width: 768px) {
+    .flash-deals-slider-wrap .slick-prev {
+        left: 2px;
+        width: 36px;
+        height: 36px;
+    }
+    .flash-deals-slider-wrap .slick-next {
+        right: 2px;
+        width: 36px;
+        height: 36px;
+    }
+    .flash-deals-slider-wrap .slick-prev i,
+    .flash-deals-slider-wrap .slick-next i {
+        font-size: 13px !important;
+    }
 }
 
 /* Responsive adjustments */
@@ -510,29 +520,33 @@
         if ($('.ck-latest-slider').length > 0) {
             $('.ck-latest-slider').slick({
                 dots: false,
-                infinite: false,
+                infinite: true,
                 speed: 350,
                 slidesToShow: 3.2,
                 slidesToScroll: 1,
                 arrows: true,
+                prevArrow: '<button type="button" class="slick-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>',
+                nextArrow: '<button type="button" class="slick-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>',
                 responsive: [
                     {
                         breakpoint: 1200,
                         settings: {
                             slidesToShow: 2.5,
+                            arrows: true
                         }
                     },
                     {
                         breakpoint: 992,
                         settings: {
                             slidesToShow: 2.1,
+                            arrows: true
                         }
                     },
                     {
                         breakpoint: 600,
                         settings: {
                             slidesToShow: 1.15,
-                            arrows: false
+                            arrows: true
                         }
                     }
                 ]
