@@ -1,7 +1,7 @@
 @php
     $languages = App\Models\Language::all();
     $user = auth()->user();
-    $name = $user->fullname ?? $user->firstname ?? $user->username;
+    $name = $user ? ($user->fullname ?? $user->firstname ?? $user->username) : 'User';
     $initial = strtoupper(substr($name, 0, 1));
     $isDashboardHome = Route::is('user.home');
 @endphp
@@ -41,7 +41,7 @@
                 <!-- User Profile / Settings (Purple Avatar) -->
                 <a href="{{ route('user.profile.setting') }}" class="dashboard-profile-btn d-flex align-items-center gap-2" title="@lang('Profile Settings')">
                     <div class="profile-avatar">{{ $initial }}</div>
-                    <span class="d-none d-md-inline fw-semibold fs-13 text-dark">{{ $user->username }}</span>
+                    <span class="d-none d-md-inline fw-semibold fs-13 text-dark">{{ $user->username ?? 'User' }}</span>
                 </a>
 
                 <!-- Home / Store Link -->

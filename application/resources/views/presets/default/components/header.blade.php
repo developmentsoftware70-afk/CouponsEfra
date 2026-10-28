@@ -1341,7 +1341,8 @@ $pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
     <div class="ck-drawer-body">
         @auth
         @php
-            $name = $user->fullname ?? $user->firstname ?? $user->username;
+            $user = auth()->user();
+            $name = $user ? ($user->fullname ?? $user->firstname ?? $user->username) : 'User';
             $initial = strtoupper(substr($name, 0, 1));
         @endphp
         <div class="ck-drawer-user-card">
