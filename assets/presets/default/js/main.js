@@ -189,7 +189,7 @@
       autoplaySpeed: 2000,
       speed: 1500,
       autoplay: true,
-      infinite: false,
+      infinite: true,
       pauseOnHover: false,
       dots: false,
       arrows: false,

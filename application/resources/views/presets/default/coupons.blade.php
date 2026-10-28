@@ -223,39 +223,39 @@
 <section class="exclusive-section py-20">
     <div class="container-fluid container-custom">
 
-        @if($isSearch)
-            {{-- Sirf Filter button akela --}}
-            <div class="mb-3 d-flex justify-content-start">
-                <button type="button" class="filter-trigger-btn" id="openSearchFilterBtn">
-                    <i class="las la-sliders-h" style="font-size: 18px;"></i>
-                    <span>@lang('Filter')</span>
-                    <span class="filter-count-badge d-none" id="activeFilterBadge">0</span>
-                </button>
-            </div>
+        {{-- Sirf Filter button akela (Search aur Regular dono me same) --}}
+        <div class="mb-3 d-flex justify-content-start">
+            <button type="button" class="filter-trigger-btn" id="openSearchFilterBtn">
+                <i class="las la-sliders-h" style="font-size: 18px;"></i>
+                <span>@lang('Filter')</span>
+                <span class="filter-count-badge d-none" id="activeFilterBadge">0</span>
+            </button>
+        </div>
 
-            {{-- Main Content Grid: Full Width so searched item is front and center at the top --}}
-            <div class="main-content-cards">
-                <div class="row gy-4">
-                    @forelse($coupons as $index => $item)
-                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($index * 0.05) }}s">
-                            <div class="vertical-card-img">
-                                @if($item->image)
-                                    <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ $item->title ?? 'Deal' }}">
-                                @elseif($item->store && $item->store->image)
-                                    <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ $item->store->name ?? 'Store' }}">
-                                @endif
-                            </div>
-                            
-                            <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="vertical-grab-btn getCoupon" 
-                                data-id="{{$item->id}}" data-slug="{{$item->slug}}">
-                                @lang('Grab Deal')
-                            </a>
+        {{-- Main Content Grid: Full Width Cards (No sidebar taking up space) --}}
+        <div class="main-content-cards">
+            <div class="row gy-4">
+                @forelse($coupons as $index => $item)
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                    <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($index * 0.05) }}s">
+                        <div class="vertical-card-img">
+                            @if($item->image)
+                                <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="{{ $item->title ?? 'Deal' }}">
+                            @elseif($item->store && $item->store->image)
+                                <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="{{ $item->store->name ?? 'Store' }}">
+                            @endif
                         </div>
+                        
+                        <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="vertical-grab-btn getCoupon" 
+                            data-id="{{$item->id}}" data-slug="{{$item->slug}}">
+                            @lang('Grab Deal')
+                        </a>
                     </div>
-                    @empty
-                    <div class="col-12">
-                        <div class="text-center py-5 bg-white rounded-3 border">
+                </div>
+                @empty
+                <div class="col-12">
+                    <div class="text-center py-5 bg-white rounded-3 border">
+                        @if($isSearch)
                             <div class="mb-3">
                                 <i class="las la-search-minus" style="font-size: 48px; color: #94a3b8;"></i>
                             </div>
@@ -264,114 +264,61 @@
                             <a href="{{ route('deal') }}" class="btn btn--base btn--sm">
                                 <i class="las la-tag me-1"></i> @lang('Browse All Deals')
                             </a>
-                        </div>
+                        @else
+                            <p class="text-muted mb-0">{{ __($emptyMessage ?? 'No coupons or deals found') }}</p>
+                        @endif
                     </div>
-                    @endforelse
                 </div>
+                @endforelse
             </div>
+        </div>
 
-        @else
-            {{-- NON-SEARCH BROWSING VIEW --}}
-            <div class="d-lg-none mb-3 d-flex justify-content-between align-items-center bg-white p-3 border rounded-3">
-                <span class="fw-bold text-dark" style="font-size: 15px;">
-                    <i class="las la-tags text-primary me-1"></i> {{ $pageTitle ?? 'Deals & Coupons' }}
-                </span>
-                <button type="button" class="filter-trigger-btn" id="openMobileFilterBtn">
-                    <i class="las la-sliders-h"></i>
-                    <span>@lang('Filter')</span>
-                    <span class="filter-count-badge d-none" id="mobileActiveFilterBadge">0</span>
-                </button>
-            </div>
-
-            <div class="row gy-4 justify-content-center">
-                <div class="col-lg-3 d-none d-lg-block">
-                    @include($activeTemplate.'components.sidebar', [
-                        'sidebarCategories' => $categories ?? [],
-                        'categoryPrefix' => 'categories_',
-                        'sidebarStores' => $stores ?? [],
-                        'storePrefix' => 'stores_',
-                        'showAds' => true
-                    ])
+        @if(isset($relatedCategoryCoupons) && $relatedCategoryCoupons->count() > 0)
+        <div class="mt-5 pt-4 border-top">
+            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-1" style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">
+                        <i class="las la-fire text-danger me-1"></i>
+                        @lang('Similar') {{ @$primaryCategory->name }} @lang('Offers from Other Brands')
+                    </h4>
+                    <p class="text-muted mb-0" style="font-size: 0.875rem;">
+                        @lang('Explore more verified deals in') {{ @$primaryCategory->name }}
+                    </p>
                 </div>
-                <div class="col-lg-9 main-content">
-                    <div class="main-content-cards">
-                        <div class="row gy-4">
-                            @forelse($coupons as $index => $item)
-                            <div class="col-lg-4 col-md-6 col-sm-12">
-                                <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($index * 0.1) }}s">
-                                    <div class="vertical-card-img">
-                                        @if($item->image)
-                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$item->image) }}" alt="@lang('Coupon Image')">
-                                        @elseif($item->store && $item->store->image)
-                                            <img src="{{ getImage(getFilePath('store') . '/' . @$item->store->image) }}" alt="">
-                                        @endif
-                                    </div>
-                                    
-                                    <a href="{{ route('coupon.details', $item->slug ?? $item->id) }}" class="vertical-grab-btn getCoupon" 
-                                        data-id="{{$item->id}}" data-slug="{{$item->slug}}">
-                                        @lang('Grab Deal')
-                                    </a>
-                                </div>
-                            </div>
-                            @empty
-                            <div class="col-12">
-                                <div class="text-center py-5 bg-white rounded-3 border">
-                                    <p class="text-muted mb-0">{{ __($emptyMessage ?? 'No coupons or deals found') }}</p>
-                                </div>
-                            </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    @if(isset($relatedCategoryCoupons) && $relatedCategoryCoupons->count() > 0)
-                    <div class="mt-5 pt-4 border-top">
-                        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-                            <div>
-                                <h4 class="mb-1" style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">
-                                    <i class="las la-fire text-danger me-1"></i>
-                                    @lang('Similar') {{ @$primaryCategory->name }} @lang('Offers from Other Brands')
-                                </h4>
-                                <p class="text-muted mb-0" style="font-size: 0.875rem;">
-                                    @lang('Explore more verified deals in') {{ @$primaryCategory->name }}
-                                </p>
-                            </div>
-                            @if(isset($primaryCategory))
-                            <a href="{{ route('category.coupons', $primaryCategory->id) }}" class="btn btn--base btn--sm">
-                                @lang('View All') {{ $primaryCategory->name }} &rarr;
-                            </a>
+                @if(isset($primaryCategory))
+                <a href="{{ route('category.coupons', $primaryCategory->id) }}" class="btn btn--base btn--sm">
+                    @lang('View All') {{ $primaryCategory->name }} &rarr;
+                </a>
+                @endif
+            </div>
+            <div class="row gy-4">
+                @foreach($relatedCategoryCoupons as $relIndex => $relItem)
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                    <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($relIndex * 0.05) }}s">
+                        <div class="vertical-card-img position-relative">
+                            @if($relItem->image)
+                                <img src="{{ getImage(getFilePath('coupon') . '/' . @$relItem->image) }}" alt="@lang('Coupon Image')">
+                            @elseif($relItem->store && $relItem->store->image)
+                                <img src="{{ getImage(getFilePath('store') . '/' . @$relItem->store->image) }}" alt="">
                             @endif
                         </div>
-                        <div class="row gy-4">
-                            @foreach($relatedCategoryCoupons as $relIndex => $relItem)
-                            <div class="col-lg-4 col-md-6 col-sm-12">
-                                <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.2 + ($relIndex * 0.1) }}s">
-                                    <div class="vertical-card-img position-relative">
-                                        @if($relItem->image)
-                                            <img src="{{ getImage(getFilePath('coupon') . '/' . @$relItem->image) }}" alt="@lang('Coupon Image')">
-                                        @elseif($relItem->store && $relItem->store->image)
-                                            <img src="{{ getImage(getFilePath('store') . '/' . @$relItem->store->image) }}" alt="">
-                                        @endif
-                                    </div>
-                                    <div class="px-3 pt-2 pb-1 text-center">
-                                        <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">
-                                            {{ $relItem->store->name ?? 'Brand' }}
-                                        </span>
-                                        <h6 class="mt-2 mb-1" style="font-size: 14px; font-weight: 600; line-height: 1.3;">
-                                            {{ Str::limit($relItem->title, 35) }}
-                                        </h6>
-                                    </div>
-                                    <a href="{{ route('coupon.details', $relItem->slug ?? $relItem->id) }}" class="vertical-grab-btn getCoupon" 
-                                        data-id="{{$relItem->id}}" data-slug="{{$relItem->slug}}">
-                                        @lang('Grab Deal')
-                                    </a>
-                                </div>
-                            </div>
-                            @endforeach
+                        <div class="px-3 pt-2 pb-1 text-center">
+                            <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">
+                                {{ $relItem->store->name ?? 'Brand' }}
+                            </span>
+                            <h6 class="mt-2 mb-1" style="font-size: 14px; font-weight: 600; line-height: 1.3;">
+                                {{ Str::limit($relItem->title, 35) }}
+                            </h6>
                         </div>
+                        <a href="{{ route('coupon.details', $relItem->slug ?? $relItem->id) }}" class="vertical-grab-btn getCoupon" 
+                            data-id="{{$relItem->id}}" data-slug="{{$relItem->slug}}">
+                            @lang('Grab Deal')
+                        </a>
                     </div>
-                    @endif
                 </div>
+                @endforeach
             </div>
+        </div>
         @endif
 
         <div class="row py-4">
