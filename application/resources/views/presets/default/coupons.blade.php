@@ -224,31 +224,13 @@
     <div class="container-fluid container-custom">
 
         @if($isSearch)
-            {{-- SEARCH RESULTS VIEW: Deals directly at the top, No inline sidebar clutter --}}
-            <div class="search-topbar d-flex flex-wrap align-items-center justify-content-between gap-3">
-                <div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="search-title-text">
-                            <i class="las la-search text-primary me-1"></i>
-                            @lang('Search Results for') "<span class="text-primary">{{ $searchTerm }}</span>"
-                        </span>
-                        @if($searchTerm)
-                            <a href="{{ route('home') }}" class="badge bg-light text-muted border text-decoration-none px-2 py-1" style="font-size: 11px;">
-                                <i class="las la-times"></i> @lang('Clear Search')
-                            </a>
-                        @endif
-                    </div>
-                    <p class="text-muted mb-0 small mt-1">
-                        {{ $coupons->total() }} {{ Str::plural('deal', $coupons->total()) }} @lang('found matching your search')
-                    </p>
-                </div>
-                <div>
-                    <button type="button" class="filter-trigger-btn" id="openSearchFilterBtn">
-                        <i class="las la-sliders-h" style="font-size: 18px;"></i>
-                        <span>@lang('Filter')</span>
-                        <span class="filter-count-badge d-none" id="activeFilterBadge">0</span>
-                    </button>
-                </div>
+            {{-- Sirf Filter button akela --}}
+            <div class="mb-3 d-flex justify-content-start">
+                <button type="button" class="filter-trigger-btn" id="openSearchFilterBtn">
+                    <i class="las la-sliders-h" style="font-size: 18px;"></i>
+                    <span>@lang('Filter')</span>
+                    <span class="filter-count-badge d-none" id="activeFilterBadge">0</span>
+                </button>
             </div>
 
             {{-- Main Content Grid: Full Width so searched item is front and center at the top --}}
