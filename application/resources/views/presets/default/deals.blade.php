@@ -51,7 +51,7 @@
         color: #fff;
     }
 
-    /* Filter Button */
+    /* Filter Button (Only on Phone) */
     .filter-trigger-btn {
         background: #ffffff;
         border: 1.5px solid #0053c8;
@@ -208,8 +208,8 @@
 <section class="exclusive-section py-20">
     <div class="container-fluid container-custom">
 
-        {{-- Sirf Filter button akela (No sidebar showing first) --}}
-        <div class="mb-3 d-flex justify-content-start">
+        {{-- Filter button: ONLY visible on Phone/Mobile (Hidden on Laptop) --}}
+        <div class="d-lg-none mb-3 d-flex justify-content-start">
             <button type="button" class="filter-trigger-btn" id="openDealFilterBtn">
                 <i class="las la-sliders-h" style="font-size: 18px;"></i>
                 <span>@lang('Filter')</span>
@@ -217,32 +217,39 @@
             </button>
         </div>
 
-        {{-- Main Content Grid: Full Width Cards --}}
-        <div class="main-content">
-            <div class="row gy-4">
-                @forelse($deals as $index => $item)
-                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                    <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($index * 0.05) }}s">
-                        <div class="vertical-card-img">
-                            @if($item->image)
-                                <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" alt="">
-                            @else
-                                <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" alt="">
-                            @endif
+        <div class="row gy-4 justify-content-center">
+            {{-- Laptop / Desktop: Sidebar is visible on left --}}
+            <div class="col-lg-3 d-none d-lg-block">
+                @include($activeTemplate.'components.sidebar', ['sidebarCategories' => $dealCategories ?? [], 'categoryPrefix' => 'deal_categories_'])
+            </div>
+
+            {{-- Deals Cards: 3 per row on Desktop next to sidebar, full width on Mobile --}}
+            <div class="col-lg-9 col-12 main-content">
+                <div class="row gy-4">
+                    @forelse($deals as $index => $item)
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                        <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($index * 0.05) }}s">
+                            <div class="vertical-card-img">
+                                @if($item->image)
+                                    <img src="{{ getImage(getFilePath('deal') . '/' . @$item->image) }}" alt="">
+                                @else
+                                    <img src="{{ getImage(getFilePath('dealCategory') . '/' . @$item->dealCategory->image) }}" alt="">
+                                @endif
+                            </div>
+                            
+                            <a href="{{ route('deal.details', $item->id) }}" class="vertical-grab-btn">
+                                {{ $item->button_label ?? __('Grab Deal') }}
+                            </a>
                         </div>
-                        
-                        <a href="{{ route('deal.details', $item->id) }}" class="vertical-grab-btn">
-                            {{ $item->button_label ?? __('Grab Deal') }}
-                        </a>
                     </div>
-                </div>
-                @empty
-                <div class="col-12">
-                    <div class="text-center py-5 bg-white rounded-3 border">
-                        <p class="text-muted mb-0">{{ __($emptyMessage ?? 'No deals found') }}</p>
+                    @empty
+                    <div class="col-12">
+                        <div class="text-center py-5 bg-white rounded-3 border">
+                            <p class="text-muted mb-0">{{ __($emptyMessage ?? 'No deals found') }}</p>
+                        </div>
                     </div>
+                    @endforelse
                 </div>
-                @endforelse
             </div>
         </div>
 
@@ -256,7 +263,7 @@
     </div>
 </section>
 
-{{-- MODERN DEAL FILTER DRAWER --}}
+{{-- MODERN DEAL FILTER DRAWER (Used on Phone) --}}
 <div class="deal-filter-overlay" id="dealFilterOverlay"></div>
 <div class="deal-filter-drawer" id="dealFilterDrawer">
     <div class="filter-drawer-header">
@@ -330,7 +337,7 @@
         });
 
         function updateBadge() {
-            var count = $('.filter-deal-category:checked').length;
+            var count = $('.filter-deal-category:checked, .filter-by-category:checked').length;
             if (count > 0) {
                 $('#activeDealFilterBadge').text(count).removeClass('d-none');
                 $('#openDealFilterBtn').addClass('has-active');
@@ -342,9 +349,9 @@
 
         function runDealFilter() {
             var dealCategories = [];
-            var searchValue = $('#dealSearchValue').val() || '';
+            var searchValue = $('#dealSearchValue').val() || $('#searchValue').val() || '';
 
-            $('.filter-deal-category:checked').each(function() {
+            $('.filter-deal-category:checked, .filter-by-category:checked').each(function() {
                 var val = parseInt($(this).val());
                 if (!dealCategories.includes(val)) {
                     dealCategories.push(val);
@@ -380,21 +387,22 @@
         }
 
         var searchTimeout = null;
-        $("#dealSearchValue").on('input', function () {
+        $("#dealSearchValue, #searchValue").on('input', function () {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(function() {
                 runDealFilter();
             }, 300);
         });
 
-        $(document).on('change', '.filter-deal-category', function(){
+        // Trigger on both drawer checkboxes and desktop sidebar checkboxes
+        $(document).on('change', '.filter-deal-category, .filter-by-category', function(){
             runDealFilter();
         });
 
         $('#resetDealFiltersBtn').on('click', function(e) {
             e.preventDefault();
-            $('.filter-deal-category').prop('checked', false);
-            $('#dealSearchValue').val('');
+            $('.filter-deal-category, .filter-by-category').prop('checked', false);
+            $('#dealSearchValue, #searchValue').val('');
             updateBadge();
             runDealFilter();
         });
