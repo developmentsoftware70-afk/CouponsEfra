@@ -29,6 +29,18 @@ class ProfileController extends Controller
 
         $user = auth()->user();
 
+        if ($request->hasFile('image')) {
+            $this->validate($request, [
+                'image' => ['nullable', 'image', new FileTypeValidate(['jpg', 'jpeg', 'png'])]
+            ]);
+            $path = getFilePath('userProfile');
+            fileManager()->removeFile($path . '/' . $user->image);
+            $directory = $user->username . "/" . $user->id;
+            $path = getFilePath('userProfile') . '/' . $directory;
+            $filename = $directory . '/' . fileUploader($request->image, $path, getFileSize('userProfile'));
+            $user->image = $filename;
+        }
+
         $user->firstname = $request->firstname;
         $user->lastname = $request->lastname;
 
