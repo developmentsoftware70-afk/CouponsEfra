@@ -18,7 +18,7 @@
         @else
         @endif
          --}}
-    @if(request()->route()->uri == '/')
+    @if(request()->route() && request()->route()->uri == '/')
     <div class="row">
       <div class="col-lg-12">
           <div class="section-content">

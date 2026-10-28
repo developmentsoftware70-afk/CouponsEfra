@@ -50,7 +50,7 @@
         @include($activeTemplate.'components.header')
     @endif
 
-    @if(request()->route()->uri != '/' && !request()->routeIs('coupon.details') && !request()->routeIs('deal.details'))
+    @if(request()->route() && request()->route()->uri != '/' && !request()->routeIs('coupon.details') && !request()->routeIs('deal.details'))
         @include($activeTemplate.'components.breadcrumb')
     @endif
 

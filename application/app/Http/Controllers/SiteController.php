@@ -838,7 +838,7 @@ class SiteController extends Controller
 
     // 
     public function categoryCoupons($id) {
-        $category = Category::find($id);
+        $category = Category::findOrFail($id);
         $pageTitle =  $category->name;
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('category_id', $id)->latest()->paginate(getPaginate());
         $this->recordImpressions($coupons, 'coupon');
