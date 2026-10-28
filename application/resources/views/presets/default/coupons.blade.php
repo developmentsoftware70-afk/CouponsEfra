@@ -89,16 +89,16 @@
     /* Filter Drawer & Overlay */
     .search-filter-overlay {
         position: fixed;
-        top: 0;
+        top: 120px;
         left: 0;
         width: 100vw;
-        height: 100vh;
+        height: calc(100vh - 120px);
         background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(3px);
-        z-index: 100000000 !important;
+        z-index: 9998;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
     }
     .search-filter-overlay.active {
         opacity: 1;
@@ -106,13 +106,13 @@
     }
     .search-filter-drawer {
         position: fixed;
-        top: 0;
+        top: 120px;
         right: -380px;
         width: 360px;
         max-width: 90vw;
-        height: 100vh;
+        height: calc(100vh - 120px);
         background: #ffffff;
-        z-index: 100000001 !important;
+        z-index: 9999;
         box-shadow: -8px 0 30px rgba(0, 0, 0, 0.15);
         display: flex;
         flex-direction: column;
@@ -443,7 +443,12 @@
 
         // Filter Drawer Open & Close
         function openDrawer() {
-            $('#searchFilterDrawer, #searchFilterOverlay').addClass('active');
+            var headerEl = document.getElementById('header') || document.querySelector('.header');
+            var h = headerEl ? headerEl.offsetHeight : 120;
+            $('#searchFilterDrawer, #searchFilterOverlay')
+                .css('top', h + 'px')
+                .css('height', 'calc(100vh - ' + h + 'px)')
+                .addClass('active');
             $('body').addClass('drawer-open');
         }
         function closeDrawer() {
