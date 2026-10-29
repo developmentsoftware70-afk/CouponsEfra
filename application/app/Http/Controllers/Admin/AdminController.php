@@ -13,6 +13,7 @@ use App\Models\UserLogin;
 use App\Models\SupportTicket;
 use App\Models\PayoutRequest;
 use App\Models\DailyMetric;
+use App\Models\Order;
 use App\Rules\FileTypeValidate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -35,6 +36,8 @@ class AdminController extends Controller
         $widget['totalCoupon']   = Coupon::count();
         $widget['totalCategory'] = Category::count();
         $widget['totalStore']    = Store::count();
+        $widget['total_conversions'] = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count();
+        $widget['total_orders']      = Order::count();
 
         // Key Real-time Metrics: Clicks, Impressions, Payout, Logins (Today, Yesterday, MTD)
         $kpiMetrics = $this->getKpiMetrics();
@@ -56,11 +59,33 @@ class AdminController extends Controller
         $yesterday = Carbon::yesterday();
         $startOfMonth = Carbon::now()->startOfMonth();
 
+        $clicksToday = (int) (DailyMetric::where('metric_date', $today->toDateString())->value('clicks') ?? 0);
+        $clicksYesterday = (int) (DailyMetric::where('metric_date', $yesterday->toDateString())->value('clicks') ?? 0);
+        $clicksMtd = (int) DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())->sum('clicks');
+
+        $conversionsToday = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->whereDate('created_at', $today)->count();
+        $conversionsYesterday = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->whereDate('created_at', $yesterday)->count();
+        $conversionsMtd = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->where('created_at', '>=', $startOfMonth)->count();
+
+        $crToday = $clicksToday > 0 ? round(($conversionsToday / $clicksToday) * 100, 1) : 0;
+        $crYesterday = $clicksYesterday > 0 ? round(($conversionsYesterday / $clicksYesterday) * 100, 1) : 0;
+        $crMtd = $clicksMtd > 0 ? round(($conversionsMtd / $clicksMtd) * 100, 1) : 0;
+
         return [
             'clicks' => [
-                'today'     => (int) (DailyMetric::where('metric_date', $today->toDateString())->value('clicks') ?? 0),
-                'yesterday' => (int) (DailyMetric::where('metric_date', $yesterday->toDateString())->value('clicks') ?? 0),
-                'mtd'       => (int) DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())->sum('clicks'),
+                'today'     => $clicksToday,
+                'yesterday' => $clicksYesterday,
+                'mtd'       => $clicksMtd,
+            ],
+            'conversions' => [
+                'today'     => $conversionsToday,
+                'yesterday' => $conversionsYesterday,
+                'mtd'       => $conversionsMtd,
+            ],
+            'conversion_rate' => [
+                'today'     => $crToday,
+                'yesterday' => $crYesterday,
+                'mtd'       => $crMtd,
             ],
             'impressions' => [
                 'today'     => (int) (DailyMetric::where('metric_date', $today->toDateString())->value('impressions') ?? 0),
@@ -96,6 +121,7 @@ class AdminController extends Controller
             'totalCoupon'            => Coupon::count(),
             'totalCategory'          => Category::count(),
             'totalStore'             => Store::count(),
+            'total_conversions'      => Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count(),
         ];
 
         return response()->json([
@@ -104,6 +130,14 @@ class AdminController extends Controller
                     'today' => formatShortNumber($kpi['clicks']['today']),
                     'yesterday' => formatShortNumber($kpi['clicks']['yesterday']),
                     'mtd' => formatShortNumber($kpi['clicks']['mtd']),
+                ],
+                'conversions' => [
+                    'today' => formatShortNumber($kpi['conversions']['today']),
+                    'yesterday' => formatShortNumber($kpi['conversions']['yesterday']),
+                    'mtd' => formatShortNumber($kpi['conversions']['mtd']),
+                    'cr_today' => $kpi['conversion_rate']['today'] . '%',
+                    'cr_yesterday' => $kpi['conversion_rate']['yesterday'] . '%',
+                    'cr_mtd' => $kpi['conversion_rate']['mtd'] . '%',
                 ],
                 'impressions' => [
                     'today' => formatShortNumber($kpi['impressions']['today']),
@@ -204,13 +238,21 @@ class AdminController extends Controller
             ->groupBy('date')
             ->pluck('total', 'date');
 
+        $conversions = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])
+            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            ->selectRaw("DATE(created_at) as date, COUNT(*) as total")
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
         $dates = [];
         $clicksData = [];
+        $conversionsData = [];
         $impressionsData = [];
         $payoutData = [];
         $loginData = [];
 
         $totalClicks = 0;
+        $totalConversions = 0;
         $totalImpressions = 0;
         $totalPayout = 0;
         $totalLogins = 0;
@@ -221,16 +263,19 @@ class AdminController extends Controller
             $dates[] = $d;
 
             $c = isset($metrics[$d]) ? (int) $metrics[$d]->clicks : 0;
+            $conv = isset($conversions[$d]) ? (int) $conversions[$d] : 0;
             $i = isset($metrics[$d]) ? (int) $metrics[$d]->impressions : 0;
             $p = isset($payouts[$d]) ? (float) $payouts[$d] : 0.0;
             $l = isset($logins[$d]) ? (int) $logins[$d] : 0;
 
             $clicksData[] = $c;
+            $conversionsData[] = $conv;
             $impressionsData[] = $i;
             $payoutData[] = $p;
             $loginData[] = $l;
 
             $totalClicks += $c;
+            $totalConversions += $conv;
             $totalImpressions += $i;
             $totalPayout += $p;
             $totalLogins += $l;
@@ -245,11 +290,13 @@ class AdminController extends Controller
             'rangeLabel' => $start->format('Y-m-d') . ' - ' . $end->format('Y-m-d'),
             'dates' => $dates,
             'clicks' => $clicksData,
+            'conversions' => $conversionsData,
             'impressions' => $impressionsData,
             'payout' => $payoutData,
             'logins' => $loginData,
             'totals' => [
                 'clicks' => $totalClicks,
+                'conversions' => $totalConversions,
                 'impressions' => $totalImpressions,
                 'payout' => round($totalPayout, 2),
                 'logins' => $totalLogins,

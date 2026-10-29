@@ -17,9 +17,9 @@
 </div>
 @endif
 <div class="row gy-4">
-<div class="row gy-4 mb-2">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 gy-4 mb-2">
     <!-- Clicks Card -->
-    <div class="col-xl-3 col-md-6">
+    <div class="col">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -49,8 +49,42 @@
         </div>
     </div>
 
+    <!-- Conversions Card -->
+    <div class="col">
+        <div class="kpi-metric-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="kpi-icon-box kpi-icon-conversions">
+                        <i class="las la-shopping-cart"></i>
+                    </div>
+                    <span class="kpi-header-title">@lang('Conversions')</span>
+                </div>
+                <a href="{{ route('admin.orders.index') }}?status=confirmed" class="kpi-badge-link">
+                    @lang('Confirmed') <i class="las la-angle-right"></i>
+                </a>
+            </div>
+            <div class="kpi-stat-grid">
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Today')</span>
+                    <span class="kpi-stat-val text-danger" id="kpi-conversions-today">{{ formatShortNumber($kpiMetrics['conversions']['today']) }}</span>
+                    <span class="kpi-stat-sub text-muted" id="kpi-cr-today">CR: {{ $kpiMetrics['conversion_rate']['today'] }}%</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Yesterday')</span>
+                    <span class="kpi-stat-val text-muted" id="kpi-conversions-yesterday">{{ formatShortNumber($kpiMetrics['conversions']['yesterday']) }}</span>
+                    <span class="kpi-stat-sub text-muted" id="kpi-cr-yesterday">CR: {{ $kpiMetrics['conversion_rate']['yesterday'] }}%</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('MTD')</span>
+                    <span class="kpi-stat-val text-danger" id="kpi-conversions-mtd">{{ formatShortNumber($kpiMetrics['conversions']['mtd']) }}</span>
+                    <span class="kpi-stat-sub text-muted" id="kpi-cr-mtd">CR: {{ $kpiMetrics['conversion_rate']['mtd'] }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Impressions Card -->
-    <div class="col-xl-3 col-md-6">
+    <div class="col">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -79,7 +113,7 @@
     </div>
 
     <!-- Payout Card -->
-    <div class="col-xl-3 col-md-6">
+    <div class="col">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -113,7 +147,7 @@
     </div>
 
     <!-- Unique Logins Card -->
-    <div class="col-xl-3 col-md-6">
+    <div class="col">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -276,6 +310,34 @@
 
                             </div>
                         </div>
+                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-check-circle"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="{{route('admin.orders.index')}}?status=confirmed"></a>
+                                    <h5 id="widget-total-conversions">{{$widget['total_conversions'] ?? 0}}</h5>
+                                    <span>@lang('Total Conversions')</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-shopping-basket"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="{{route('admin.orders.index')}}"></a>
+                                    <h5 id="widget-total-orders">{{$widget['total_orders'] ?? 0}}</h5>
+                                    <span>@lang('Tracked Orders')</span>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -338,6 +400,10 @@
                     data: perfData.clicks
                 },
                 {
+                    name: "Conversions",
+                    data: perfData.conversions
+                },
+                {
                     name: "Impressions",
                     data: perfData.impressions
                 },
@@ -363,7 +429,7 @@
             stroke: {
                 curve: 'smooth'
             },
-            colors: ['#00adad', '#5b69bc', '#ff9f43', '#28c76f'],
+            colors: ['#00adad', '#ea5455', '#5b69bc', '#ff9f43', '#28c76f'],
             labels: perfData.dates,
             xaxis: {
                 type: 'date',
@@ -439,6 +505,7 @@
 
                         chart.updateSeries([
                             { name: "Clicks", data: res.clicks },
+                            { name: "Conversions", data: res.conversions },
                             { name: "Impressions", data: res.impressions },
                             { name: "Payout", data: res.payout },
                             { name: "Unique Logins", data: res.logins }
@@ -490,6 +557,16 @@
                         updateSmoothVal('#kpi-clicks-yesterday', res.kpi.clicks.yesterday);
                         updateSmoothVal('#kpi-clicks-mtd', res.kpi.clicks.mtd);
 
+                        // Conversions
+                        if (res.kpi.conversions) {
+                            updateSmoothVal('#kpi-conversions-today', res.kpi.conversions.today);
+                            updateSmoothVal('#kpi-conversions-yesterday', res.kpi.conversions.yesterday);
+                            updateSmoothVal('#kpi-conversions-mtd', res.kpi.conversions.mtd);
+                            updateSmoothVal('#kpi-cr-today', 'CR: ' + res.kpi.conversions.cr_today);
+                            updateSmoothVal('#kpi-cr-yesterday', 'CR: ' + res.kpi.conversions.cr_yesterday);
+                            updateSmoothVal('#kpi-cr-mtd', 'CR: ' + res.kpi.conversions.cr_mtd);
+                        }
+
                         // Impressions
                         updateSmoothVal('#kpi-impressions-today', res.kpi.impressions.today);
                         updateSmoothVal('#kpi-impressions-yesterday', res.kpi.impressions.yesterday);
@@ -519,12 +596,19 @@
                         updateSmoothVal('#widget-total-coupons', res.widgets.totalCoupon);
                         updateSmoothVal('#widget-total-categories', res.widgets.totalCategory);
                         updateSmoothVal('#widget-total-stores', res.widgets.totalStore);
+                        if (res.widgets.total_conversions !== undefined) {
+                            updateSmoothVal('#widget-total-conversions', res.widgets.total_conversions);
+                        }
+                        if (res.widgets.total_orders !== undefined) {
+                            updateSmoothVal('#widget-total-orders', res.widgets.total_orders);
+                        }
                     }
 
                     // Smooth chart update
                     if (res && res.chart && res.chart.dates) {
                         chart.updateSeries([
                             { name: "Clicks", data: res.chart.clicks },
+                            { name: "Conversions", data: res.chart.conversions },
                             { name: "Impressions", data: res.chart.impressions },
                             { name: "Payout", data: res.chart.payout },
                             { name: "Unique Logins", data: res.chart.logins }
@@ -606,6 +690,10 @@
 .kpi-icon-clicks {
     background: #e0f2fe;
     color: #0284c7;
+}
+.kpi-icon-conversions {
+    background: #fee2e2;
+    color: #ef4444;
 }
 .kpi-icon-impressions {
     background: #fef3c7;
