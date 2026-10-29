@@ -50,7 +50,7 @@ class LoginController extends Controller
         $pageTitle = "Login";
         if (!session()->has('url.intended')) {
             $prev = url()->previous();
-            if ($prev && $prev != url()->current() && !str_contains($prev, '/user/login') && !str_contains($prev, '/user/register') && !str_contains($prev, '/password/')) {
+            if ($prev && $prev != url()->current() && $prev != route('home') && $prev != url('/') && !str_contains($prev, '/user/login') && !str_contains($prev, '/user/register') && !str_contains($prev, '/password/')) {
                 session()->put('url.intended', $prev);
             }
         }
@@ -163,11 +163,11 @@ class LoginController extends Controller
         \Cookie::queue('couponsefra_logged_in', '1', 60 * 24 * 30, '/', null, false, false);
 
         $intendedUrl = session()->pull('url.intended');
-        if ($intendedUrl) {
+        if ($intendedUrl && $intendedUrl !== route('home') && $intendedUrl !== url('/') && $intendedUrl !== url()->to('/')) {
             return redirect()->to($intendedUrl);
         }
 
-        return redirect()->intended(route('home'));
+        return to_route('user.home');
     }
 
 

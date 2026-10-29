@@ -236,7 +236,7 @@
 
         setTimeout(function() {
             window.location.href = "{!! $link !!}";
-        }, 4000); // Increased to 4s to give them time to click copy if they want
+        }, 1200);
     </script>
 
 </body>
