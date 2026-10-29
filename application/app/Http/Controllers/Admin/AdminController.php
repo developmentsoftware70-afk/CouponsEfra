@@ -42,8 +42,9 @@ class AdminController extends Controller
         // Key Real-time Metrics: Clicks, Impressions, Payout, Logins (Today, Yesterday, MTD)
         $kpiMetrics = $this->getKpiMetrics();
 
-        // Fallbacks for other widgets
-        $widget['total_clicks']        = $kpiMetrics['clicks']['mtd'];
+        // Fallbacks and extra widgets
+        $widget['total_clicks']        = (int) DailyMetric::sum('clicks');
+        $widget['total_logins']        = (int) UserLogin::count();
         $widget['total_payout_amount'] = $kpiMetrics['payout']['mtd'];
         $widget['total_impressions']   = $kpiMetrics['impressions']['mtd'];
 
@@ -122,6 +123,9 @@ class AdminController extends Controller
             'totalCategory'          => Category::count(),
             'totalStore'             => Store::count(),
             'total_conversions'      => Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count(),
+            'total_orders'           => Order::count(),
+            'total_clicks'           => (int) DailyMetric::sum('clicks'),
+            'total_logins'           => (int) UserLogin::count(),
         ];
 
         return response()->json([

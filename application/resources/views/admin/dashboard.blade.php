@@ -228,9 +228,10 @@
     <div class="col-xl-6">
         <div class="row gy-4">
             <div class="col-sm-12">
-                <div class="card p-3 rounded-3">
-                    <div class="row g-0">
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                <div class="card p-3 rounded-3 overview-widgets-card">
+                    <!-- Row 1: Users (3 widgets) -->
+                    <div class="row g-0 overview-widget-row border-bottom pb-3 mb-3">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-users"></i>
@@ -243,7 +244,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4 ">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-user-check"></i>
@@ -256,7 +257,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-envelope"></i>
@@ -267,10 +268,13 @@
                                     <h5 id="widget-email-unverified-users">{{$widget['email_unverified_users']}}</h5>
                                     <span>@lang('Email Unverified')</span>
                                 </div>
-
                             </div>
                         </div>
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                    </div>
+
+                    <!-- Row 2: Catalog (3 widgets) -->
+                    <div class="row g-0 overview-widget-row border-bottom pb-3 mb-3">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-percentage"></i>
@@ -281,11 +285,9 @@
                                     <h5 id="widget-total-coupons">{{$widget['totalCoupon']}}</h5>
                                     <span>@lang('Total Coupons')</span>
                                 </div>
-
                             </div>
                         </div>
-
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-list"></i>
@@ -296,10 +298,9 @@
                                     <h5 id="widget-total-categories">{{$widget['totalCategory']}}</h5>
                                     <span>@lang('Total Categories')</span>
                                 </div>
-
                             </div>
                         </div>
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-store"></i>
@@ -310,24 +311,43 @@
                                     <h5 id="widget-total-stores">{{$widget['totalStore']}}</h5>
                                     <span>@lang('Total Stores')</span>
                                 </div>
-
                             </div>
                         </div>
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                    </div>
+
+                    <!-- Row 3: Traffic & Engagement (2 widgets: Total Clicks, Total Logins) -->
+                    <div class="row g-0 overview-widget-row border-bottom pb-3 mb-3">
+                        <div class="col-6">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
-                                    <i class="dashboard-card-icon las la-check-circle"></i>
+                                    <i class="dashboard-card-icon las la-mouse-pointer"></i>
                                 </div>
                                 <div class="dashboard-widget__content">
                                     <a title="@lang('View all')" class="dashboard-widget-link"
-                                        href="{{route('admin.orders.index')}}?status=confirmed"></a>
-                                    <h5 id="widget-total-conversions">{{$widget['total_conversions'] ?? 0}}</h5>
-                                    <span>@lang('Total Conversions')</span>
+                                        href="{{route('admin.orders.index')}}"></a>
+                                    <h5 id="widget-total-clicks">{{$widget['total_clicks'] ?? 0}}</h5>
+                                    <span>@lang('Total Clicks')</span>
                                 </div>
-
                             </div>
                         </div>
-                        <div class="col-sm-4 col-6 col-xl-6 col-xxl-4">
+                        <div class="col-6">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-user-clock"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="{{route('admin.report.login.history')}}"></a>
+                                    <h5 id="widget-total-logins">{{$widget['total_logins'] ?? 0}}</h5>
+                                    <span>@lang('Total Logins')</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Orders & Conversions (2 widgets: Tracked Orders, Total Conversions) -->
+                    <div class="row g-0 overview-widget-row">
+                        <div class="col-6">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-shopping-basket"></i>
@@ -338,12 +358,23 @@
                                     <h5 id="widget-total-orders">{{$widget['total_orders'] ?? 0}}</h5>
                                     <span>@lang('Tracked Orders')</span>
                                 </div>
-
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-check-circle"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="{{route('admin.orders.index')}}?status=confirmed"></a>
+                                    <h5 id="widget-total-conversions">{{$widget['total_conversions'] ?? 0}}</h5>
+                                    <span>@lang('Total Conversions')</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>            </div>
         </div>
     </div>
     <div class="col-xl-6">
@@ -605,6 +636,12 @@
                         if (res.widgets.total_orders !== undefined) {
                             updateSmoothVal('#widget-total-orders', res.widgets.total_orders);
                         }
+                        if (res.widgets.total_clicks !== undefined) {
+                            updateSmoothVal('#widget-total-clicks', res.widgets.total_clicks);
+                        }
+                        if (res.widgets.total_logins !== undefined) {
+                            updateSmoothVal('#widget-total-logins', res.widgets.total_logins);
+                        }
                     }
 
                     // Smooth chart update
@@ -769,6 +806,54 @@
     margin-bottom: 5px;
     white-space: nowrap;
 }
+.overview-widgets-card {
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+.overview-widget-row .dashboard-widget {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    padding: 6px 10px !important;
+    height: 100% !important;
+    border: none !important;
+}
+.overview-widget-row .dashboard-widget__icon {
+    width: 36px !important;
+    height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 28px !important;
+    color: var(--primary) !important;
+    flex-shrink: 0 !important;
+}
+.overview-widget-row .dashboard-widget__content {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-left: 8px !important;
+    width: auto !important;
+    text-align: left !important;
+    min-width: 0 !important;
+}
+.overview-widget-row .dashboard-widget__content h5 {
+    display: inline-block !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+.overview-widget-row .dashboard-widget__content span {
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
 .kpi-stat-val,
 .kpi-stat-sub,
 #widget-total-users,
@@ -776,7 +861,11 @@
 #widget-email-unverified-users,
 #widget-total-coupons,
 #widget-total-categories,
-#widget-total-stores {
+#widget-total-stores,
+#widget-total-conversions,
+#widget-total-orders,
+#widget-total-clicks,
+#widget-total-logins {
     display: inline-block;
     transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease;
 }
