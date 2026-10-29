@@ -842,50 +842,74 @@
 .overview-widgets-card {
     border: 1px solid #e9ecef;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    padding: 16px 10px !important;
+}
+.overview-widget-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.overview-widget-row > div[class*='col'] {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 }
 .overview-widget-row .dashboard-widget {
     display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
+    justify-content: flex-start !important;
     position: relative !important;
-    padding: 6px 10px !important;
-    height: 100% !important;
+    padding: 4px 2px !important;
+    height: auto !important;
     border: none !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
 }
 .overview-widget-row .dashboard-widget__icon {
-    width: 36px !important;
-    height: 36px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 28px !important;
+    font-size: 22px !important;
     color: var(--primary) !important;
     flex-shrink: 0 !important;
 }
 .overview-widget-row .dashboard-widget__content {
     display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin-left: 8px !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: baseline !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    margin-left: 5px !important;
     width: auto !important;
     text-align: left !important;
     min-width: 0 !important;
+    white-space: nowrap !important;
+    flex-shrink: 1 !important;
 }
 .overview-widget-row .dashboard-widget__content h5 {
     display: inline-block !important;
-    font-size: 16px !important;
+    font-size: 14.5px !important;
     font-weight: 700 !important;
     color: #0f172a !important;
     margin: 0 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 .overview-widget-row .dashboard-widget__content span {
-    font-size: 12.5px !important;
+    font-size: 11.5px !important;
     font-weight: 500 !important;
     color: #64748b !important;
     margin: 0 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 .kpi-stat-val,
 .kpi-stat-sub,
