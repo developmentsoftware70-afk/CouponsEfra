@@ -12,6 +12,10 @@ class Deal extends Model
     {
         return $this->belongsTo(DealCategory::class);
     }
+    public function dealCategory()
+    {
+        return $this->belongsTo(DealCategory::class, 'deal_category_id');
+    }
     public function user()
     {
         return $this->belongsTo(User::class,'user_id');
