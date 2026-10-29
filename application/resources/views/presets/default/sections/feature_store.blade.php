@@ -2,8 +2,15 @@
     $featureStore = getContent('feature_store.content', true);
     $featureStoreElements = \Illuminate\Support\Facades\Cache::remember('home_feature_stores_10', 1800, function() {
         return App\Models\Store::with(['coupons' => function($q) {
-            $q->where('status', 1);
-        }])->where('show_on_front', 1)->latest()->limit(10)->get();
+            $q->where('status', 1)->where('is_cashback', 0);
+        }])
+        ->where('show_on_front', 1)
+        ->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })
+        ->latest()
+        ->limit(10)
+        ->get();
     });
     $cardBg = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
 @endphp

@@ -585,10 +585,14 @@ class SiteController extends Controller
     public function exclusiveCoupon()
     {
         $pageTitle = "Exclusive Coupon";
-        $exclusiveCoupons = Coupon::with(['category', 'store', 'wishlists'])->where('status', 1)->where('is_exclusive', 1)->latest()->paginate(getPaginate());
+        $exclusiveCoupons = Coupon::with(['category', 'store', 'wishlists'])->where('status', 1)->where('is_exclusive', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($exclusiveCoupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_exclusive', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_exclusive', 1)->where('is_cashback', 0);
+        })->latest()->get();
         return view($this->activeTemplate . 'exclusive_coupons',compact('pageTitle', 'exclusiveCoupons', 'categories', 'stores'));
     }
     // coupons
@@ -596,8 +600,12 @@ class SiteController extends Controller
         $pageTitle = "Coupons";
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($coupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
         return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
     }
     // categories
@@ -612,10 +620,14 @@ class SiteController extends Controller
     public function featureCoupon()
     {
         $pageTitle = "Featured Coupon";
-        $featureCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_featured', 1)->latest()->paginate(getPaginate());
+        $featureCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_featured', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($featureCoupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_featured', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_featured', 1)->where('is_cashback', 0);
+        })->latest()->get();
       
         return view($this->activeTemplate . 'feature_coupons',compact('pageTitle', 'featureCoupons', 'categories', 'stores'));
     }
@@ -623,10 +635,14 @@ class SiteController extends Controller
     public function latestCoupon()
     {
         $pageTitle = "Latest Coupon";
-        $featureCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->latest()->paginate(getPaginate());
+        $featureCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($featureCoupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
       
         return view($this->activeTemplate . 'feature_coupons',compact('pageTitle', 'featureCoupons', 'categories', 'stores'));
     }
@@ -634,10 +650,14 @@ class SiteController extends Controller
     public function popularCoupon()
     {
         $pageTitle = "Popular Coupon";
-        $popularCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_popular', 1)->latest()->paginate(getPaginate());
+        $popularCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_popular', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($popularCoupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_popular', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_popular', 1)->where('is_cashback', 0);
+        })->latest()->get();
       
         return view($this->activeTemplate . 'popular_coupons',compact('pageTitle', 'popularCoupons', 'categories', 'stores'));
     }
@@ -645,10 +665,14 @@ class SiteController extends Controller
     public function saleCoupon()
     {
         $pageTitle = "Sale Coupon";
-        $saleCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_sale', 1)->latest()->paginate(getPaginate());
+        $saleCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_sale', 1)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($saleCoupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_sale', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_sale', 1)->where('is_cashback', 0);
+        })->latest()->get();
       
         return view($this->activeTemplate . 'sale_coupons',compact('pageTitle', 'saleCoupons', 'categories', 'stores'));
     }
@@ -658,8 +682,12 @@ class SiteController extends Controller
         $pageTitle = "Cashback Coupon";
         $cashbackCoupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 1)->latest()->paginate(getPaginate());
         $this->recordImpressions($cashbackCoupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 1);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 1);
+        })->latest()->get();
       
         return view($this->activeTemplate . 'cashback_coupons',compact('pageTitle', 'cashbackCoupons', 'categories', 'stores'));
     }
@@ -704,7 +732,7 @@ class SiteController extends Controller
         $search = $request->input('search');
 
 
-        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_exclusive', 1);
+        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_exclusive', 1)->where('is_cashback', 0);
 
         if (!empty($categories)) {
             $query->whereIn('category_id', $categories);
@@ -779,7 +807,7 @@ class SiteController extends Controller
 
 
 
-        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_featured', 1);
+        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_featured', 1)->where('is_cashback', 0);
 
         if (!empty($categories)) {
             $query->whereIn('category_id', $categories);
@@ -808,8 +836,9 @@ class SiteController extends Controller
         $categories = $request->input('categories', []);
         $stores = $request->input('stores', []);
         $search = $request->input('search');
+        $isCashback = $request->input('is_cashback', 0);
 
-        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1);
+        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', $isCashback);
 
         if (!empty($categories)) {
             $query->whereIn('category_id', $categories);
@@ -840,10 +869,14 @@ class SiteController extends Controller
     public function categoryCoupons($id) {
         $category = Category::findOrFail($id);
         $pageTitle =  $category->name;
-        $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('category_id', $id)->latest()->paginate(getPaginate());
+        $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('category_id', $id)->where('is_cashback', 0)->latest()->paginate(getPaginate());
         $this->recordImpressions($coupons, 'coupon');
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
        
         return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
 
@@ -885,7 +918,7 @@ class SiteController extends Controller
             return back()->withNotify($notify);
         }
         $lowerSearch = strtolower($search);
-        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1);
+        $query = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('is_cashback', 0);
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%$search%")
@@ -896,8 +929,12 @@ class SiteController extends Controller
             ->orderByRaw("CASE WHEN LOWER(title) = ? THEN 1 WHEN LOWER(title) LIKE ? THEN 2 ELSE 3 END", [$lowerSearch, $lowerSearch . '%']);
         }
         $coupons = $query->paginate(getPaginate());
-        $categories = Category::where('status', 1)->latest()->get();
-        $stores = Store::where('status', 1)->latest()->get();
+        $categories = Category::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
+        $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
+            $q->where('status', 1)->where('is_cashback', 0);
+        })->latest()->get();
         return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores', 'search'));
     }
 

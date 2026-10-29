@@ -441,7 +441,8 @@
                 data: {
                     "categories": categories,
                     "stores": stores,
-                    "search": searchValue
+                    "search": searchValue,
+                    "is_cashback": 1
                 },
                 dataType: "json",
                 beforeSend: function() {

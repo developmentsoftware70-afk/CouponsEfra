@@ -3,6 +3,7 @@
     $latestCouponsData = \Illuminate\Support\Facades\Cache::remember('home_latest_coupons_12', 600, function() {
         return App\Models\Coupon::with(['category', 'store', 'wishlists'])
             ->where('status', 1)
+            ->where('is_cashback', 0)
             ->latest()
             ->limit(12)
             ->get();

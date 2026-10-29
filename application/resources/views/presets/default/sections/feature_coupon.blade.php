@@ -4,6 +4,7 @@
         return App\Models\Coupon::with(['category', 'store', 'wishlists'])
             ->where('status', 1)
             ->where('is_featured', 1)
+            ->where('is_cashback', 0)
             ->latest()
             ->limit(16)
             ->get();
