@@ -15,8 +15,8 @@
                         <i class="fas fa-arrow-left"></i>
                     </a>
                 @endif
-                <button type="button" class="dashboard-sidebar-toggle-btn dashboard-show-hide" title="@lang('Toggle Menu')">
-                    <i class="fas fa-bars dashboard-show-hide"></i>
+                <button type="button" class="dashboard-sidebar-toggle-btn dashboard-show-hide d-xl-none" title="@lang('Toggle Menu')">
+                    <i class="fas fa-bars"></i>
                 </button>
                 <div class="header-user-welcome ms-1">
                     <h5 class="page-header-title mb-0">{{ __($pageTitle) }}</h5>
@@ -38,10 +38,9 @@
                     </a>
                 @endif
 
-                <!-- User Profile / Settings (Purple Avatar) -->
-                <a href="{{ route('user.profile.setting') }}" class="dashboard-profile-btn d-flex align-items-center gap-2" title="@lang('Profile Settings')">
+                <!-- User Profile / Settings (Purple Avatar ONLY - No Username) -->
+                <a href="{{ route('user.profile.setting') }}" class="dashboard-profile-btn d-flex align-items-center" title="@lang('Profile Settings')">
                     <div class="profile-avatar">{{ $initial }}</div>
-                    <span class="d-none d-md-inline fw-semibold fs-13 text-dark">{{ $user->username ?? 'User' }}</span>
                 </a>
 
                 <!-- Home / Store Link -->
@@ -67,3 +66,19 @@
     </div>
 </div>
 <!-- ====== Responsive breadcrumb end ====== -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleBtns = document.querySelectorAll('.dashboard-sidebar-toggle-btn, .dashboard-show-hide');
+        toggleBtns.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                if (window.innerWidth >= 1200) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    return false;
+                }
+            }, true);
+        });
+    });
+</script>

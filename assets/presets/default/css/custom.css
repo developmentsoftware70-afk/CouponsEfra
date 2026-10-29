@@ -1520,12 +1520,17 @@ body {
     color: #ffffff !important;
     border: none !important;
     border-radius: 8px !important;
-    display: inline-flex !important;
+    display: none !important;
     align-items: center !important;
     justify-content: center !important;
     font-size: 15px !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
+}
+@media (max-width: 1199px) {
+    .dashboard-sidebar-toggle-btn {
+        display: inline-flex !important;
+    }
 }
 .dashboard-sidebar-toggle-btn:hover {
     background: #c81e23 !important;
