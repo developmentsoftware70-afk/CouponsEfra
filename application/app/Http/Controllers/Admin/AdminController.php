@@ -14,6 +14,8 @@ use App\Models\SupportTicket;
 use App\Models\PayoutRequest;
 use App\Models\DailyMetric;
 use App\Models\Order;
+use App\Models\Click;
+use Illuminate\Support\Facades\DB;
 use App\Rules\FileTypeValidate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -51,7 +53,8 @@ class AdminController extends Controller
         $performanceData = $this->getPerformanceData();
 
         $newTickets = SupportTicket::with('user')->orderBy('created_at', 'desc')->whereStatus(0)->limit(5)->get();
-        return view('admin.dashboard', compact('pageTitle', 'widget', 'newTickets', 'kpiMetrics', 'performanceData'));
+        $topPublishers = $this->getTopPublishersData();
+        return view('admin.dashboard', compact('pageTitle', 'widget', 'newTickets', 'kpiMetrics', 'performanceData', 'topPublishers'));
     }
 
     public function getKpiMetrics()
@@ -165,7 +168,8 @@ class AdminController extends Controller
                 ]
             ],
             'chart' => $chart,
-            'widgets' => $widgets
+            'widgets' => $widgets,
+            'top_publishers' => $this->getTopPublishersData()
         ]);
     }
 
@@ -409,4 +413,108 @@ class AdminController extends Controller
     }
 
 
+
+    public function getTopPublishersData()
+    {
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+        $startOfMonth = Carbon::now()->startOfMonth();
+
+        return [
+            'today'     => $this->fetchPublishersForPeriod($today, null),
+            'yesterday' => $this->fetchPublishersForPeriod($yesterday, $today),
+            'mtd'       => $this->fetchPublishersForPeriod($startOfMonth, null),
+        ];
+    }
+
+    private function fetchPublishersForPeriod($start, $end = null)
+    {
+        $clickQuery = Click::select('user_id', DB::raw('count(*) as clicks_count'))
+            ->whereNotNull('user_id');
+        if ($end) {
+            $clickQuery->whereBetween('created_at', [$start, $end]);
+        } else {
+            $clickQuery->where('created_at', '>=', $start);
+        }
+        $clicksByUser = $clickQuery->groupBy('user_id')->pluck('clicks_count', 'user_id')->toArray();
+
+        $orderQuery = Order::select(
+                'user_id',
+                DB::raw('count(*) as total_orders'),
+                DB::raw("count(case when status in ('confirmed', 'processing', 'shipped', 'delivered') then 1 end) as conversions_count"),
+                DB::raw("sum(case when status in ('confirmed', 'processing', 'shipped', 'delivered') then payout_amount else 0 end) as total_payout")
+            )->whereNotNull('user_id');
+        if ($end) {
+            $orderQuery->whereBetween('created_at', [$start, $end]);
+        } else {
+            $orderQuery->where('created_at', '>=', $start);
+        }
+        $ordersByUser = $orderQuery->groupBy('user_id')->get()->keyBy('user_id')->toArray();
+
+        $activeUserIds = array_unique(array_merge(array_keys($clicksByUser), array_keys($ordersByUser)));
+
+        if (empty($activeUserIds)) {
+            $users = User::select('id', 'firstname', 'lastname', 'username')
+                ->where('status', 1)
+                ->orderBy('id', 'desc')
+                ->limit(5)
+                ->get();
+
+            $result = [];
+            foreach ($users as $user) {
+                $name = $user->firstname || $user->lastname ? trim($user->firstname . ' ' . $user->lastname) : $user->username;
+                $result[] = [
+                    'id'               => $user->id,
+                    'name'             => "(ID: {$user->id}) " . $name,
+                    'raw_name'         => $name,
+                    'url'              => route('admin.users.detail', $user->id),
+                    'clicks'           => 0,
+                    'impressions'      => 0,
+                    'conversions'      => 0,
+                    'payout'           => 0,
+                    'clicks_formatted' => '0',
+                    'payout_formatted' => '₹ 0',
+                ];
+            }
+            return $result;
+        }
+
+        $users = User::select('id', 'firstname', 'lastname', 'username')
+            ->whereIn('id', $activeUserIds)
+            ->get();
+
+        $result = [];
+        foreach ($users as $user) {
+            $c = $clicksByUser[$user->id] ?? 0;
+            $orderData = $ordersByUser[$user->id] ?? null;
+            $conv = $orderData['conversions_count'] ?? 0;
+            $payout = (float) ($orderData['total_payout'] ?? 0);
+            $name = $user->firstname || $user->lastname ? trim($user->firstname . ' ' . $user->lastname) : $user->username;
+
+            $result[] = [
+                'id'               => $user->id,
+                'name'             => "(ID: {$user->id}) " . $name,
+                'raw_name'         => $name,
+                'url'              => route('admin.users.detail', $user->id),
+                'clicks'           => $c,
+                'impressions'      => 0,
+                'conversions'      => (int) $conv,
+                'payout'           => $payout,
+                'clicks_formatted' => formatShortNumber($c),
+                'payout_formatted' => '₹ ' . formatShortNumber($payout),
+            ];
+        }
+
+        usort($result, function ($a, $b) {
+            if ($b['conversions'] !== $a['conversions']) {
+                return $b['conversions'] <=> $a['conversions'];
+            }
+            if ($b['clicks'] !== $a['clicks']) {
+                return $b['clicks'] <=> $a['clicks'];
+            }
+            return $b['payout'] <=> $a['payout'];
+        });
+
+        return array_slice($result, 0, 10);
+    }
 }

@@ -438,6 +438,71 @@
             </div>
         </div>
     </div>
+
+    <!-- Top Publishers Section -->
+    <div class="col-xl-12">
+        <div class="card shadow-sm border b-radius--10 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h5 class="card-title mb-0" style="font-size: 16px; font-weight: 700; color: #1e293b;">@lang('Top Publishers')</h5>
+                    <div class="top-pubs-toggle-group btn-group" role="group">
+                        <button type="button" class="btn btn-sm top-pubs-toggle-btn active" id="btnViewTable" data-view="table">
+                            <i class="las la-list"></i> @lang('Table')
+                        </button>
+                        <button type="button" class="btn btn-sm top-pubs-toggle-btn" id="btnViewChart" data-view="chart">
+                            <i class="las la-chart-pie"></i> @lang('Chart')
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Period Tabs: Today | Yesterday | MTD -->
+                <div class="top-pubs-tabs mb-3 d-flex align-items-center gap-2">
+                    <button type="button" class="top-pubs-tab-btn active" data-period="today">@lang('Today')</button>
+                    <button type="button" class="top-pubs-tab-btn" data-period="yesterday">@lang('Yesterday')</button>
+                    <button type="button" class="top-pubs-tab-btn" data-period="mtd">@lang('MTD')</button>
+                </div>
+
+                <!-- Table View -->
+                <div id="topPublishersTableView">
+                    <div class="table-responsive">
+                        <table class="table align-middle top-pubs-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-start">@lang('Publisher')</th>
+                                    <th class="text-center">@lang('Clicks')</th>
+                                    <th class="text-center">@lang('Impressions')</th>
+                                    <th class="text-center">@lang('Conversions')</th>
+                                    <th class="text-end">@lang('Payout')</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topPublishersTableBody">
+                                @forelse($topPublishers['today'] as $pub)
+                                <tr>
+                                    <td class="text-start">
+                                        <a href="{{ $pub['url'] }}" class="top-pub-link">{{ $pub['name'] }}</a>
+                                    </td>
+                                    <td class="text-center fw-bold">{{ $pub['clicks_formatted'] }}</td>
+                                    <td class="text-center text-muted">{{ $pub['impressions'] }}</td>
+                                    <td class="text-center fw-bold text-danger">{{ $pub['conversions'] }}</td>
+                                    <td class="text-end fw-bold text-success">{{ $pub['payout_formatted'] }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">@lang('No publisher activity recorded for today')</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart View -->
+                <div id="topPublishersChartView" style="display: none;">
+                    <div id="top-publishers-apex-chart" style="min-height: 330px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -675,6 +740,9 @@
                         if (res.widgets.total_payout_amount !== undefined) {
                             updateSmoothVal('#widget-total-payout', res.widgets.total_payout_amount);
                         }
+                        if (res.top_publishers && typeof window.updateTopPublishersLive === 'function') {
+                            window.updateTopPublishersLive(res.top_publishers);
+                        }
                     }
 
                     // Smooth chart update
@@ -705,6 +773,138 @@
             }
         });
     }) ();
+
+    // [ Top Publishers Handler ]
+    (function () {
+        var topPubsData = @json($topPublishers);
+        var currentPeriod = 'today';
+        var currentView = 'table';
+        var topPubsChart = null;
+
+        function renderTopPubsTable(period) {
+            var pubs = topPubsData[period] || [];
+            var html = '';
+            if (pubs.length === 0) {
+                html = '<tr><td colspan="5" class="text-center py-4 text-muted">No publisher activity recorded for ' + period.toUpperCase() + '</td></tr>';
+            } else {
+                pubs.forEach(function (pub) {
+                    html += '<tr>' +
+                        '<td class="text-start"><a href="' + pub.url + '" class="top-pub-link">' + $('<div>').text(pub.name).html() + '</a></td>' +
+                        '<td class="text-center fw-bold">' + pub.clicks_formatted + '</td>' +
+                        '<td class="text-center text-muted">' + pub.impressions + '</td>' +
+                        '<td class="text-center fw-bold text-danger">' + pub.conversions + '</td>' +
+                        '<td class="text-end fw-bold text-success">' + pub.payout_formatted + '</td>' +
+                        '</tr>';
+                });
+            }
+            $('#topPublishersTableBody').html(html);
+        }
+
+        function initOrUpdateChart(period) {
+            var pubs = topPubsData[period] || [];
+            var categories = [];
+            var clicksSeries = [];
+            var convSeries = [];
+            var payoutSeries = [];
+
+            pubs.forEach(function (pub) {
+                categories.push(pub.raw_name || pub.name);
+                clicksSeries.push(pub.clicks);
+                convSeries.push(pub.conversions);
+                payoutSeries.push(pub.payout);
+            });
+
+            if (!topPubsChart) {
+                var chartOptions = {
+                    series: [
+                        { name: 'Clicks', data: clicksSeries },
+                        { name: 'Conversions', data: convSeries },
+                        { name: 'Payout (₹)', data: payoutSeries }
+                    ],
+                    chart: {
+                        type: 'bar',
+                        height: 330,
+                        toolbar: { show: false }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            borderRadius: 4
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    stroke: { show: true, width: 2, colors: ['transparent'] },
+                    xaxis: { categories: categories },
+                    yaxis: { title: { text: 'Metrics' } },
+                    fill: { opacity: 1 },
+                    colors: ['#00adad', '#28c76f', '#ff9f43'],
+                    tooltip: {
+                        y: {
+                            formatter: function (val, opt) {
+                                if (opt.seriesIndex === 2) {
+                                    return '₹ ' + Number(val).toLocaleString();
+                                }
+                                return Number(val).toLocaleString();
+                            }
+                        }
+                    }
+                };
+                topPubsChart = new ApexCharts(document.querySelector("#top-publishers-apex-chart"), chartOptions);
+                topPubsChart.render();
+            } else {
+                topPubsChart.updateOptions({
+                    xaxis: { categories: categories }
+                });
+                topPubsChart.updateSeries([
+                    { name: 'Clicks', data: clicksSeries },
+                    { name: 'Conversions', data: convSeries },
+                    { name: 'Payout (₹)', data: payoutSeries }
+                ]);
+            }
+        }
+
+        // Tab switching: Today | Yesterday | MTD
+        $(document).on('click', '.top-pubs-tab-btn', function () {
+            $('.top-pubs-tab-btn').removeClass('active');
+            $(this).addClass('active');
+            currentPeriod = $(this).data('period');
+
+            renderTopPubsTable(currentPeriod);
+            if (currentView === 'chart') {
+                initOrUpdateChart(currentPeriod);
+            }
+        });
+
+        // View toggle: Table vs Chart
+        $(document).on('click', '.top-pubs-toggle-btn', function () {
+            var view = $(this).data('view');
+            $('.top-pubs-toggle-btn').removeClass('active');
+            $(this).addClass('active');
+            currentView = view;
+
+            if (view === 'table') {
+                $('#topPublishersChartView').hide();
+                $('#topPublishersTableView').fadeIn(150);
+            } else {
+                $('#topPublishersTableView').hide();
+                $('#topPublishersChartView').fadeIn(150);
+                setTimeout(function () {
+                    initOrUpdateChart(currentPeriod);
+                }, 50);
+            }
+        });
+
+        window.updateTopPublishersLive = function(newPubsData) {
+            if (newPubsData) {
+                topPubsData = newPubsData;
+                renderTopPubsTable(currentPeriod);
+                if (currentView === 'chart') {
+                    initOrUpdateChart(currentPeriod);
+                }
+            }
+        };
+    })();
 </script>
 @endpush
 
@@ -963,6 +1163,91 @@
         transform: scale(1);
         text-shadow: none;
     }
+}
+.top-pubs-toggle-group {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #1e293b;
+    display: inline-flex;
+}
+.top-pubs-toggle-btn {
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border: none;
+    background: #1e293b;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.top-pubs-toggle-btn.active {
+    background: #00a65a !important;
+    color: #ffffff !important;
+}
+.top-pubs-toggle-btn:hover:not(.active) {
+    background: #334155;
+    color: #ffffff;
+}
+.top-pubs-tabs {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+.top-pubs-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.top-pubs-tab-btn:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+}
+.top-pubs-tab-btn.active {
+    background: #00a65a !important;
+    color: #ffffff !important;
+}
+.top-pubs-table {
+    border: 1px solid #edf2f7;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.top-pubs-table thead tr th {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    background: #f8fafc;
+    border-bottom: 2px solid #edf2f7;
+    padding: 12px 18px;
+}
+.top-pubs-table tbody tr td {
+    font-size: 13.5px;
+    color: #334155;
+    padding: 13px 18px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.top-pubs-table tbody tr:nth-child(even) td {
+    background: #fafbfc;
+}
+.top-pubs-table tbody tr:hover td {
+    background: #f1f5f9;
+}
+.top-pub-link {
+    color: #0284c7 !important;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.top-pub-link:hover {
+    color: #0369a1 !important;
+    text-decoration: underline;
 }
 </style>
 @endpush
