@@ -52,24 +52,34 @@ class WebhookController extends Controller
             $click = Click::where('click_id', $txnId)->orWhere('order_id', $txnId)->first();
         }
 
-        // 4. Resolve Amount & Payout
-        $amount = (float) (
-            $request->input('amount') 
+        // Helper to safely parse numbers even with commas or currency symbols (e.g. "1,999.00" -> 1999.00)
+        $cleanNum = function ($val) {
+            if ($val === null || $val === '') return 0.0;
+            if (is_numeric($val)) return (float) $val;
+            $clean = preg_replace('/[^\d.]/', '', (string) $val);
+            return (float) $clean;
+        };
+
+        // 4. Resolve Amount & Payout (strictly dynamic from merchant, ZERO hardcoding)
+        $rawAmount = $request->input('amount') 
             ?? $request->input('sale_amount') 
             ?? $request->input('order_amount') 
             ?? $request->input('cart_value') 
             ?? $request->input('order_value') 
-            ?? 0
-        );
+            ?? $request->input('subtotal')
+            ?? $request->input('price')
+            ?? $request->input('total');
 
-        $payout = (float) (
-            $request->input('payout') 
+        $rawPayout = $request->input('payout') 
             ?? $request->input('payout_amount') 
             ?? $request->input('commission') 
             ?? $request->input('revenue') 
-            ?? $request->input('earning') 
-            ?? 0
-        );
+            ?? $request->input('earning')
+            ?? $request->input('aff_payout')
+            ?? $request->input('pub_payout');
+
+        $amount = $cleanNum($rawAmount);
+        $payout = $cleanNum($rawPayout);
 
         // 5. Normalize Status
         $rawStatus = strtolower(trim((string) (

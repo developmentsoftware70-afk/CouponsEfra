@@ -1,3 +1,5 @@
+
+
 <?php
 
 use App\Models\GeneralSetting;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::namespace('Api')->group(function(){
 
+    
     Route::get('general-setting',function()
     {
         $general = GeneralSetting::first();
@@ -123,6 +126,3 @@ Route::namespace('Api')->group(function(){
         Route::get('logout', 'Auth\LoginController@logout');
     });
 });
-
-// Merchant Realtime Purchase Order Webhook / Postback
-Route::match(['get', 'post'], '/webhook/order', [\App\Http\Controllers\WebhookController::class, 'handleMerchantCallback']);
