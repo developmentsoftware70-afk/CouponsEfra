@@ -92,7 +92,7 @@
             <li class="sidebar-menu-list__item {{ Route::is('user.orders') ? 'active' : '' }}">
                 <a href="{{ route('user.orders') }}" class="sidebar-menu-list__link">
                     <span class="icon"><i class="fas fa-shopping-bag"></i></span>
-                    @lang('My Orders')
+                    @lang('Visited Orders')
                 </a>
             </li>
             <li class="sidebar-menu-list__item {{ Route::is('user.payouts') ? 'active' : '' }}">

@@ -231,7 +231,7 @@
 <section class="dashboard-section account-form mt-4">
     <div class="row">
         <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-            <h6 class="dash-title mb-0"><i class="fas fa-shopping-bag me-1 text--base"></i> @lang('Recent Orders & Tracking')</h6>
+            <h6 class="dash-title mb-0"><i class="fas fa-shopping-bag me-1 text--base"></i> @lang('Visited Orders')</h6>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge badge--success live-indicator">
                     <span class="live-dot"></span> @lang('Live Tracking')

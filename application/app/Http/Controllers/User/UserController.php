@@ -71,7 +71,7 @@ class UserController extends Controller
 
     public function orders()
     {
-        $pageTitle = 'My Orders';
+        $pageTitle = 'Visited Orders';
         $user = auth()->user();
         $orders = Order::where('user_id', $user->id)->latest()->paginate(getPaginate(10));
         return view($this->activeTemplate . 'user.orders', compact('pageTitle', 'orders'));

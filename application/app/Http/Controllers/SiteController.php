@@ -199,22 +199,6 @@ class SiteController extends Controller
         $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
         $campaign = request('utm_campaign', request('campaign', 'coupon_campaign'));
 
-        // ---- Create temporary order for coupon store visit ----
-        $productImage = $coupon->image ?? @$coupon->store->image ?? null;
-
-        $tempOrder = Order::create([
-            'click_id'      => $clickId,
-            'user_id'       => auth()->id(),
-            'merchant_id'   => $coupon->store_id ?? null,
-            'product_name'  => $coupon->title,
-            'product_image' => $productImage,
-            'amount'        => 0,
-            'payout_amount' => 0,
-            'currency'      => 'INR',
-            'status'        => 'pending',
-            'source'        => 'coupon_section',
-        ]);
-
         $options = [
             'click_id'     => $clickId,
             'merchant'     => @$coupon->store->name ?? 'store',
@@ -225,15 +209,15 @@ class SiteController extends Controller
             'utm_term'     => request('utm_term', $coupon->slug ?? $coupon->title),
         ];
 
-        $link = appendTrackingSource($coupon->link, auth()->user(), $tempOrder->id, $options);
+        $link = appendTrackingSource($coupon->link, auth()->user(), null, $options);
 
-        // Store granular click data
+        // Store granular click data (real purchase order will be created when user purchases on merchant)
         Click::create([
             'click_id'        => $clickId,
             'user_id'         => auth()->id(),
             'coupon_id'       => $coupon->id,
             'store_id'        => $coupon->store_id ?? null,
-            'order_id'        => $tempOrder->id,
+            'order_id'        => null,
             'campaign'        => $campaign,
             'utm_source'      => $options['utm_source'],
             'utm_medium'      => $options['utm_medium'],
@@ -273,19 +257,6 @@ class SiteController extends Controller
         $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
         $campaign = request('utm_campaign', request('campaign', 'deal_campaign'));
 
-        $tempOrder = Order::create([
-            'click_id'      => $clickId,
-            'user_id'       => auth()->id(),
-            'merchant_id'   => $deal->store_id ?? null,
-            'product_name'  => $deal->title,
-            'product_image' => $deal->image ?? null,
-            'amount'        => 0,
-            'payout_amount' => 0,
-            'currency'      => 'INR',
-            'status'        => 'pending',
-            'source'        => 'deal_section',
-        ]);
-
         $options = [
             'click_id'     => $clickId,
             'merchant'     => 'deal_store',
@@ -296,14 +267,14 @@ class SiteController extends Controller
             'utm_term'     => request('utm_term', $deal->title),
         ];
 
-        $link = appendTrackingSource($deal->link, auth()->user(), $tempOrder->id, $options);
+        $link = appendTrackingSource($deal->link, auth()->user(), null, $options);
 
         Click::create([
             'click_id'        => $clickId,
             'user_id'         => auth()->id(),
             'deal_id'         => $deal->id,
             'store_id'        => $deal->store_id ?? null,
-            'order_id'        => $tempOrder->id,
+            'order_id'        => null,
             'campaign'        => $campaign,
             'utm_source'      => $options['utm_source'],
             'utm_medium'      => $options['utm_medium'],
@@ -341,19 +312,6 @@ class SiteController extends Controller
         $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
         $campaign = request('utm_campaign', request('campaign', 'slider_campaign'));
 
-        $tempOrder = Order::create([
-            'click_id'      => $clickId,
-            'user_id'       => auth()->id(),
-            'merchant_id'   => $slider->store_id ?? null,
-            'product_name'  => $slider->title ?? 'Featured Offer',
-            'product_image' => $slider->image ?? null,
-            'amount'        => 0,
-            'payout_amount' => 0,
-            'currency'      => 'INR',
-            'status'        => 'pending',
-            'source'        => 'slider_section',
-        ]);
-
         $options = [
             'click_id'     => $clickId,
             'merchant'     => 'featured_store',
@@ -364,13 +322,13 @@ class SiteController extends Controller
             'utm_term'     => request('utm_term', $slider->title ?? 'offer'),
         ];
 
-        $link = appendTrackingSource($slider->link, auth()->user(), $tempOrder->id, $options);
+        $link = appendTrackingSource($slider->link, auth()->user(), null, $options);
 
         Click::create([
             'click_id'        => $clickId,
             'user_id'         => auth()->id(),
             'store_id'        => $slider->store_id ?? null,
-            'order_id'        => $tempOrder->id,
+            'order_id'        => null,
             'campaign'        => $campaign,
             'utm_source'      => $options['utm_source'],
             'utm_medium'      => $options['utm_medium'],
