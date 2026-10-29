@@ -443,15 +443,65 @@
     <div class="col-xl-12">
         <div class="card shadow-sm border b-radius--10 mb-4">
             <div class="card-body p-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <h5 class="card-title mb-0" style="font-size: 16px; font-weight: 700; color: #1e293b;">@lang('Top Publishers')</h5>
-                    <div class="top-pubs-toggle-group btn-group" role="group">
-                        <button type="button" class="btn btn-sm top-pubs-toggle-btn active" id="btnViewTable" data-view="table">
-                            <i class="las la-list"></i> @lang('Table')
-                        </button>
-                        <button type="button" class="btn btn-sm top-pubs-toggle-btn" id="btnViewChart" data-view="chart">
-                            <i class="las la-chart-pie"></i> @lang('Chart')
-                        </button>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="card-title mb-0" style="font-size: 16px; font-weight: 700; color: #1e293b;">@lang('Top Publishers')</h5>
+                        <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 11px; font-weight: 500;" id="activeSortBadge">
+                            @lang('Sorted by'): <strong class="text-success" id="activeSortBadgeText">@lang('Payout')</strong>
+                        </span>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Metric Sort Dropdown (Beside Table/Chart) -->
+                        <div class="position-relative top-pubs-sort-wrapper">
+                            <button type="button" class="btn btn-sm top-pubs-metric-btn d-flex align-items-center gap-1" id="topPubsSortBtn">
+                                <i class="las la-sort-amount-down text-muted" style="font-size: 14px;"></i>
+                                <span class="text-muted" style="font-size: 12px;">Sort:</span>
+                                <strong class="text-dark" id="selectedSortLabel" style="font-size: 12.5px;">Payout</strong>
+                                <i class="las la-angle-down ms-1 text-muted" style="font-size: 10px;"></i>
+                            </button>
+                            <div id="topPubsSortDropdown" class="top-pubs-dropdown shadow-sm border rounded bg-white p-1" style="display: none; position: absolute; right: 0; top: 115%; z-index: 1050; min-width: 185px;">
+                                <div class="dropdown-header text-uppercase px-3 py-1 text-muted" style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px;">@lang('Sort Publishers By')</div>
+                                <button type="button" class="top-pubs-sort-opt active" data-metric="payout">
+                                    <span class="d-flex align-items-center gap-2">
+                                        <i class="las la-wallet text-success" style="font-size: 15px;"></i>
+                                        <span>@lang('Payout') <small class="text-muted">(@lang('Default'))</small></span>
+                                    </span>
+                                    <i class="las la-check check-mark"></i>
+                                </button>
+                                <button type="button" class="top-pubs-sort-opt" data-metric="clicks">
+                                    <span class="d-flex align-items-center gap-2">
+                                        <i class="las la-mouse-pointer text-info" style="font-size: 15px;"></i>
+                                        <span>@lang('Clicks')</span>
+                                    </span>
+                                    <i class="las la-check check-mark" style="display:none;"></i>
+                                </button>
+                                <button type="button" class="top-pubs-sort-opt" data-metric="conversions">
+                                    <span class="d-flex align-items-center gap-2">
+                                        <i class="las la-shopping-cart text-danger" style="font-size: 15px;"></i>
+                                        <span>@lang('Conversions')</span>
+                                    </span>
+                                    <i class="las la-check check-mark" style="display:none;"></i>
+                                </button>
+                                <button type="button" class="top-pubs-sort-opt" data-metric="impressions">
+                                    <span class="d-flex align-items-center gap-2">
+                                        <i class="las la-eye text-warning" style="font-size: 15px;"></i>
+                                        <span>@lang('Impressions')</span>
+                                    </span>
+                                    <i class="las la-check check-mark" style="display:none;"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table / Chart Toggle -->
+                        <div class="top-pubs-toggle-group btn-group" role="group">
+                            <button type="button" class="btn btn-sm top-pubs-toggle-btn active" id="btnViewTable" data-view="table">
+                                <i class="las la-list"></i> @lang('Table')
+                            </button>
+                            <button type="button" class="btn btn-sm top-pubs-toggle-btn" id="btnViewChart" data-view="chart">
+                                <i class="las la-chart-pie"></i> @lang('Chart')
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -469,10 +519,18 @@
                             <thead>
                                 <tr>
                                     <th class="text-start">@lang('Publisher')</th>
-                                    <th class="text-center">@lang('Clicks')</th>
-                                    <th class="text-center">@lang('Impressions')</th>
-                                    <th class="text-center">@lang('Conversions')</th>
-                                    <th class="text-end">@lang('Payout')</th>
+                                    <th class="text-center top-pub-sort-col" data-metric="clicks" title="@lang('Click to sort by Clicks')">
+                                        @lang('Clicks') <i class="las la-sort sort-icon text-muted" id="sortIconClicks"></i>
+                                    </th>
+                                    <th class="text-center top-pub-sort-col" data-metric="impressions" title="@lang('Click to sort by Impressions')">
+                                        @lang('Impressions') <i class="las la-sort sort-icon text-muted" id="sortIconImpressions"></i>
+                                    </th>
+                                    <th class="text-center top-pub-sort-col" data-metric="conversions" title="@lang('Click to sort by Conversions')">
+                                        @lang('Conversions') <i class="las la-sort sort-icon text-muted" id="sortIconConversions"></i>
+                                    </th>
+                                    <th class="text-end top-pub-sort-col active-sort" data-metric="payout" title="@lang('Click to sort by Payout (Default)')">
+                                        @lang('Payout') <i class="las la-sort-down sort-icon text-success" id="sortIconPayout"></i>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="topPublishersTableBody">
@@ -779,48 +837,138 @@
         var topPubsData = @json($topPublishers);
         var currentPeriod = 'today';
         var currentView = 'table';
+        var currentSortMetric = 'payout'; // Default sort metric: Payout
         var topPubsChart = null;
 
+        var metricMeta = {
+            payout: { label: 'Payout', color: '#28c76f', textClass: 'text-success' },
+            clicks: { label: 'Clicks', color: '#00adad', textClass: 'text-info' },
+            conversions: { label: 'Conversions', color: '#ea5455', textClass: 'text-danger' },
+            impressions: { label: 'Impressions', color: '#ff9f43', textClass: 'text-warning' }
+        };
+
+        function sortPublishers(pubs, metric) {
+            var copy = (pubs || []).slice();
+            copy.sort(function (a, b) {
+                var valA = parseFloat(a[metric]) || 0;
+                var valB = parseFloat(b[metric]) || 0;
+                if (valB !== valA) {
+                    return valB - valA; // Descending
+                }
+                // Fallbacks
+                if (metric !== 'payout') {
+                    var payDiff = (parseFloat(b.payout) || 0) - (parseFloat(a.payout) || 0);
+                    if (payDiff !== 0) return payDiff;
+                }
+                if (metric !== 'conversions') {
+                    var convDiff = (parseInt(b.conversions, 10) || 0) - (parseInt(a.conversions, 10) || 0);
+                    if (convDiff !== 0) return convDiff;
+                }
+                return (parseInt(b.clicks, 10) || 0) - (parseInt(a.clicks, 10) || 0);
+            });
+            return copy;
+        }
+
+        function updateSortHeaderUI() {
+            var meta = metricMeta[currentSortMetric] || metricMeta.payout;
+            $('#selectedSortLabel').text(meta.label);
+            $('#activeSortBadgeText').text(meta.label).css('color', meta.color);
+
+            $('.top-pubs-sort-opt').removeClass('active');
+            $('.top-pubs-sort-opt').find('.check-mark').hide();
+            var $activeOpt = $('.top-pubs-sort-opt[data-metric="' + currentSortMetric + '"]');
+            $activeOpt.addClass('active');
+            $activeOpt.find('.check-mark').show();
+
+            // Table headers sort indicator
+            $('.top-pub-sort-col').removeClass('active-sort');
+            $('.top-pub-sort-col .sort-icon').attr('class', 'las la-sort sort-icon text-muted');
+
+            var $activeCol = $('.top-pub-sort-col[data-metric="' + currentSortMetric + '"]');
+            $activeCol.addClass('active-sort');
+            $activeCol.find('.sort-icon').attr('class', 'las la-sort-down sort-icon ' + meta.textClass);
+        }
+
         function renderTopPubsTable(period) {
-            var pubs = topPubsData[period] || [];
+            var rawPubs = topPubsData[period] || [];
+            var pubs = sortPublishers(rawPubs, currentSortMetric);
             var html = '';
             if (pubs.length === 0) {
                 html = '<tr><td colspan="5" class="text-center py-4 text-muted">No publisher activity recorded for ' + period.toUpperCase() + '</td></tr>';
             } else {
                 pubs.forEach(function (pub) {
+                    var clicksClass = (currentSortMetric === 'clicks') ? 'fw-bold text-info bg-light-cell' : 'fw-bold';
+                    var impClass = (currentSortMetric === 'impressions') ? 'fw-bold text-warning bg-light-cell' : 'text-muted';
+                    var convClass = (currentSortMetric === 'conversions') ? 'fw-bold text-danger bg-light-cell' : 'fw-bold text-danger';
+                    var payClass = (currentSortMetric === 'payout') ? 'fw-bold text-success bg-light-cell' : 'fw-bold text-success';
+
                     html += '<tr>' +
                         '<td class="text-start"><a href="' + pub.url + '" class="top-pub-link">' + $('<div>').text(pub.name).html() + '</a></td>' +
-                        '<td class="text-center fw-bold">' + pub.clicks_formatted + '</td>' +
-                        '<td class="text-center text-muted">' + pub.impressions + '</td>' +
-                        '<td class="text-center fw-bold text-danger">' + pub.conversions + '</td>' +
-                        '<td class="text-end fw-bold text-success">' + pub.payout_formatted + '</td>' +
+                        '<td class="text-center ' + clicksClass + '">' + pub.clicks_formatted + '</td>' +
+                        '<td class="text-center ' + impClass + '">' + pub.impressions + '</td>' +
+                        '<td class="text-center ' + convClass + '">' + pub.conversions + '</td>' +
+                        '<td class="text-end ' + payClass + '">' + pub.payout_formatted + '</td>' +
                         '</tr>';
                 });
             }
             $('#topPublishersTableBody').html(html);
+            updateSortHeaderUI();
         }
 
         function initOrUpdateChart(period) {
-            var pubs = topPubsData[period] || [];
+            var rawPubs = topPubsData[period] || [];
+            var pubs = sortPublishers(rawPubs, currentSortMetric);
             var categories = [];
             var clicksSeries = [];
+            var impSeries = [];
             var convSeries = [];
             var payoutSeries = [];
 
             pubs.forEach(function (pub) {
                 categories.push(pub.raw_name || pub.name);
                 clicksSeries.push(pub.clicks);
+                impSeries.push(pub.impressions || 0);
                 convSeries.push(pub.conversions);
                 payoutSeries.push(pub.payout);
             });
 
+            var chartSeries = [];
+            var chartColors = [];
+
+            if (currentSortMetric === 'payout') {
+                chartSeries = [
+                    { name: 'Payout (₹)', data: payoutSeries },
+                    { name: 'Clicks', data: clicksSeries },
+                    { name: 'Conversions', data: convSeries }
+                ];
+                chartColors = ['#28c76f', '#00adad', '#ea5455'];
+            } else if (currentSortMetric === 'clicks') {
+                chartSeries = [
+                    { name: 'Clicks', data: clicksSeries },
+                    { name: 'Payout (₹)', data: payoutSeries },
+                    { name: 'Conversions', data: convSeries }
+                ];
+                chartColors = ['#00adad', '#28c76f', '#ea5455'];
+            } else if (currentSortMetric === 'conversions') {
+                chartSeries = [
+                    { name: 'Conversions', data: convSeries },
+                    { name: 'Payout (₹)', data: payoutSeries },
+                    { name: 'Clicks', data: clicksSeries }
+                ];
+                chartColors = ['#ea5455', '#28c76f', '#00adad'];
+            } else {
+                chartSeries = [
+                    { name: 'Impressions', data: impSeries },
+                    { name: 'Payout (₹)', data: payoutSeries },
+                    { name: 'Clicks', data: clicksSeries },
+                    { name: 'Conversions', data: convSeries }
+                ];
+                chartColors = ['#ff9f43', '#28c76f', '#00adad', '#ea5455'];
+            }
+
             if (!topPubsChart) {
                 var chartOptions = {
-                    series: [
-                        { name: 'Clicks', data: clicksSeries },
-                        { name: 'Conversions', data: convSeries },
-                        { name: 'Payout (₹)', data: payoutSeries }
-                    ],
+                    series: chartSeries,
                     chart: {
                         type: 'bar',
                         height: 330,
@@ -838,11 +986,11 @@
                     xaxis: { categories: categories },
                     yaxis: { title: { text: 'Metrics' } },
                     fill: { opacity: 1 },
-                    colors: ['#00adad', '#28c76f', '#ff9f43'],
+                    colors: chartColors,
                     tooltip: {
                         y: {
                             formatter: function (val, opt) {
-                                if (opt.seriesIndex === 2) {
+                                if (opt.w && opt.w.globals && opt.w.globals.seriesNames && opt.w.globals.seriesNames[opt.seriesIndex] && opt.w.globals.seriesNames[opt.seriesIndex].indexOf('₹') !== -1) {
                                     return '₹ ' + Number(val).toLocaleString();
                                 }
                                 return Number(val).toLocaleString();
@@ -854,15 +1002,50 @@
                 topPubsChart.render();
             } else {
                 topPubsChart.updateOptions({
-                    xaxis: { categories: categories }
+                    xaxis: { categories: categories },
+                    colors: chartColors
                 });
-                topPubsChart.updateSeries([
-                    { name: 'Clicks', data: clicksSeries },
-                    { name: 'Conversions', data: convSeries },
-                    { name: 'Payout (₹)', data: payoutSeries }
-                ]);
+                topPubsChart.updateSeries(chartSeries);
             }
         }
+
+        // Sort Dropdown Toggle
+        var sortBtn = $('#topPubsSortBtn');
+        var sortDropdown = $('#topPubsSortDropdown');
+
+        sortBtn.on('click', function (e) {
+            e.stopPropagation();
+            sortDropdown.toggle();
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('#topPubsSortBtn, #topPubsSortDropdown').length) {
+                sortDropdown.hide();
+            }
+        });
+
+        // Metric Select from Dropdown
+        $(document).on('click', '.top-pubs-sort-opt', function () {
+            var metric = $(this).data('metric');
+            currentSortMetric = metric;
+            sortDropdown.hide();
+            renderTopPubsTable(currentPeriod);
+            if (currentView === 'chart') {
+                initOrUpdateChart(currentPeriod);
+            }
+        });
+
+        // Metric Select from Clickable Table Column Headers
+        $(document).on('click', '.top-pub-sort-col', function () {
+            var metric = $(this).data('metric');
+            if (metric) {
+                currentSortMetric = metric;
+                renderTopPubsTable(currentPeriod);
+                if (currentView === 'chart') {
+                    initOrUpdateChart(currentPeriod);
+                }
+            }
+        });
 
         // Tab switching: Today | Yesterday | MTD
         $(document).on('click', '.top-pubs-tab-btn', function () {
@@ -1163,6 +1346,76 @@
         transform: scale(1);
         text-shadow: none;
     }
+}
+.top-pubs-metric-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    color: #334155;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.top-pubs-metric-btn:hover, .top-pubs-metric-btn:focus {
+    background: #f8fafc;
+    border-color: #00adad;
+    color: #0f172a;
+}
+.top-pubs-dropdown {
+    animation: fadeInDown 0.15s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+    border-color: #e2e8f0 !important;
+}
+.top-pubs-sort-opt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #334155;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    text-align: left;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+.top-pubs-sort-opt:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+.top-pubs-sort-opt.active {
+    background: #e6f7f7;
+    color: #008787;
+    font-weight: 600;
+}
+.top-pubs-sort-opt .check-mark {
+    color: #00adad;
+    font-weight: 700;
+    font-size: 14px;
+}
+.top-pub-sort-col {
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.top-pub-sort-col:hover {
+    background: #eef2f6 !important;
+    color: #00adad !important;
+}
+.top-pub-sort-col.active-sort {
+    background: #eaf8f8 !important;
+    color: #008787 !important;
+}
+.top-pub-sort-col.active-sort i {
+    color: #008787 !important;
+}
+.bg-light-cell {
+    background: #f8fafc;
 }
 .top-pubs-toggle-group {
     border-radius: 6px;

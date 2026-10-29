@@ -506,15 +506,15 @@ class AdminController extends Controller
         }
 
         usort($result, function ($a, $b) {
+            if ($b['payout'] != $a['payout']) {
+                return $b['payout'] <=> $a['payout'];
+            }
             if ($b['conversions'] !== $a['conversions']) {
                 return $b['conversions'] <=> $a['conversions'];
             }
-            if ($b['clicks'] !== $a['clicks']) {
-                return $b['clicks'] <=> $a['clicks'];
-            }
-            return $b['payout'] <=> $a['payout'];
+            return $b['clicks'] <=> $a['clicks'];
         });
 
-        return array_slice($result, 0, 10);
+        return array_slice($result, 0, 15);
     }
 }
