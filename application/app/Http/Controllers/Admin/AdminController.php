@@ -454,29 +454,7 @@ class AdminController extends Controller
         $activeUserIds = array_unique(array_merge(array_keys($clicksByUser), array_keys($ordersByUser)));
 
         if (empty($activeUserIds)) {
-            $users = User::select('id', 'firstname', 'lastname', 'username')
-                ->where('status', 1)
-                ->orderBy('id', 'desc')
-                ->limit(5)
-                ->get();
-
-            $result = [];
-            foreach ($users as $user) {
-                $name = $user->firstname || $user->lastname ? trim($user->firstname . ' ' . $user->lastname) : $user->username;
-                $result[] = [
-                    'id'               => $user->id,
-                    'name'             => "(ID: {$user->id}) " . $name,
-                    'raw_name'         => $name,
-                    'url'              => route('admin.users.detail', $user->id),
-                    'clicks'           => 0,
-                    'impressions'      => 0,
-                    'conversions'      => 0,
-                    'payout'           => 0,
-                    'clicks_formatted' => '0',
-                    'payout_formatted' => '₹ 0',
-                ];
-            }
-            return $result;
+            return [];
         }
 
         $users = User::select('id', 'firstname', 'lastname', 'username')
@@ -487,8 +465,14 @@ class AdminController extends Controller
         foreach ($users as $user) {
             $c = $clicksByUser[$user->id] ?? 0;
             $orderData = $ordersByUser[$user->id] ?? null;
-            $conv = $orderData['conversions_count'] ?? 0;
+            $conv = (int) ($orderData['conversions_count'] ?? 0);
             $payout = (float) ($orderData['total_payout'] ?? 0);
+
+            // Filter out publishers with no activity (no clicks, no conversions, no payout)
+            if ($c <= 0 && $conv <= 0 && $payout <= 0) {
+                continue;
+            }
+
             $name = $user->firstname || $user->lastname ? trim($user->firstname . ' ' . $user->lastname) : $user->username;
 
             $result[] = [
@@ -498,7 +482,7 @@ class AdminController extends Controller
                 'url'              => route('admin.users.detail', $user->id),
                 'clicks'           => $c,
                 'impressions'      => 0,
-                'conversions'      => (int) $conv,
+                'conversions'      => $conv,
                 'payout'           => $payout,
                 'clicks_formatted' => formatShortNumber($c),
                 'payout_formatted' => '₹ ' . formatShortNumber($payout),

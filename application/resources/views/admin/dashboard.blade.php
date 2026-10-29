@@ -514,7 +514,7 @@
 
                 <!-- Table View -->
                 <div id="topPublishersTableView">
-                    <div class="table-responsive">
+                    <div class="table-responsive top-pubs-scroll-wrapper">
                         <table class="table align-middle top-pubs-table mb-0">
                             <thead>
                                 <tr>
@@ -890,7 +890,9 @@
         }
 
         function renderTopPubsTable(period) {
-            var rawPubs = topPubsData[period] || [];
+            var rawPubs = (topPubsData[period] || []).filter(function (pub) {
+                return (pub.clicks > 0 || pub.impressions > 0 || pub.conversions > 0 || pub.payout > 0);
+            });
             var pubs = sortPublishers(rawPubs, currentSortMetric);
             var html = '';
             if (pubs.length === 0) {
@@ -916,8 +918,19 @@
         }
 
         function initOrUpdateChart(period) {
-            var rawPubs = topPubsData[period] || [];
+            var rawPubs = (topPubsData[period] || []).filter(function (pub) {
+                return (pub.clicks > 0 || pub.impressions > 0 || pub.conversions > 0 || pub.payout > 0);
+            });
             var pubs = sortPublishers(rawPubs, currentSortMetric);
+
+            if (pubs.length === 0) {
+                if (topPubsChart) {
+                    topPubsChart.destroy();
+                    topPubsChart = null;
+                }
+                $('#top-publishers-apex-chart').html('<div class="text-center py-5 text-muted"><i class="las la-chart-bar" style="font-size: 36px; opacity: 0.4;"></i><p class="mt-2 mb-0" style="font-size: 13.5px;">No publisher activity recorded for ' + period.toUpperCase() + '</p></div>');
+                return;
+            }
             var categories = [];
             var clicksSeries = [];
             var impSeries = [];
@@ -1466,6 +1479,41 @@
 .top-pubs-tab-btn.active {
     background: #00a65a !important;
     color: #ffffff !important;
+}
+.top-pubs-scroll-wrapper {
+    max-height: 198px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #edf2f7;
+    border-radius: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+.top-pubs-scroll-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.top-pubs-scroll-wrapper::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 4px;
+}
+.top-pubs-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.top-pubs-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+.top-pubs-scroll-wrapper .top-pubs-table {
+    border: none;
+    margin-bottom: 0;
+}
+.top-pubs-scroll-wrapper .top-pubs-table thead tr th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #f8fafc !important;
+    box-shadow: 0 1px 0 #edf2f7;
 }
 .top-pubs-table {
     border: 1px solid #edf2f7;
