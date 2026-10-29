@@ -17,9 +17,10 @@
 </div>
 @endif
 <div class="row gy-4">
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 gy-4 mb-2">
+<div class="col-12 mb-1">
+<div class="row gy-4">
     <!-- Clicks Card -->
-    <div class="col">
+    <div class="col-xl-4 col-md-6">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -50,7 +51,7 @@
     </div>
 
     <!-- Conversions Card -->
-    <div class="col">
+    <div class="col-xl-4 col-md-6">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -83,37 +84,8 @@
         </div>
     </div>
 
-    <!-- Impressions Card -->
-    <div class="col">
-        <div class="kpi-metric-card h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="kpi-icon-box kpi-icon-impressions">
-                        <i class="las la-eye"></i>
-                    </div>
-                    <span class="kpi-header-title">@lang('Impressions')</span>
-                </div>
-                <span class="kpi-badge-tag">@lang('Offers')</span>
-            </div>
-            <div class="kpi-stat-grid">
-                <div class="kpi-stat-item">
-                    <span class="kpi-stat-label">@lang('Today')</span>
-                    <span class="kpi-stat-val" id="kpi-impressions-today">{{ formatShortNumber($kpiMetrics['impressions']['today']) }}</span>
-                </div>
-                <div class="kpi-stat-item">
-                    <span class="kpi-stat-label">@lang('Yesterday')</span>
-                    <span class="kpi-stat-val text-muted" id="kpi-impressions-yesterday">{{ formatShortNumber($kpiMetrics['impressions']['yesterday']) }}</span>
-                </div>
-                <div class="kpi-stat-item">
-                    <span class="kpi-stat-label">@lang('MTD')</span>
-                    <span class="kpi-stat-val text-primary" id="kpi-impressions-mtd">{{ formatShortNumber($kpiMetrics['impressions']['mtd']) }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Payout Card -->
-    <div class="col">
+    <div class="col-xl-4 col-md-6">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -146,8 +118,37 @@
         </div>
     </div>
 
+    <!-- Impressions Card -->
+    <div class="col-xl-6 col-md-6">
+        <div class="kpi-metric-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="kpi-icon-box kpi-icon-impressions">
+                        <i class="las la-eye"></i>
+                    </div>
+                    <span class="kpi-header-title">@lang('Impressions')</span>
+                </div>
+                <span class="kpi-badge-tag">@lang('Offers')</span>
+            </div>
+            <div class="kpi-stat-grid">
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Today')</span>
+                    <span class="kpi-stat-val" id="kpi-impressions-today">{{ formatShortNumber($kpiMetrics['impressions']['today']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('Yesterday')</span>
+                    <span class="kpi-stat-val text-muted" id="kpi-impressions-yesterday">{{ formatShortNumber($kpiMetrics['impressions']['yesterday']) }}</span>
+                </div>
+                <div class="kpi-stat-item">
+                    <span class="kpi-stat-label">@lang('MTD')</span>
+                    <span class="kpi-stat-val text-primary" id="kpi-impressions-mtd">{{ formatShortNumber($kpiMetrics['impressions']['mtd']) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Unique Logins Card -->
-    <div class="col">
+    <div class="col-xl-6 col-md-6">
         <div class="kpi-metric-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
@@ -177,6 +178,8 @@
         </div>
     </div>
 </div>
+</div>
+
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
@@ -661,30 +664,31 @@
 }
 .kpi-metric-card {
     background: #ffffff;
-    border-radius: 12px;
+    border-radius: 14px;
     border: 1px solid #e9ecef;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    padding: 16px 12px 18px 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    padding: 20px 20px 22px 20px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .kpi-metric-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
 }
 .kpi-header-title {
-    font-size: 15px;
+    font-size: 16.5px;
     font-weight: 700;
-    color: #1e293b;
+    color: #0f172a;
     letter-spacing: -0.2px;
+    white-space: nowrap;
 }
 .kpi-icon-box {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 20px;
     flex-shrink: 0;
 }
 .kpi-icon-clicks {
@@ -742,7 +746,7 @@
     background: #f8fafc;
     border-radius: 10px;
     border: 1px solid #edf2f7;
-    padding: 10px 4px;
+    padding: 12px 8px;
 }
 .kpi-stat-item {
     display: flex;
@@ -757,16 +761,13 @@
     border-right: 1px solid #e2e8f0;
 }
 .kpi-stat-label {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.3px;
     color: #64748b;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
 }
 .kpi-stat-val,
 .kpi-stat-sub,
@@ -780,8 +781,8 @@
     transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease;
 }
 .kpi-stat-val {
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 800;
     color: #0f172a;
     line-height: 1.25;
     white-space: nowrap;
