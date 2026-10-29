@@ -45,8 +45,8 @@ class AdminController extends Controller
         // Fallbacks and extra widgets
         $widget['total_clicks']        = (int) DailyMetric::sum('clicks');
         $widget['total_logins']        = (int) UserLogin::count();
-        $widget['total_payout_amount'] = $kpiMetrics['payout']['mtd'];
-        $widget['total_impressions']   = $kpiMetrics['impressions']['mtd'];
+        $widget['total_payout_amount'] = (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->sum('amount');
+        $widget['total_impressions']   = (int) DailyMetric::sum('impressions');
 
         $performanceData = $this->getPerformanceData();
 
@@ -126,6 +126,8 @@ class AdminController extends Controller
             'total_orders'           => Order::count(),
             'total_clicks'           => (int) DailyMetric::sum('clicks'),
             'total_logins'           => (int) UserLogin::count(),
+            'total_impressions'      => formatShortNumber((int) DailyMetric::sum('impressions')),
+            'total_payout_amount'    => '₹ ' . formatShortNumber((float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->sum('amount')),
         ];
 
         return response()->json([

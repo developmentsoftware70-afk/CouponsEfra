@@ -315,9 +315,9 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Traffic & Engagement (2 widgets: Total Clicks, Total Logins) -->
+                    <!-- Row 3: Traffic & Orders (3 widgets) -->
                     <div class="row g-0 overview-widget-row border-bottom pb-3 mb-3">
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-mouse-pointer"></i>
@@ -330,24 +330,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="dashboard-widget">
-                                <div class="dashboard-widget__icon">
-                                    <i class="dashboard-card-icon las la-user-clock"></i>
-                                </div>
-                                <div class="dashboard-widget__content">
-                                    <a title="@lang('View all')" class="dashboard-widget-link"
-                                        href="{{route('admin.report.login.history')}}"></a>
-                                    <h5 id="widget-total-logins">{{$widget['total_logins'] ?? 0}}</h5>
-                                    <span>@lang('Total Logins')</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 4: Orders & Conversions (2 widgets: Tracked Orders, Total Conversions) -->
-                    <div class="row g-0 overview-widget-row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-shopping-basket"></i>
@@ -360,7 +343,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="dashboard-widget">
                                 <div class="dashboard-widget__icon">
                                     <i class="dashboard-card-icon las la-check-circle"></i>
@@ -374,7 +357,51 @@
                             </div>
                         </div>
                     </div>
-                </div>            </div>
+
+                    <!-- Row 4: Engagement & Finance (3 widgets) -->
+                    <div class="row g-0 overview-widget-row">
+                        <div class="col-4">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-user-clock"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="{{route('admin.report.login.history')}}"></a>
+                                    <h5 id="widget-total-logins">{{$widget['total_logins'] ?? 0}}</h5>
+                                    <span>@lang('Total Logins')</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-eye"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="javascript:void(0)"></a>
+                                    <h5 id="widget-total-impressions">{{formatShortNumber($widget['total_impressions'] ?? 0)}}</h5>
+                                    <span>@lang('Impressions')</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="dashboard-widget">
+                                <div class="dashboard-widget__icon">
+                                    <i class="dashboard-card-icon las la-wallet"></i>
+                                </div>
+                                <div class="dashboard-widget__content">
+                                    <a title="@lang('View all')" class="dashboard-widget-link"
+                                        href="{{route('admin.payouts.index')}}"></a>
+                                    <h5 id="widget-total-payout">₹ {{formatShortNumber($widget['total_payout_amount'] ?? 0)}}</h5>
+                                    <span>@lang('Total Payout')</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-xl-6">
@@ -642,6 +669,12 @@
                         if (res.widgets.total_logins !== undefined) {
                             updateSmoothVal('#widget-total-logins', res.widgets.total_logins);
                         }
+                        if (res.widgets.total_impressions !== undefined) {
+                            updateSmoothVal('#widget-total-impressions', res.widgets.total_impressions);
+                        }
+                        if (res.widgets.total_payout_amount !== undefined) {
+                            updateSmoothVal('#widget-total-payout', res.widgets.total_payout_amount);
+                        }
                     }
 
                     // Smooth chart update
@@ -865,7 +898,9 @@
 #widget-total-conversions,
 #widget-total-orders,
 #widget-total-clicks,
-#widget-total-logins {
+#widget-total-logins,
+#widget-total-impressions,
+#widget-total-payout {
     display: inline-block;
     transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease;
 }
