@@ -5,6 +5,22 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Auto-ensure storage & cache directories exist with full permissions
+$storageDirs = [
+    __DIR__ . '/application/storage/framework/views',
+    __DIR__ . '/application/storage/framework/sessions',
+    __DIR__ . '/application/storage/framework/cache',
+    __DIR__ . '/application/storage/framework/cache/data',
+    __DIR__ . '/application/storage/logs',
+    __DIR__ . '/application/bootstrap/cache',
+];
+foreach ($storageDirs as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    @chmod($dir, 0777);
+}
+
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance

@@ -26,5 +26,16 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->has('debug_error') || env('APP_DEBUG', false)) {
+                return response()->json([
+                    'error' => $e->getMessage(),
+                    'file'  => $e->getFile(),
+                    'line'  => $e->getLine(),
+                    'trace' => explode("\n", $e->getTraceAsString()),
+                ], 500);
+            }
+        });
     }
 }

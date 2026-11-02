@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
+    'driver' => env('SESSION_DRIVER', 'cookie'),
 
     /*
     |--------------------------------------------------------------------------
@@ -54,8 +54,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | When using the native session driver, we need a location where session
-    | files may be stored. A default has been set for you but a different
-    | location may be specified. This is only needed for file sessions.
+    | files may be stored. A default has been set for you, and a list of
+    | other wonderful options is available for your application to use.
     |
     */
 
@@ -96,8 +96,6 @@ return [
     | list a cache store that should be used for these sessions. This value
     | must match with one of the application's configured cache "stores".
     |
-    | Affects: "apc", "dynamodb", "memcached", "redis"
-    |
     */
 
     'store' => env('SESSION_STORE'),
@@ -107,7 +105,7 @@ return [
     | Session Sweeping Lottery
     |--------------------------------------------------------------------------
     |
-    | Some session drivers must manually sweep their storage location to get
+    | Some session drivers must manually sweep their storage locations to get
     | rid of old sessions from storage. Here are the chances that it will
     | happen on a given request. By default, the odds are 2 out of 100.
     |
@@ -121,7 +119,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may change the name of the cookie used to identify a session
-    | instance by ID. The name specified here will get used every time a
+    | instance by name. The name specified here will get used every time a
     | new session cookie is created by the framework for every driver.
     |
     */
@@ -155,17 +153,7 @@ return [
     |
     */
 
-    'domain' => (function() {
-        $envDomain = env('SESSION_DOMAIN');
-        if ($envDomain && isset($_SERVER['HTTP_HOST'])) {
-            $host = explode(':', $_SERVER['HTTP_HOST'])[0];
-            $cleanDomain = ltrim($envDomain, '.');
-            if ($host !== $cleanDomain && !str_ends_with($host, '.' . $cleanDomain)) {
-                return null;
-            }
-        }
-        return $envDomain;
-    })(),
+    'domain' => env('SESSION_DOMAIN', null),
 
     /*
     |--------------------------------------------------------------------------
