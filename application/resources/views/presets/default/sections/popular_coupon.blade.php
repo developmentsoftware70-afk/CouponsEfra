@@ -3,7 +3,7 @@
     $popularCouponsData = App\Models\Coupon::with(['category', 'store', 'wishlists'])
         ->where('status', 1)
         ->where('is_popular', 1)
-        ->where('is_cashback', 0)
+        ->whereNotNull('id')
         ->latest()
         ->limit(16)
         ->get();

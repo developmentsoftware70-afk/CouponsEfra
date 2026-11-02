@@ -68,6 +68,13 @@ class CouponController extends Controller
             }
             $coupon->save();
 
+            \Illuminate\Support\Facades\Cache::forget('home_exclusive_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_cashback_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_featured_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_latest_coupons_12');
+            \Illuminate\Support\Facades\Cache::forget('home_categories_elements_8');
+            \Illuminate\Support\Facades\Cache::forget('home_feature_stores_10');
+
             $notify[] = ['success','Coupon has been created successfully'];
             return back()->withNotify($notify);
     }
@@ -129,6 +136,13 @@ class CouponController extends Controller
             }
             $coupon->save();
 
+            \Illuminate\Support\Facades\Cache::forget('home_exclusive_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_cashback_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_featured_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_latest_coupons_12');
+            \Illuminate\Support\Facades\Cache::forget('home_categories_elements_8');
+            \Illuminate\Support\Facades\Cache::forget('home_feature_stores_10');
+
             $notify[] = ['success','Coupon has been updated successfully'];
             // return back()->withNotify($notify);
             return to_route('admin.coupon.index')->withNotify($notify);
@@ -137,6 +151,13 @@ class CouponController extends Controller
     public function delete(Request $request) {
         $coupon = Coupon::findOrFail($request->id);
         $coupon->delete();
+
+        \Illuminate\Support\Facades\Cache::forget('home_exclusive_coupons_16');
+        \Illuminate\Support\Facades\Cache::forget('home_cashback_coupons_16');
+        \Illuminate\Support\Facades\Cache::forget('home_featured_coupons_16');
+        \Illuminate\Support\Facades\Cache::forget('home_latest_coupons_12');
+        \Illuminate\Support\Facades\Cache::forget('home_categories_elements_8');
+        \Illuminate\Support\Facades\Cache::forget('home_feature_stores_10');
 
         $notify[] = ['success','Coupon has been deleted successfully'];
         return back()->withNotify($notify);

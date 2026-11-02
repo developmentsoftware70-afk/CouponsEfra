@@ -605,6 +605,12 @@
                 type: 'area',
                 zoom: {
                     enabled: false
+                },
+                animations: {
+                    enabled: false,
+                    dynamicAnimation: {
+                        enabled: false
+                    }
                 }
             },
             dataLabels: {
@@ -699,18 +705,11 @@
             });
         });
 
-        // Smoothly update KPI text with subtle animation if value has changed
+        // Instant update KPI text with zero lag / zero delay
         function updateSmoothVal(selector, newVal) {
             var $el = $(selector);
             if ($el.length && $el.text().trim() !== String(newVal).trim()) {
-                $el.addClass('kpi-val-updating');
-                setTimeout(function() {
-                    $el.text(newVal);
-                    $el.removeClass('kpi-val-updating').addClass('kpi-val-updated');
-                    setTimeout(function() {
-                        $el.removeClass('kpi-val-updated');
-                    }, 1400);
-                }, 120);
+                $el.text(newVal);
             }
         }
 
@@ -816,17 +815,25 @@
                 },
                 complete: function () {
                     isPolling = false;
+                    // Schedule next poll 6 seconds AFTER current request finishes (prevents server choke)
+                    if (!document.hidden) {
+                        setTimeout(pollRealtimeDashboard, 6000);
+                    }
                 }
             });
         }
 
-        // Poll every 3 seconds for fast, smooth live updates
-        setInterval(pollRealtimeDashboard, 3000);
+        // Initial poll after 6 seconds
+        setTimeout(pollRealtimeDashboard, 6000);
 
         // Immediate poll on window focus or visibility change
-        $(window).on('focus', pollRealtimeDashboard);
+        $(window).on('focus', function() {
+            if (!isPolling) {
+                pollRealtimeDashboard();
+            }
+        });
         document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
+            if (!document.hidden && !isPolling) {
                 pollRealtimeDashboard();
             }
         });
@@ -985,7 +992,13 @@
                     chart: {
                         type: 'bar',
                         height: 330,
-                        toolbar: { show: false }
+                        toolbar: { show: false },
+                        animations: {
+                            enabled: false,
+                            dynamicAnimation: {
+                                enabled: false
+                            }
+                        }
                     },
                     plotOptions: {
                         bar: {
@@ -1081,13 +1094,11 @@
 
             if (view === 'table') {
                 $('#topPublishersChartView').hide();
-                $('#topPublishersTableView').fadeIn(150);
+                $('#topPublishersTableView').show();
             } else {
                 $('#topPublishersTableView').hide();
-                $('#topPublishersChartView').fadeIn(150);
-                setTimeout(function () {
-                    initOrUpdateChart(currentPeriod);
-                }, 50);
+                $('#topPublishersChartView').show();
+                initOrUpdateChart(currentPeriod);
             }
         });
 
@@ -1322,7 +1333,7 @@
 #widget-total-impressions,
 #widget-total-payout {
     display: inline-block;
-    transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease;
+    transition: none !important;
 }
 .kpi-stat-val {
     font-size: 18px;
@@ -1330,6 +1341,7 @@
     color: #0f172a;
     line-height: 1.25;
     white-space: nowrap;
+    transition: none !important;
 }
 .kpi-stat-sub {
     font-size: 11.5px;
@@ -1338,27 +1350,14 @@
     margin-top: 3px;
     line-height: 1.15;
     white-space: nowrap;
+    transition: none !important;
 }
 .kpi-val-updating {
-    opacity: 0.35;
-    transform: scale(0.94);
+    opacity: 1 !important;
+    transform: none !important;
 }
 .kpi-val-updated {
-    animation: kpiValPulse 1.4s ease;
-}
-@keyframes kpiValPulse {
-    0% {
-        transform: scale(1.15);
-        color: #00adad !important;
-        text-shadow: 0 0 10px rgba(0, 173, 173, 0.45);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-        text-shadow: none;
-    }
+    animation: none !important;
 }
 .top-pubs-metric-btn {
     background: #ffffff;
@@ -1484,6 +1483,7 @@
     max-height: 198px;
     overflow-y: auto;
     overflow-x: auto;
+    scroll-behavior: auto !important;
     border: 1px solid #edf2f7;
     border-radius: 6px;
     scrollbar-width: thin;

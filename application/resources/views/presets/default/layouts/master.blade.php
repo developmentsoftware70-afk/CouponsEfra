@@ -62,7 +62,7 @@
 <script src="{{asset($activeTemplateTrue.'js/bootstrap.min.js')}}"></script>
 <script src="{{asset($activeTemplateTrue.'js/slick.min.js')}}"></script>
 <script src="{{asset($activeTemplateTrue.'js/wow.min.js')}}"></script>
-<script src="{{asset($activeTemplateTrue.'js/main.js')}}"></script>
+<script src="{{asset($activeTemplateTrue.'js/main.js')}}?v={{ time() }}"></script>
 
 @stack('script-lib')
 

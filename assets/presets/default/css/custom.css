@@ -627,14 +627,26 @@ h4.n15-color a {
     margin: 0px 0px 30px 0px;
 }
 
-/* Slider Slide Buttons: ONLY on Deal Sliders (Neemans, Nilkamal, Noise Top Deals) and Coupons Section */
+/* Slider Navigation Buttons: Enabled on ALL sliders (Store, Popular Deals, Categories, Coupons) */
 .deal-slider,
+.store-slider,
+.popular-slider,
+.section-slider,
+.coupons-slider,
 .ck-latest-slider {
     position: relative;
 }
 
 .deal-slider .slick-prev,
 .deal-slider .slick-next,
+.store-slider .slick-prev,
+.store-slider .slick-next,
+.popular-slider .slick-prev,
+.popular-slider .slick-next,
+.section-slider .slick-prev,
+.section-slider .slick-next,
+.coupons-slider .slick-prev,
+.coupons-slider .slick-next,
 .ck-latest-slider .slick-prev,
 .ck-latest-slider .slick-next {
     position: absolute !important;
@@ -659,12 +671,20 @@ h4.n15-color a {
 }
 
 .deal-slider .slick-prev,
+.store-slider .slick-prev,
+.popular-slider .slick-prev,
+.section-slider .slick-prev,
+.coupons-slider .slick-prev,
 .ck-latest-slider .slick-prev {
     left: -14px !important;
     right: auto !important;
 }
 
 .deal-slider .slick-next,
+.store-slider .slick-next,
+.popular-slider .slick-next,
+.section-slider .slick-next,
+.coupons-slider .slick-next,
 .ck-latest-slider .slick-next {
     right: -14px !important;
     left: auto !important;
@@ -672,6 +692,14 @@ h4.n15-color a {
 
 .deal-slider .slick-prev:hover,
 .deal-slider .slick-next:hover,
+.store-slider .slick-prev:hover,
+.store-slider .slick-next:hover,
+.popular-slider .slick-prev:hover,
+.popular-slider .slick-next:hover,
+.section-slider .slick-prev:hover,
+.section-slider .slick-next:hover,
+.coupons-slider .slick-prev:hover,
+.coupons-slider .slick-next:hover,
 .ck-latest-slider .slick-prev:hover,
 .ck-latest-slider .slick-next:hover {
     background: #f8fafc !important;
@@ -683,6 +711,14 @@ h4.n15-color a {
 
 .deal-slider .slick-prev i,
 .deal-slider .slick-next i,
+.store-slider .slick-prev i,
+.store-slider .slick-next i,
+.popular-slider .slick-prev i,
+.popular-slider .slick-next i,
+.section-slider .slick-prev i,
+.section-slider .slick-next i,
+.coupons-slider .slick-prev i,
+.coupons-slider .slick-next i,
 .ck-latest-slider .slick-prev i,
 .ck-latest-slider .slick-next i {
     font-size: 16px !important;
@@ -690,24 +726,17 @@ h4.n15-color a {
     display: inline-block !important;
 }
 
-/* Hide arrows when disabled (e.g. at slide 0, left arrow hides so it doesn't cover card text) */
+/* Hide arrows when at slide boundary */
 .deal-slider .slick-disabled,
+.store-slider .slick-disabled,
+.popular-slider .slick-disabled,
+.section-slider .slick-disabled,
+.coupons-slider .slick-disabled,
 .ck-latest-slider .slick-disabled {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
     transition: opacity 0.2s ease, visibility 0.2s ease !important;
-}
-
-/* Hide arrows completely on auto-scrolling sliders (store, popular) */
-.store-slider .slick-prev,
-.store-slider .slick-next,
-.popular-slider .slick-prev,
-.popular-slider .slick-next {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
 }
 
 @media (max-width: 768px) {
@@ -1825,35 +1854,71 @@ body {
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
 }
 
-/* --- Clean Modern Sidebar --- */
+/* --- Clean Modern Compact Sidebar --- */
 .dashboard_profile {
+    width: 235px !important;
+    margin-left: 14px !important;
+    top: 14px !important;
     border-radius: 14px !important;
     border: 1px solid #eaedf2 !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
 }
 
+@media screen and (max-width: 1199px) {
+    .dashboard_profile {
+        left: -260px !important;
+        top: 0 !important;
+    }
+    .dashboard_profile.show {
+        left: 0 !important;
+    }
+}
+
+.dashboard-wrapper .dashboard-container-wrapper {
+    margin: 14px 0 !important;
+    margin-left: 262px !important;
+    padding-right: 14px !important;
+}
+
+@media screen and (max-width: 1199px) {
+    .dashboard-wrapper .dashboard-container-wrapper {
+        margin-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+.dashboard_profile .logo-wrapper img {
+    max-width: 140px !important;
+    height: auto !important;
+}
+
+.dashboard_profile_wrap {
+    margin-bottom: 20px !important;
+    margin-top: 14px !important;
+}
+
 .dashboard_profile .sidebar-menu-list__item {
     border-bottom: none !important;
-    margin: 2px 10px !important;
+    margin: 2px 6px !important;
 }
 
 .dashboard_profile .sidebar-menu-list__link {
     border-radius: 8px !important;
-    padding: 10px 14px !important;
+    padding: 8px 12px !important;
     color: #475569 !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     transition: all 0.2s ease !important;
 }
 
 .dashboard_profile .sidebar-menu-list__link .icon {
-    width: 22px !important;
-    font-size: 15px !important;
+    width: 20px !important;
+    font-size: 14px !important;
     color: #94a3b8 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin-right: 10px !important;
+    margin-right: 8px !important;
     animation: none !important;
 }
 
@@ -1878,8 +1943,8 @@ body {
 
 .dashboard_profile .sidebar-menu-list.border-top {
     border-top: 1px solid #f1f5f9 !important;
-    padding-top: 12px !important;
-    margin-top: 8px !important;
+    padding-top: 10px !important;
+    margin-top: 6px !important;
 }
 
 .dashboard_profile .sidebar-menu-list.border-top .sidebar-menu-list__link:hover {
@@ -1889,4 +1954,49 @@ body {
 
 .dashboard_profile .sidebar-menu-list.border-top .sidebar-menu-list__link:hover .icon {
     color: #ef4444 !important;
-}
+}
+
+/* Hide arrow buttons on auto-scrolling sliders as user requested */
+.store-slider .slick-prev,
+.store-slider .slick-next,
+.popular-slider .slick-prev,
+.popular-slider .slick-next,
+.section-slider .slick-prev,
+.section-slider .slick-next,
+.coupons-slider .slick-prev,
+.coupons-slider .slick-next {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Enable smooth mouse drag left/right on all sliders without image-ghosting */
+.slick-slider,
+.slick-list,
+.slick-track,
+.slick-slide,
+.slick-slide a,
+.slick-slide img {
+    -webkit-user-drag: none !important;
+    -khtml-user-drag: none !important;
+    -moz-user-drag: none !important;
+    -o-user-drag: none !important;
+    user-drag: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+.store-slider,
+.popular-slider,
+.deal-slider,
+.section-slider {
+    cursor: grab;
+}
+
+.store-slider:active,
+.popular-slider:active,
+.deal-slider:active,
+.section-slider:active {
+    cursor: grabbing;
+}

@@ -22,22 +22,22 @@
 
             <div class="order-tracker-card__body p-0">
                 <div class="table-responsive">
-                    <table class="table modern-order-table align-middle">
+                    <table class="table modern-order-table align-middle" style="min-width: 950px;">
                         <thead>
                             <tr>
-                                <th style="width: 100px;">@lang('Order ID')</th>
-                                <th style="min-width: 280px;">@lang('Product / Store')</th>
-                                <th style="width: 140px;">@lang('Amount')</th>
-                                <th style="width: 130px;">@lang('Source')</th>
-                                <th style="width: 170px;">@lang('Date & Time')</th>
-                                <th style="width: 140px;">@lang('Status')</th>
+                                <th style="min-width: 200px; width: 200px; white-space: nowrap;">@lang('Order ID')</th>
+                                <th style="min-width: 230px;">@lang('Product / Store')</th>
+                                <th style="min-width: 120px; width: 120px; white-space: nowrap;">@lang('Amount')</th>
+                                <th style="min-width: 130px; width: 130px; white-space: nowrap; text-align: center;">@lang('Source')</th>
+                                <th style="min-width: 145px; width: 145px; white-space: nowrap;">@lang('Date & Time')</th>
+                                <th style="min-width: 125px; width: 125px; white-space: nowrap; text-align: center;">@lang('Status')</th>
                             </tr>
                         </thead>
                         <tbody id="orders-table-body">
                             @forelse($orders as $order)
                                 <tr id="order-row-{{ $order->id }}">
-                                    <td>
-                                        <span class="order-id-badge">#{{ $order->id }}</span>
+                                    <td style="min-width: 200px; width: 200px; white-space: nowrap;">
+                                        <span class="order-id-badge">#{{ $order->order_number ?? $order->id }}</span>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
@@ -78,18 +78,18 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style="min-width: 130px; width: 130px; white-space: nowrap; text-align: center;">
                                         <span class="source-tag">
                                             {{ str_replace('_', ' ', $order->source ?? 'referral') }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="min-width: 145px; width: 145px; white-space: nowrap;">
                                         <div class="date-time-block">
                                             <span class="d-block fw-500 fs-13 text-dark">{{ showDateTime($order->created_at, 'd M, Y') }}</span>
                                             <span class="fs-12 text-muted">{{ showDateTime($order->created_at, 'h:i A') }}</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style="min-width: 130px; width: 130px; white-space: nowrap; text-align: center;">
                                         @php
                                             $status = strtolower($order->status);
                                             $statusMap = [
@@ -211,16 +211,16 @@
 .modern-order-table thead th {
     background: #f8fafc;
     color: #64748b;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 14px 20px;
+    padding: 12px 14px;
     border-bottom: 1px solid #edf2f9;
 }
 
 .modern-order-table tbody td {
-    padding: 16px 20px;
+    padding: 14px 14px;
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
 }
@@ -231,11 +231,16 @@
 
 .order-id-badge {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     color: #eb2228;
     background: rgba(235, 34, 40, 0.06);
     padding: 4px 10px;
     border-radius: 6px;
+    display: inline-block;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    letter-spacing: 0.2px;
 }
 
 /* Store Avatar Box */
@@ -287,13 +292,15 @@
 
 .source-tag {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 4px 12px;
     background: #f1f5f9;
     color: #475569;
     font-size: 12px;
     font-weight: 500;
     border-radius: 20px;
     text-transform: capitalize;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
 }
 
 /* Status Badges */
@@ -301,10 +308,16 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 5px 14px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+}
+
+.date-time-block {
+    white-space: nowrap !important;
 }
 
 .status-indicator-dot {
@@ -438,6 +451,7 @@
     .modern-order-table tbody tr td:nth-child(1) {
         order: 1 !important;
         flex: 0 0 auto !important;
+        white-space: nowrap !important;
     }
     /* Top Right: Status */
     .modern-order-table tbody tr td:nth-child(6) {

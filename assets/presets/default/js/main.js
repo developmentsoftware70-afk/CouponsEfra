@@ -88,12 +88,16 @@
     // for slider section
     $('.section-slider').slick({
       slidesToShow: 3,
-      slidesToScroll: 2,
-      autoplaySpeed: 2000,
-      speed: 1500,
+      slidesToScroll: 1,
+      autoplaySpeed: 2500,
+      speed: 700,
       autoplay: true,
-      pauseOnHover: false,
-      arrows: true,
+      infinite: true,
+      draggable: true,
+      swipeToSlide: true,
+      touchMove: true,
+      pauseOnHover: true,
+      arrows: false,
       prevArrow: '<button type="button" class="slick-prev"><i class="fas fa-long-arrow-alt-left"></i></button>',
       nextArrow: '<button type="button" class="slick-next"><i class="fas fa-long-arrow-alt-right"></i></button>',
       responsive: [
@@ -182,15 +186,20 @@
       fade: true,
       cssEase: 'linear'
     });
-    // for store (auto-scroll: no arrows)
+    // for store (smooth auto-scroll + free mouse drag left/right, no buttons)
     $('.store-slider').slick({
       slidesToShow: 5,
       slidesToScroll: 1,
-      autoplaySpeed: 2000,
-      speed: 1500,
+      autoplaySpeed: 2500,
+      speed: 700,
       autoplay: true,
       infinite: true,
-      pauseOnHover: false,
+      pauseOnHover: true,
+      pauseOnFocus: true,
+      draggable: true,
+      swipe: true,
+      swipeToSlide: true,
+      touchMove: true,
       dots: false,
       arrows: false,
       responsive: [
@@ -198,7 +207,7 @@
           breakpoint: 1199,
           settings: {
             arrows: false,
-            slidesToShow: 5,
+            slidesToShow: 4,
             dots: false,
           }
         },
@@ -225,15 +234,20 @@
         }
       ]
     });
-    // for popular coupons (auto-scroll: no arrows)
+    // for popular coupons (smooth auto-scroll + free mouse drag left/right, no buttons)
     $('.popular-slider').slick({
       slidesToShow: 4,
       slidesToScroll: 1,
-      autoplaySpeed: 2000,
-      speed: 1500,
+      autoplaySpeed: 2500,
+      speed: 700,
       autoplay: true,
       infinite: true,
-      pauseOnHover: false,
+      pauseOnHover: true,
+      pauseOnFocus: true,
+      draggable: true,
+      swipe: true,
+      swipeToSlide: true,
+      touchMove: true,
       dots: false,
       arrows: false,
       responsive: [
@@ -370,15 +384,17 @@
         }
       ]
     });
-    // slider coupons
+    // slider coupons (manual mouse drag + arrows, no auto-scroll)
     $('.coupons-slider').slick({
       slidesToShow: 4,
-      slidesToScroll: 3,
-      autoplaySpeed: 2500,
-      speed: 2000,
-      autoplay: true,
+      slidesToScroll: 1,
+      speed: 600,
+      autoplay: false,
+      draggable: true,
+      swipeToSlide: true,
+      touchMove: true,
       pauseOnHover: true,
-      arrows: false,
+      arrows: true,
       dots: true,
       prevArrow: '<button type="button" class="slick-prev"><i class="fas fa-long-arrow-alt-left"></i></button>',
       nextArrow: '<button type="button" class="slick-next"><i class="fas fa-long-arrow-alt-right"></i></button>',
@@ -604,3 +620,70 @@
 
 
 
+
+    // Enable smooth mouse drag-to-scroll on all horizontal scrollable tables
+    $(document).ready(function () {
+        $('.table-responsive').each(function () {
+            var slider = this;
+            var isDown = false;
+            var startX;
+            var scrollLeft;
+
+            $(slider).on('mousedown', function (e) {
+                if ($(e.target).closest('a, button, input, select, textarea').length) return;
+                isDown = true;
+                slider.style.cursor = 'grab';
+                slider.style.userSelect = 'none';
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+
+            $(slider).on('mouseleave mouseup', function () {
+                isDown = false;
+                slider.style.cursor = '';
+                slider.style.userSelect = '';
+            });
+
+            $(slider).on('mousemove', function (e) {
+                if (!isDown) return;
+                e.preventDefault();
+                var x = e.pageX - slider.offsetLeft;
+                var walk = (x - startX) * 1.5;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        });
+
+        // Smart Slider Gesture Handling:
+        // - Top / Bottom (vertical scroll): Untouched! Page scrolls naturally up and down.
+        // - Left / Right (horizontal scroll or trackpad swipe): Slides left / right.
+        var isThrottled = false;
+        $('.store-slider, .popular-slider, .deal-slider, .section-slider').on('wheel', function (e) {
+            var raw = e.originalEvent;
+            if (!raw) return;
+
+            var absX = Math.abs(raw.deltaX || 0);
+            var absY = Math.abs(raw.deltaY || 0);
+
+            // Only capture if user is intentionally scrolling horizontally (trackpad swipe or Shift + wheel)
+            var isExplicitHorizontal = raw.shiftKey || (absX > absY && absX > 20);
+
+            if (isExplicitHorizontal) {
+                e.preventDefault();
+
+                if (isThrottled) return;
+                isThrottled = true;
+
+                var delta = raw.shiftKey ? raw.deltaY : raw.deltaX;
+                if (delta > 0) {
+                    $(this).slick('slickNext');
+                } else if (delta < 0) {
+                    $(this).slick('slickPrev');
+                }
+
+                setTimeout(function () {
+                    isThrottled = false;
+                }, 300);
+            }
+            // Vertical scroll (absY >= absX) is completely free to scroll the page top or bottom!
+        });
+    });

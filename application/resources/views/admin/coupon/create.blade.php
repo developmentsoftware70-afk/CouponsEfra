@@ -170,7 +170,7 @@
                                 <div class="form-group mt-4">
                                     <label class="fw-bold" for="is_background">@lang('Background')</label>
                                     <label class="switch m-0" for="is_background">
-                                        <input type="checkbox" class="toggle-switch" name="is_background" id="is_background" checked>
+                                        <input type="checkbox" class="toggle-switch" name="is_background" id="is_background">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>

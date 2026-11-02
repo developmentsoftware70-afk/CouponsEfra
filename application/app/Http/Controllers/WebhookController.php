@@ -129,8 +129,18 @@ class WebhookController extends Controller
         if (!$order && $clickId) {
             $order = Order::where('click_id', $clickId)->first();
         }
-        if (!$order && is_numeric($txnId)) {
-            $order = Order::find((int) $txnId);
+        if (!$order && !empty($txnId)) {
+            $order = Order::where('order_number', $txnId)->first();
+            if (!$order && is_numeric($txnId)) {
+                $order = Order::find((int) $txnId);
+            }
+        }
+        if (!$order && $request->filled('p2')) {
+            $p2Val = $request->input('p2');
+            $order = Order::where('order_number', $p2Val)->first();
+            if (!$order && is_numeric($p2Val)) {
+                $order = Order::find((int) $p2Val);
+            }
         }
 
         $isNew = false;

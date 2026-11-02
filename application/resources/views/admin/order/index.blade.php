@@ -8,7 +8,7 @@
                     <table class="table table--light style--two custom-data-table">
                         <thead>
                             <tr>
-                                <th>@lang('Order ID')</th>
+                                <th style="min-width: 240px; width: 240px; white-space: nowrap;">@lang('Order ID')</th>
                                 <th>@lang('User')</th>
                                 <th>@lang('Product / Deal')</th>
                                 <th>@lang('Amount')</th>
@@ -21,7 +21,7 @@
                         <tbody>
                             @forelse ($orders as $item)
                             <tr>
-                                <td><span class="fw-bold">#{{ $item->id }}</span></td>
+                                <td style="min-width: 240px; width: 240px; white-space: nowrap;"><span class="fw-bold text--primary" style="font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgba(30, 58, 138, 0.08); padding: 4px 10px; border-radius: 6px; display: inline-block; white-space: nowrap !important; word-break: keep-all !important; letter-spacing: 0.2px;">#{{ $item->order_number ?? $item->id }}</span></td>
                                 <td>
                                     @if($item->user)
                                         <a href="{{ route('admin.users.detail', $item->user->id) }}">

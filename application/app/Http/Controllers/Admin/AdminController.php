@@ -29,26 +29,27 @@ class AdminController extends Controller
 
         $pageTitle = 'Dashboard';
 
-        // User Info
-        $widget['total_users']             = User::count();
-        $widget['verified_users']          = User::where('status', 1)->where('ev', 1)->where('sv', 1)->count();
-        $widget['email_unverified_users']  = User::emailUnverified()->count();
-        $widget['mobile_unverified_users'] = User::mobileUnverified()->count();
-
-        $widget['totalCoupon']   = Coupon::count();
-        $widget['totalCategory'] = Category::count();
-        $widget['totalStore']    = Store::count();
-        $widget['total_conversions'] = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count();
-        $widget['total_orders']      = Order::count();
+        // Cached widgets (15s) to avoid 13 remote queries on each page load
+        $widget = \Illuminate\Support\Facades\Cache::remember('admin_dashboard_widgets_full', 15, function () {
+            return [
+                'total_users'             => User::count(),
+                'verified_users'          => User::where('status', 1)->where('ev', 1)->where('sv', 1)->count(),
+                'email_unverified_users'  => User::emailUnverified()->count(),
+                'mobile_unverified_users' => User::mobileUnverified()->count(),
+                'totalCoupon'             => Coupon::count(),
+                'totalCategory'           => Category::count(),
+                'totalStore'              => Store::count(),
+                'total_conversions'       => Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count(),
+                'total_orders'            => Order::count(),
+                'total_clicks'            => (int) DailyMetric::sum('clicks'),
+                'total_logins'            => (int) UserLogin::count(),
+                'total_payout_amount'     => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->sum('amount'),
+                'total_impressions'       => (int) DailyMetric::sum('impressions'),
+            ];
+        });
 
         // Key Real-time Metrics: Clicks, Impressions, Payout, Logins (Today, Yesterday, MTD)
         $kpiMetrics = $this->getKpiMetrics();
-
-        // Fallbacks and extra widgets
-        $widget['total_clicks']        = (int) DailyMetric::sum('clicks');
-        $widget['total_logins']        = (int) UserLogin::count();
-        $widget['total_payout_amount'] = (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->sum('amount');
-        $widget['total_impressions']   = (int) DailyMetric::sum('impressions');
 
         $performanceData = $this->getPerformanceData();
 
@@ -59,21 +60,69 @@ class AdminController extends Controller
 
     public function getKpiMetrics()
     {
-        $today = Carbon::today();
+        return \Illuminate\Support\Facades\Cache::remember('admin_kpi_metrics', 10, function () {
+            $today = Carbon::today();
         $yesterday = Carbon::yesterday();
         $startOfMonth = Carbon::now()->startOfMonth();
 
-        $clicksToday = (int) (DailyMetric::where('metric_date', $today->toDateString())->value('clicks') ?? 0);
-        $clicksYesterday = (int) (DailyMetric::where('metric_date', $yesterday->toDateString())->value('clicks') ?? 0);
-        $clicksMtd = (int) DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())->sum('clicks');
+        $todayStr = $today->toDateString();
+        $yesterdayStr = $yesterday->toDateString();
+        $todayStart = $today->toDateTimeString();
+        $yesterdayStart = $yesterday->toDateTimeString();
+        $monthStart = $startOfMonth->toDateTimeString();
 
-        $conversionsToday = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->whereDate('created_at', $today)->count();
-        $conversionsYesterday = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->whereDate('created_at', $yesterday)->count();
-        $conversionsMtd = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->where('created_at', '>=', $startOfMonth)->count();
+        // 1. Single consolidated DailyMetric query
+        $metricsRow = DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())
+            ->selectRaw("
+                SUM(CASE WHEN metric_date = '{$todayStr}' THEN clicks ELSE 0 END) as clicks_today,
+                SUM(CASE WHEN metric_date = '{$yesterdayStr}' THEN clicks ELSE 0 END) as clicks_yesterday,
+                SUM(clicks) as clicks_mtd,
+                SUM(CASE WHEN metric_date = '{$todayStr}' THEN impressions ELSE 0 END) as imp_today,
+                SUM(CASE WHEN metric_date = '{$yesterdayStr}' THEN impressions ELSE 0 END) as imp_yesterday,
+                SUM(impressions) as imp_mtd
+            ")->first();
+
+        $clicksToday = (int) ($metricsRow->clicks_today ?? 0);
+        $clicksYesterday = (int) ($metricsRow->clicks_yesterday ?? 0);
+        $clicksMtd = (int) ($metricsRow->clicks_mtd ?? 0);
+        $impToday = (int) ($metricsRow->imp_today ?? 0);
+        $impYesterday = (int) ($metricsRow->imp_yesterday ?? 0);
+        $impMtd = (int) ($metricsRow->imp_mtd ?? 0);
+
+        // 2. Single consolidated Order query
+        $ordersRow = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])
+            ->where('created_at', '>=', $monthStart)
+            ->selectRaw("
+                COUNT(CASE WHEN created_at >= '{$todayStart}' THEN 1 END) as conv_today,
+                COUNT(CASE WHEN created_at >= '{$yesterdayStart}' AND created_at < '{$todayStart}' THEN 1 END) as conv_yesterday,
+                COUNT(*) as conv_mtd
+            ")->first();
+
+        $conversionsToday = (int) ($ordersRow->conv_today ?? 0);
+        $conversionsYesterday = (int) ($ordersRow->conv_yesterday ?? 0);
+        $conversionsMtd = (int) ($ordersRow->conv_mtd ?? 0);
 
         $crToday = $clicksToday > 0 ? round(($conversionsToday / $clicksToday) * 100, 1) : 0;
         $crYesterday = $clicksYesterday > 0 ? round(($conversionsYesterday / $clicksYesterday) * 100, 1) : 0;
         $crMtd = $clicksMtd > 0 ? round(($conversionsMtd / $clicksMtd) * 100, 1) : 0;
+
+        // 3. Single consolidated Payout query
+        $payoutRow = PayoutRequest::whereIn('status', ['confirmed', 'paid'])
+            ->where('updated_at', '>=', $monthStart)
+            ->selectRaw("
+                SUM(CASE WHEN updated_at >= '{$todayStart}' THEN amount ELSE 0 END) as pay_today,
+                SUM(CASE WHEN updated_at >= '{$yesterdayStart}' AND updated_at < '{$todayStart}' THEN amount ELSE 0 END) as pay_yesterday,
+                SUM(amount) as pay_mtd
+            ")->first();
+
+        // 4. Single consolidated Login query
+        $loginRow = UserLogin::where('created_at', '>=', $monthStart)
+            ->whereNotNull('user_id')
+            ->selectRaw("
+                COUNT(DISTINCT CASE WHEN created_at >= '{$todayStart}' THEN user_id END) as login_today,
+                COUNT(DISTINCT CASE WHEN created_at >= '{$yesterdayStart}' AND created_at < '{$todayStart}' THEN user_id END) as login_yesterday,
+                COUNT(DISTINCT user_id) as login_mtd
+            ")->first();
 
         return [
             'clicks' => [
@@ -92,21 +141,22 @@ class AdminController extends Controller
                 'mtd'       => $crMtd,
             ],
             'impressions' => [
-                'today'     => (int) (DailyMetric::where('metric_date', $today->toDateString())->value('impressions') ?? 0),
-                'yesterday' => (int) (DailyMetric::where('metric_date', $yesterday->toDateString())->value('impressions') ?? 0),
-                'mtd'       => (int) DailyMetric::where('metric_date', '>=', $startOfMonth->toDateString())->sum('impressions'),
+                'today'     => $impToday,
+                'yesterday' => $impYesterday,
+                'mtd'       => $impMtd,
             ],
             'payout' => [
-                'today'     => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->whereDate('updated_at', $today)->sum('amount'),
-                'yesterday' => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->whereDate('updated_at', $yesterday)->sum('amount'),
-                'mtd'       => (float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->where('updated_at', '>=', $startOfMonth)->sum('amount'),
+                'today'     => (float) ($payoutRow->pay_today ?? 0),
+                'yesterday' => (float) ($payoutRow->pay_yesterday ?? 0),
+                'mtd'       => (float) ($payoutRow->pay_mtd ?? 0),
             ],
             'logins' => [
-                'today'     => (int) UserLogin::where('created_at', '>=', $today)->whereNotNull('user_id')->distinct('user_id')->count('user_id'),
-                'yesterday' => (int) UserLogin::whereBetween('created_at', [$yesterday, $today])->whereNotNull('user_id')->distinct('user_id')->count('user_id'),
-                'mtd'       => (int) UserLogin::where('created_at', '>=', $startOfMonth)->whereNotNull('user_id')->distinct('user_id')->count('user_id'),
+                'today'     => (int) ($loginRow->login_today ?? 0),
+                'yesterday' => (int) ($loginRow->login_yesterday ?? 0),
+                'mtd'       => (int) ($loginRow->login_mtd ?? 0),
             ],
         ];
+        });
     }
 
     public function realtimeMetrics(Request $request)
@@ -118,20 +168,22 @@ class AdminController extends Controller
 
         $chart = $this->getPerformanceData($startDate, $endDate, $preset);
 
-        $widgets = [
-            'total_users'            => User::count(),
-            'verified_users'         => User::where('status', 1)->where('ev', 1)->where('sv', 1)->count(),
-            'email_unverified_users' => User::emailUnverified()->count(),
-            'totalCoupon'            => Coupon::count(),
-            'totalCategory'          => Category::count(),
-            'totalStore'             => Store::count(),
-            'total_conversions'      => Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count(),
-            'total_orders'           => Order::count(),
-            'total_clicks'           => (int) DailyMetric::sum('clicks'),
-            'total_logins'           => (int) UserLogin::count(),
-            'total_impressions'      => formatShortNumber((int) DailyMetric::sum('impressions')),
-            'total_payout_amount'    => '₹ ' . formatShortNumber((float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->sum('amount')),
-        ];
+        $widgets = \Illuminate\Support\Facades\Cache::remember('admin_realtime_widgets', 15, function () {
+            return [
+                'total_users'            => User::count(),
+                'verified_users'         => User::where('status', 1)->where('ev', 1)->where('sv', 1)->count(),
+                'email_unverified_users' => User::emailUnverified()->count(),
+                'totalCoupon'            => Coupon::count(),
+                'totalCategory'          => Category::count(),
+                'totalStore'             => Store::count(),
+                'total_conversions'      => Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->count(),
+                'total_orders'           => Order::count(),
+                'total_clicks'           => (int) DailyMetric::sum('clicks'),
+                'total_logins'           => (int) UserLogin::count(),
+                'total_impressions'      => formatShortNumber((int) DailyMetric::sum('impressions')),
+                'total_payout_amount'    => '₹ ' . formatShortNumber((float) PayoutRequest::whereIn('status', ['confirmed', 'paid'])->sum('amount')),
+            ];
+        });
 
         return response()->json([
             'kpi' => [
@@ -185,7 +237,9 @@ class AdminController extends Controller
 
     public function getPerformanceData($startDateStr = null, $endDateStr = null, $preset = 'last_7_days')
     {
-        $today = Carbon::today();
+        $cacheKey = 'admin_perf_chart_' . $preset . '_' . ($startDateStr ?? '0') . '_' . ($endDateStr ?? '0');
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 15, function () use ($startDateStr, $endDateStr, $preset) {
+            $today = Carbon::today();
 
         switch ($preset) {
             case 'today':
@@ -312,6 +366,7 @@ class AdminController extends Controller
                 'logins' => $totalLogins,
             ]
         ];
+        });
     }
 
 
@@ -416,59 +471,80 @@ class AdminController extends Controller
 
     public function getTopPublishersData()
     {
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
-        $startOfMonth = Carbon::now()->startOfMonth();
+        return \Illuminate\Support\Facades\Cache::remember('admin_top_publishers', 15, function () {
+            $today = Carbon::today();
+            $yesterday = Carbon::yesterday();
+            $startOfMonth = Carbon::now()->startOfMonth();
 
-        return [
-            'today'     => $this->fetchPublishersForPeriod($today, null),
-            'yesterday' => $this->fetchPublishersForPeriod($yesterday, $today),
-            'mtd'       => $this->fetchPublishersForPeriod($startOfMonth, null),
-        ];
+            $todayStart = $today->toDateTimeString();
+            $yesterdayStart = $yesterday->toDateTimeString();
+            $monthStart = $startOfMonth->toDateTimeString();
+
+            // Consolidated clicks query (1 query for all 3 periods)
+            $clickStats = Click::whereNotNull('user_id')
+                ->where('created_at', '>=', $monthStart)
+                ->selectRaw("
+                    user_id,
+                    COUNT(CASE WHEN created_at >= '{$todayStart}' THEN 1 END) as clicks_today,
+                    COUNT(CASE WHEN created_at >= '{$yesterdayStart}' AND created_at < '{$todayStart}' THEN 1 END) as clicks_yesterday,
+                    COUNT(*) as clicks_mtd
+                ")
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            // Consolidated orders query (1 query for all 3 periods)
+            $orderStats = Order::whereNotNull('user_id')
+                ->where('created_at', '>=', $monthStart)
+                ->selectRaw("
+                    user_id,
+                    COUNT(CASE WHEN created_at >= '{$todayStart}' AND status IN ('confirmed', 'processing', 'shipped', 'delivered') THEN 1 END) as conv_today,
+                    COUNT(CASE WHEN created_at >= '{$yesterdayStart}' AND created_at < '{$todayStart}' AND status IN ('confirmed', 'processing', 'shipped', 'delivered') THEN 1 END) as conv_yesterday,
+                    COUNT(CASE WHEN status IN ('confirmed', 'processing', 'shipped', 'delivered') THEN 1 END) as conv_mtd,
+                    SUM(CASE WHEN created_at >= '{$todayStart}' AND status IN ('confirmed', 'processing', 'shipped', 'delivered') THEN payout_amount ELSE 0 END) as pay_today,
+                    SUM(CASE WHEN created_at >= '{$yesterdayStart}' AND created_at < '{$todayStart}' AND status IN ('confirmed', 'processing', 'shipped', 'delivered') THEN payout_amount ELSE 0 END) as pay_yesterday,
+                    SUM(CASE WHEN status IN ('confirmed', 'processing', 'shipped', 'delivered') THEN payout_amount ELSE 0 END) as pay_mtd
+                ")
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            $activeUserIds = array_unique(array_merge($clickStats->keys()->toArray(), $orderStats->keys()->toArray()));
+
+            $users = empty($activeUserIds) ? collect() : User::whereIn('id', $activeUserIds)
+                ->select('id', 'firstname', 'lastname', 'username')
+                ->get()
+                ->keyBy('id');
+
+            return [
+                'today'     => $this->buildPublishersList($users, $clickStats, $orderStats, 'today'),
+                'yesterday' => $this->buildPublishersList($users, $clickStats, $orderStats, 'yesterday'),
+                'mtd'       => $this->buildPublishersList($users, $clickStats, $orderStats, 'mtd'),
+            ];
+        });
     }
 
-    private function fetchPublishersForPeriod($start, $end = null)
+    private function buildPublishersList($users, $clickStats, $orderStats, $period)
     {
-        $clickQuery = Click::select('user_id', DB::raw('count(*) as clicks_count'))
-            ->whereNotNull('user_id');
-        if ($end) {
-            $clickQuery->whereBetween('created_at', [$start, $end]);
-        } else {
-            $clickQuery->where('created_at', '>=', $start);
-        }
-        $clicksByUser = $clickQuery->groupBy('user_id')->pluck('clicks_count', 'user_id')->toArray();
-
-        $orderQuery = Order::select(
-                'user_id',
-                DB::raw('count(*) as total_orders'),
-                DB::raw("count(case when status in ('confirmed', 'processing', 'shipped', 'delivered') then 1 end) as conversions_count"),
-                DB::raw("sum(case when status in ('confirmed', 'processing', 'shipped', 'delivered') then payout_amount else 0 end) as total_payout")
-            )->whereNotNull('user_id');
-        if ($end) {
-            $orderQuery->whereBetween('created_at', [$start, $end]);
-        } else {
-            $orderQuery->where('created_at', '>=', $start);
-        }
-        $ordersByUser = $orderQuery->groupBy('user_id')->get()->keyBy('user_id')->toArray();
-
-        $activeUserIds = array_unique(array_merge(array_keys($clicksByUser), array_keys($ordersByUser)));
-
-        if (empty($activeUserIds)) {
-            return [];
-        }
-
-        $users = User::select('id', 'firstname', 'lastname', 'username')
-            ->whereIn('id', $activeUserIds)
-            ->get();
-
         $result = [];
         foreach ($users as $user) {
-            $c = $clicksByUser[$user->id] ?? 0;
-            $orderData = $ordersByUser[$user->id] ?? null;
-            $conv = (int) ($orderData['conversions_count'] ?? 0);
-            $payout = (float) ($orderData['total_payout'] ?? 0);
+            $userClicks = $clickStats[$user->id] ?? null;
+            $userOrders = $orderStats[$user->id] ?? null;
 
-            // Filter out publishers with no activity (no clicks, no conversions, no payout)
+            if ($period === 'today') {
+                $c = (int) ($userClicks->clicks_today ?? 0);
+                $conv = (int) ($userOrders->conv_today ?? 0);
+                $payout = (float) ($userOrders->pay_today ?? 0);
+            } elseif ($period === 'yesterday') {
+                $c = (int) ($userClicks->clicks_yesterday ?? 0);
+                $conv = (int) ($userOrders->conv_yesterday ?? 0);
+                $payout = (float) ($userOrders->pay_yesterday ?? 0);
+            } else {
+                $c = (int) ($userClicks->clicks_mtd ?? 0);
+                $conv = (int) ($userOrders->conv_mtd ?? 0);
+                $payout = (float) ($userOrders->pay_mtd ?? 0);
+            }
+
             if ($c <= 0 && $conv <= 0 && $payout <= 0) {
                 continue;
             }

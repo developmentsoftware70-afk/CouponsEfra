@@ -2,11 +2,11 @@
     $featureStore = getContent('feature_store.content', true);
     $featureStoreElements = \Illuminate\Support\Facades\Cache::remember('home_feature_stores_10', 1800, function() {
         return App\Models\Store::with(['coupons' => function($q) {
-            $q->where('status', 1)->where('is_cashback', 0);
+            $q->where('status', 1);
         }])
         ->where('show_on_front', 1)
         ->whereHas('coupons', function($q) {
-            $q->where('status', 1)->where('is_cashback', 0);
+            $q->where('status', 1);
         })
         ->latest()
         ->limit(10)

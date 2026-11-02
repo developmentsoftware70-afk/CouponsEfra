@@ -479,7 +479,7 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
     $userId = $user ? $user->id : 0;
     $trackingId = $cleanUsername . '_' . $userId;
     if ($orderId) {
-        $trackingId .= '_' . $orderId;
+        // source is strictly username_userid
     }
 
     // 1. Generate or retrieve unique click_id
@@ -530,6 +530,10 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
         '{p2}'                           => $trackingId,
         '%7Bp2%7D'                       => $trackingId,
         '{p3}'                           => $orderId ?? 0,
+        '{username}'                     => $cleanUsername,
+        '%7Busername%7D'                 => $cleanUsername,
+        '{userId}'                       => $userId,
+        '%7BuserId%7D'                   => $userId,
         '%7Bp3%7D'                       => $orderId ?? 0,
     ];
 
@@ -546,8 +550,15 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
         parse_str($parsedUrl['query'], $existingParams);
     }
 
-    // Target tracking params: click_id, irclid, utm_source, utm_medium, utm_campaign, utm_term, source
+    // Target tracking params: p1, sub1, p2, sub2, click_id, irclid, utm_source, utm_medium, utm_campaign, utm_term, source
     $trackingParams = [
+        'username'     => $cleanUsername,
+        'user_id'      => (string) $userId,
+        'userId'       => (string) $userId,
+        'p1'           => $clickId,
+        'sub1'         => $clickId,
+        'p2'           => (string) ($orderId ?? 0),
+        'sub2'         => (string) ($orderId ?? 0),
         'click_id'     => $clickId,
         'irclid'       => $clickId,
         'utm_source'   => $utmSource,

@@ -8,7 +8,7 @@
         <table class="table table-hover align-middle" style="font-family: 'Inter', sans-serif;">
             <thead class="table-light">
                 <tr>
-                    <th>{{ __('Order ID') }}</th>
+                    <th style="min-width: 200px; white-space: nowrap;">{{ __('Order ID') }}</th>
                     <th>{{ __('Product') }}</th>
                     <th>{{ __('Amount') }}</th>
                     <th>{{ __('Date') }}</th>
@@ -18,7 +18,7 @@
             <tbody id="orders-table-body">
                 @forelse($orders as $order)
                     <tr id="order-{{ $order->id }}">
-                        <td>#{{ $order->id }}</td>
+                        <td style="white-space: nowrap;"><span class="order-id-badge" style="font-weight: 700; font-size: 13px; color: #eb2228; background: rgba(235, 34, 40, 0.06); padding: 5px 12px; border-radius: 6px; display: inline-block; white-space: nowrap !important; word-break: keep-all !important; letter-spacing: 0.3px;">#{{ $order->order_number ?? $order->id }}</span></td>
                         <td class="d-flex align-items-center">
                             @if($order->product_image)
                                 <img src="{{ getImage($order->product_image, '50x50') }}" alt="{{ $order->product_name }}" class="me-2 rounded" style="width:50px;height:50px;object-fit:cover;">

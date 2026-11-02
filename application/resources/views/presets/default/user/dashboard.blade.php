@@ -116,7 +116,7 @@
                 <h6 class="dash-title">@lang('Coupons List')</h6>
             </div>
             <div class="table-responsive--sm table-responsive">
-                <table class="table table--responsive--lg">
+                <table class="table table--responsive--lg" style="min-width: 950px;">
                     <thead>
                         <tr>
                             <th>@lang('Title')</th>
@@ -242,10 +242,10 @@
             </div>
         </div>
         <div class="col-lg-12">
-            <table class="table table--responsive--lg">
+            <table class="table table--responsive--lg" style="min-width: 950px;">
                 <thead>
                     <tr>
-                        <th>@lang('Order ID')</th>
+                        <th style="min-width: 200px; width: 200px; white-space: nowrap;">@lang('Order ID')</th>
                         <th>@lang('Product / Store')</th>
                         <th>@lang('Amount')</th>
                         <th>@lang('Source')</th>
@@ -256,8 +256,8 @@
                 <tbody id="dashboard-orders-body">
                     @forelse ($orders as $key => $order)
                         <tr id="dash-order-{{ $order->id }}">
-                            <td data-label="@lang('Order ID')">
-                                <span class="fw-bold text--base">#{{ $order->id }}</span>
+                            <td data-label="@lang('Order ID')" style="min-width: 200px; width: 200px; white-space: nowrap;">
+                                <span class="order-id-badge" style="font-weight: 700; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #eb2228; background: rgba(235, 34, 40, 0.06); padding: 4px 10px; border-radius: 6px; display: inline-block; white-space: nowrap !important; word-break: keep-all !important; letter-spacing: 0.2px;">#{{ $order->order_number ?? $order->id }}</span>
                             </td>
                             <td data-label="@lang('Product / Store')">
                                 <div class="d-flex align-items-center gap-2">
@@ -325,7 +325,7 @@
             <h6 class="dash-title">@lang('WishList Table')</h6>
         </div>
         <div class="col-lg-12">
-            <table class="table table--responsive--lg">
+            <table class="table table--responsive--lg" style="min-width: 950px;">
                 <thead>
                     <tr>
                         <th>@lang('SL')</th>
