@@ -55,6 +55,13 @@
     padding-right: 60px;
 }
 
+.login__body .field input::-ms-reveal,
+.login__body .field input::-ms-clear {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
 .login__body .field .show-pass {
     position: absolute;
     right: 16px;

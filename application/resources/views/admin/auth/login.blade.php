@@ -47,6 +47,12 @@
         border-radius: 100%;
         opacity: 0.7;
     }*/
+    input::-ms-reveal,
+    input::-ms-clear {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
 </style>
 @endpush
 

@@ -49,13 +49,32 @@ class ForgotPasswordController extends Controller
             return back()->withNotify($notify);
         }
 
-        PasswordReset::where('email', $user->email)->delete();
-        $code = verificationCode(6);
-        $password = new PasswordReset();
-        $password->email = $user->email;
-        $password->token = $code;
-        $password->created_at = \Carbon\Carbon::now();
-        $password->save();
+        // Prevent duplicate requests within 10 seconds (Double-click / rapid retry protection)
+        $sessionKey = 'last_reset_' . md5($user->email);
+        $lastSent = session()->get($sessionKey);
+        if ($lastSent && \Carbon\Carbon::parse($lastSent)->gt(\Carbon\Carbon::now()->subSeconds(10))) {
+            session()->put('pass_res_mail', $user->email);
+            $notify[] = ['success', 'Password reset email already sent. Please check your inbox.'];
+            return to_route('user.password.code.verify')->withNotify($notify);
+        }
+        session()->put($sessionKey, \Carbon\Carbon::now()->toDateTimeString());
+
+        // Check if there is already a recent valid code created within the last 2 minutes
+        $existingReset = PasswordReset::where('email', $user->email)
+            ->where('created_at', '>=', \Carbon\Carbon::now()->subMinutes(2))
+            ->first();
+
+        if ($existingReset) {
+            $code = $existingReset->token;
+        } else {
+            PasswordReset::where('email', $user->email)->delete();
+            $code = verificationCode(6);
+            $password = new PasswordReset();
+            $password->email = $user->email;
+            $password->token = $code;
+            $password->created_at = \Carbon\Carbon::now();
+            $password->save();
+        }
 
         $userIpInfo = getIpInfo();
         $userBrowserInfo = osBrowser();

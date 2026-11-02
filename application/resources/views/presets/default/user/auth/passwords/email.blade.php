@@ -10,7 +10,7 @@
                     <p>@lang('To recover your account please provide your email or username to find your account.')
                     </p>
                 </div>
-                <form method="POST" action="{{ route('user.password.email') }}">
+                <form method="POST" action="{{ route('user.password.email') }}" class="submit-form">
                     @csrf
                     <div class="form-group mb-3">
                         <input type="text" class="form--control form--control" name="value"
@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn--base w-100">@lang('Submit')</button>
+                        <button type="submit" class="btn btn--base w-100 btn-submit">@lang('Submit')</button>
                     </div>
                 </form>
               
@@ -28,3 +28,19 @@
     </div>
 </div>
 @endsection
+
+@push('script')
+<script>
+    (function($) {
+        "use strict";
+        $('.submit-form').on('submit', function() {
+            var btn = $(this).find('.btn-submit');
+            if (btn.prop('disabled')) {
+                return false;
+            }
+            btn.prop('disabled', true).html('<i class="las la-spinner fa-spin"></i> @lang("Sending...")');
+            return true;
+        });
+    })(jQuery);
+</script>
+@endpush
