@@ -86,7 +86,7 @@ class Email extends NotifyProcess{
 	{
 		$general = $this->setting;
 		$apiKey = env('BREVO_API_KEY');
-		$senderEmail = env('BREVO_SENDER_EMAIL', !empty($general->email_from) ? $general->email_from : env('MAIL_USERNAME', 'developmentsoftware70@gmail.com'));
+		$senderEmail = env('BREVO_SENDER_EMAIL') ?: (env('MAIL_USERNAME') ?: 'developmentsoftware70@gmail.com');
 		$senderName = $general->site_name ?: config('app.name');
 
 		$response = Http::withHeaders([
@@ -95,6 +95,10 @@ class Email extends NotifyProcess{
 			'Accept' => 'application/json',
 		])->timeout(10)->post('https://api.brevo.com/v3/smtp/email', [
 			'sender' => [
+				'name' => $senderName,
+				'email' => $senderEmail,
+			],
+			'replyTo' => [
 				'name' => $senderName,
 				'email' => $senderEmail,
 			],
