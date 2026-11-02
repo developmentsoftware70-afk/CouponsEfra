@@ -32,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $sessionPath = storage_path('framework/sessions');
+        if (!is_dir($sessionPath)) {
+            @mkdir($sessionPath, 0777, true);
+        }
+
         if (!app()->runningInConsole() && app()->bound('request')) {
             if (request()->header('x-forwarded-proto') === 'https' || str_contains(request()->url(), 'https://') || app()->environment('production')) {
                 \Illuminate\Support\Facades\URL::forceScheme('https');

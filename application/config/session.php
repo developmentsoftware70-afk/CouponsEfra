@@ -155,7 +155,17 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => (function() {
+        $envDomain = env('SESSION_DOMAIN');
+        if ($envDomain && isset($_SERVER['HTTP_HOST'])) {
+            $host = explode(':', $_SERVER['HTTP_HOST'])[0];
+            $cleanDomain = ltrim($envDomain, '.');
+            if ($host !== $cleanDomain && !str_ends_with($host, '.' . $cleanDomain)) {
+                return null;
+            }
+        }
+        return $envDomain;
+    })(),
 
     /*
     |--------------------------------------------------------------------------
