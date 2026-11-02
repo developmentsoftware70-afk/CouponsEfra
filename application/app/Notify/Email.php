@@ -2,6 +2,7 @@
 
 namespace App\Notify;
 use App\Notify\NotifyProcess;
+use Illuminate\Support\Facades\Http;
 use Mailjet\Client;
 use Mailjet\Resources;
 use PHPMailer\PHPMailer\Exception;
@@ -40,15 +41,20 @@ class Email extends NotifyProcess{
 		//get message from parent
 		$message = $this->getMessage();
 		if ($this->setting->en && $message) {
-			//Send mail
-			$methodName = @$this->setting->mail_config->name ?: 'smtp';
+			// If BREVO_API_KEY is configured in environment, use Brevo HTTP API (Port 443)
+			if (!empty(env('BREVO_API_KEY'))) {
+				$method = 'sendBrevoMail';
+			} else {
+				$methodName = @$this->setting->mail_config->name ?: 'smtp';
 
-			// Force/prefer SMTP on localhost Windows or when SMTP is configured
-			if ($methodName == 'php') {
-				$methodName = 'smtp';
+				// Force/prefer SMTP on localhost Windows or when SMTP is configured
+				if ($methodName == 'php') {
+					$methodName = 'smtp';
+				}
+
+				$method = $this->mailMethods($methodName);
 			}
 
-			$method = $this->mailMethods($methodName);
 			try{
 				$this->$method();
 				$this->createLog('email');
@@ -71,8 +77,42 @@ class Email extends NotifyProcess{
 			'smtp'=>'sendSmtpMail',
 			'sendgrid'=>'sendSendGridMail',
 			'mailjet'=>'sendMailjetMail',
+			'brevo'=>'sendBrevoMail',
 		];
 		return $methods[$name] ?? 'sendSmtpMail';
+	}
+
+	protected function sendBrevoMail()
+	{
+		$general = $this->setting;
+		$apiKey = env('BREVO_API_KEY');
+		$senderEmail = env('BREVO_SENDER_EMAIL', !empty($general->email_from) ? $general->email_from : env('MAIL_USERNAME', 'developmentsoftware70@gmail.com'));
+		$senderName = $general->site_name ?: config('app.name');
+
+		$response = Http::withHeaders([
+			'api-key' => $apiKey,
+			'Content-Type' => 'application/json',
+			'Accept' => 'application/json',
+		])->timeout(10)->post('https://api.brevo.com/v3/smtp/email', [
+			'sender' => [
+				'name' => $senderName,
+				'email' => $senderEmail,
+			],
+			'to' => [
+				[
+					'email' => $this->email,
+					'name' => $this->receiverName ?: 'User',
+				]
+			],
+			'subject' => $this->subject,
+			'htmlContent' => $this->finalMessage,
+		]);
+
+		if (!$response->successful()) {
+			$error = $response->json();
+			$msg = $error['message'] ?? ('Brevo API error: HTTP ' . $response->status());
+			throw new \Exception($msg);
+		}
 	}
 
 	protected function sendPhpMail(){
@@ -115,6 +155,7 @@ class Email extends NotifyProcess{
         }
         $mail->Port       = $port;
         $mail->CharSet    = 'UTF-8';
+        $mail->Timeout    = 10;
 
         // Fix SSL certificate verify issues on Windows / localhost
         $mail->SMTPOptions = array(
