@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Click;
 use App\Models\Coupon;
 use App\Models\Deal;
+use App\Models\User;
 use App\Models\OrderEvent;
 use App\Events\OrderStatusUpdated;
 use Illuminate\Http\Request;
@@ -19,16 +20,26 @@ class WebhookController extends Controller
      */
     public function handleMerchantCallback(Request $request)
     {
+        // 0. Auto-clean any 'amp;' prefix from parameter keys (resilient to URL-encoded paste issues)
+        $cleanedInputs = [];
+        foreach ($request->all() as $k => $v) {
+            $cleanK = preg_replace('/^(?:amp;)+/', '', (string) $k);
+            $cleanedInputs[$cleanK] = $v;
+        }
+        $request->merge($cleanedInputs);
+
         Log::info('Merchant Webhook Callback Received: ', $request->all());
 
-        // 1. Resolve Click ID from all possible affiliate parameter names
-        $clickId = $request->input('click_id') 
-            ?? $request->input('p1') 
-            ?? $request->input('irclid') 
-            ?? $request->input('clickid')
-            ?? $request->input('sub1')
-            ?? $request->input('sub_id')
-            ?? $request->input('aff_sub');
+        // 1. Gather all candidate tracking identifiers across various network standards
+        $clickCandidates = array_values(array_filter([
+            $request->input('click_id'),
+            $request->input('p1'),
+            $request->input('sub1'),
+            $request->input('irclid'),
+            $request->input('clickid'),
+            $request->input('sub_id'),
+            $request->input('aff_sub'),
+        ]));
 
         // 2. Resolve Merchant Transaction / Order ID
         $txnId = $request->input('txn_id') 
@@ -43,14 +54,17 @@ class WebhookController extends Controller
             $txnId = end($parts);
         }
 
-        // 3. Find matching click in clicks table
+        // 3. Smart Find matching click in clicks table
         $click = null;
-        if ($clickId) {
-            $click = Click::where('click_id', $clickId)->first();
+        if (!empty($clickCandidates)) {
+            $click = Click::whereIn('click_id', $clickCandidates)->first();
         }
         if (!$click && $txnId) {
             $click = Click::where('click_id', $txnId)->orWhere('order_id', $txnId)->first();
         }
+
+        // Resolve active Click ID
+        $clickId = $click ? $click->click_id : ($clickCandidates[0] ?? null);
 
         // Helper to safely parse numbers even with commas or currency symbols (e.g. "1,999.00" -> 1999.00)
         $cleanNum = function ($val) {
@@ -93,6 +107,7 @@ class WebhookController extends Controller
             'approved', 'confirmed', 'delivered', 'success', 'paid', '1', '2' => 'confirmed',
             'rejected', 'cancelled', 'canceled', 'failed', 'declined', '0'     => 'cancelled',
             'processing', 'shipped'                                           => 'processing',
+            'pending'                                                         => 'pending',
             default                                                           => ($amount > 0 || $payout > 0 ? 'confirmed' : 'pending'),
         };
 
@@ -126,21 +141,29 @@ class WebhookController extends Controller
         if ($click && $click->order_id) {
             $order = Order::find($click->order_id);
         }
+        if (!$order && $click) {
+            $order = Order::where('click_id', $click->click_id)->first();
+        }
         if (!$order && $clickId) {
             $order = Order::where('click_id', $clickId)->first();
         }
+        if (!$order && !empty($clickCandidates)) {
+            $order = Order::whereIn('click_id', $clickCandidates)->first();
+        }
+
+        // Check by numeric order ID passed via p2, sub2, order_id, txn_id
+        $numericCandidates = array_values(array_filter([
+            $request->input('p2'),
+            $request->input('sub2'),
+            $request->input('order_id'),
+            $txnId,
+        ], fn($v) => !empty($v) && is_numeric($v)));
+
+        if (!$order && !empty($numericCandidates)) {
+            $order = Order::whereIn('id', array_map('intval', $numericCandidates))->first();
+        }
         if (!$order && !empty($txnId)) {
             $order = Order::where('order_number', $txnId)->first();
-            if (!$order && is_numeric($txnId)) {
-                $order = Order::find((int) $txnId);
-            }
-        }
-        if (!$order && $request->filled('p2')) {
-            $p2Val = $request->input('p2');
-            $order = Order::where('order_number', $p2Val)->first();
-            if (!$order && is_numeric($p2Val)) {
-                $order = Order::find((int) $p2Val);
-            }
         }
 
         $isNew = false;
@@ -158,7 +181,30 @@ class WebhookController extends Controller
             // Create a brand new real purchase order in real time!
             $isNew = true;
             $previousStatus = null;
-            $userId = $click ? $click->user_id : (auth()->id() ?? 0);
+            // Resolve a valid User ID to guarantee foreign key integrity
+            $userId = null;
+            if ($click && $click->user_id) {
+                $userId = $click->user_id;
+            } elseif (auth()->check()) {
+                $userId = auth()->id();
+            } elseif ($request->filled('user_id') && User::where('id', $request->input('user_id'))->exists()) {
+                $userId = (int) $request->input('user_id');
+            } elseif ($request->filled('userId') && User::where('id', $request->input('userId'))->exists()) {
+                $userId = (int) $request->input('userId');
+            } else {
+                // Try extracting user ID from source, track_id, or p2 (e.g. "softwaredevelopment168_11")
+                $combined = ($request->input('source') ?? '') . ' ' . ($request->input('track_id') ?? '') . ' ' . ($request->input('p2') ?? '');
+                if (preg_match('/_(\d+)\b/', $combined, $matches)) {
+                    $potentialUid = (int) $matches[1];
+                    if (User::where('id', $potentialUid)->exists()) {
+                        $userId = $potentialUid;
+                    }
+                }
+            }
+            if (!$userId) {
+                $userId = User::value('id') ?? 1;
+            }
+
             $merchantId = $click ? $click->store_id : null;
             $source = $click ? ($click->coupon_id ? 'coupon_section' : ($click->deal_id ? 'deal_section' : 'affiliate')) : 'affiliate';
 

@@ -7,9 +7,9 @@
             "heading": "text"
         },
         "element": {
-            "images":{
-                "top_ads_img":{
-                    "size":"1920x450"
+            "images": {
+                "top_ads_img": {
+                    "size": "1920x450"
                 }
             },
             "link": "text",
@@ -71,9 +71,9 @@
             "heading": "text"
         },
         "element": {
-            "images":{
-                "ads_img":{
-                    "size":"1920x450"
+            "images": {
+                "ads_img": {
+                    "size": "1920x450"
                 }
             },
             "title": "text",
@@ -83,7 +83,6 @@
             "modal": false
         }
     },
-
     "feature_store": {
         "builder": true,
         "no_selection": false,
@@ -123,9 +122,9 @@
             "heading": "text"
         },
         "element": {
-            "images":{
-                "testimonial_img":{
-                    "size":"64x64"
+            "images": {
+                "testimonial_img": {
+                    "size": "64x64"
                 }
             },
             "name": "text",
@@ -142,10 +141,9 @@
             "description": "textarea-rich"
         }
     },
-    
     "policy_pages": {
         "builder": false,
-        "no_selection":true,
+        "no_selection": true,
         "name": "Policy Pages",
         "element": {
             "title": "text",
@@ -158,9 +156,9 @@
         "name": "FAQ Section",
         "content": {
             "heading": "text",
-            "images":{
-                "faq_image":{
-                    "size":"596x520"
+            "images": {
+                "faq_image": {
+                    "size": "596x520"
                 }
             }
         },
@@ -177,10 +175,10 @@
             "heading": "text"
         },
         "element": {
-            "images":{
-                "blog_image":{
-                    "size":"728x465",
-                    "thumb":"350x240"
+            "images": {
+                "blog_image": {
+                    "size": "728x465",
+                    "thumb": "350x240"
                 }
             },
             "title": "text",
@@ -234,6 +232,26 @@
         "element": {
             "title": "text",
             "url": "text",
+            "modal": true
+        }
+    },
+    "popular_brands": {
+        "builder": true,
+        "no_selection": false,
+        "name": "Most Popular Brands",
+        "content": {
+            "heading": "text"
+        },
+        "element": {
+            "images": {
+                "brand_logo": {
+                    "size": "240x100"
+                }
+            },
+            "brand_name": "text",
+            "sale_tag": "text",
+            "cashback_text": "text",
+            "link": "text",
             "modal": true
         }
     }

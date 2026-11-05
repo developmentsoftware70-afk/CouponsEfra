@@ -9,6 +9,7 @@ class Order extends Model
 {
     protected $fillable = [
         'click_id',
+        'order_number',
         'user_id',
         'merchant_id',
         'merchant_order_id',
@@ -20,6 +21,39 @@ class Order extends Model
         'status',
         'source',
     ];
+
+    /**
+     * The "booted" method of the model.
+     * Auto-generates order_number like ORD-YYYYMMDD-000001
+     */
+    protected static function booted()
+    {
+        static::creating(function ($order) {
+            if (empty($order->order_number)) {
+                $order->order_number = static::generateOrderNumber();
+            }
+        });
+    }
+
+    /**
+     * Generate daily sequential order number (e.g. ORD-20261103-000001)
+     */
+    public static function generateOrderNumber($date = null)
+    {
+        $today = $date ? date('Ymd', strtotime($date)) : date('Ymd');
+        $prefix = "ORD-{$today}-";
+
+        $latest = static::where('order_number', 'LIKE', "{$prefix}%")
+            ->orderByDesc('id')
+            ->value('order_number');
+
+        $nextSeq = 1;
+        if ($latest && preg_match('/-(\d+)$/', $latest, $m)) {
+            $nextSeq = (int) $m[1] + 1;
+        }
+
+        return $prefix . str_pad($nextSeq, 6, '0', STR_PAD_LEFT);
+    }
 
     /**
      * User who placed the order.

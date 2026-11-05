@@ -68,6 +68,7 @@ Route::controller('SiteController')->group(function () {
 
     // feature store
     Route::get('/top-store', 'featureStore')->name('feature.store');
+    Route::get('/brands', 'brands')->name('brands');
 
     // latest coupon
     Route::get('/latest-coupons', 'latestCoupon')->name('latest.coupons');

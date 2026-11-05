@@ -722,6 +722,38 @@ class SiteController extends Controller
         return view($this->activeTemplate . 'earning',compact('pageTitle', 'earningCoupons', 'categories', 'stores', 'earningDeals', 'dealCategories'));
     }
     //feature store 
+    public function brands()
+    {
+        $pageTitle = "Most Popular Brands";
+        $rawOrder = "CASE LOWER(TRIM(name))
+            WHEN 'amazon' THEN 1000
+            WHEN 'flipkart' THEN 950
+            WHEN 'hyphen' THEN 900
+            WHEN 'bacca bucci' THEN 850
+            WHEN 'baccabucci' THEN 850
+            WHEN 'myntra' THEN 800
+            WHEN 'nykaa' THEN 750
+            WHEN 'firstcry' THEN 700
+            WHEN 'neemans' THEN 650
+            WHEN 'dot & key' THEN 600
+            WHEN 'dot and key' THEN 600
+            WHEN 'wakefit' THEN 550
+            WHEN 'cashify' THEN 500
+            WHEN 'healthkart' THEN 450
+            WHEN 'mcaffeine' THEN 400
+            WHEN 'wow skin' THEN 350
+            WHEN 'noice' THEN 300
+            WHEN 'noise' THEN 300
+            WHEN 'nilkamal furniture' THEN 250
+            WHEN 'nilkamal' THEN 250
+            WHEN 'the man company' THEN 200
+            WHEN 'daily object' THEN 150
+            WHEN 'daily objects' THEN 150
+            ELSE 10 END DESC, id DESC";
+        $stores = Store::with('coupons')->where('status', 1)->orderByRaw($rawOrder)->paginate(24);
+        return view($this->activeTemplate . 'brands', compact('pageTitle', 'stores'));
+    }
+
     public function featureStore()
     {
         $pageTitle = "Top Stores";

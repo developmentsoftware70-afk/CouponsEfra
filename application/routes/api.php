@@ -51,6 +51,49 @@ Route::namespace('Api')->group(function(){
         ]);
     });
 
+    // Public Stores GET API
+    Route::get('stores', function() {
+        $stores = \App\Models\Store::where('status', 1)
+            ->withCount(['coupons' => function($q) {
+                $q->where('status', 1);
+            }])
+            ->latest()
+            ->get();
+            
+        return response()->json([
+            'remark'  => 'stores_list',
+            'status'  => 'success',
+            'message' => ['success' => ['Stores fetched successfully']],
+            'count'   => $stores->count(),
+            'data'    => [
+                'stores' => $stores
+            ]
+        ]);
+    });
+
+    Route::get('stores/{id}', function($id) {
+        $store = \App\Models\Store::with(['coupons' => function($q) {
+            $q->where('status', 1);
+        }])->find($id);
+
+        if (!$store) {
+            return response()->json([
+                'remark'  => 'not_found',
+                'status'  => 'error',
+                'message' => ['error' => ['Store not found']],
+            ], 404);
+        }
+
+        return response()->json([
+            'remark'  => 'store_detail',
+            'status'  => 'success',
+            'message' => ['success' => ['Store fetched successfully']],
+            'data'    => [
+                'store' => $store
+            ]
+        ]);
+    });
+
 	Route::namespace('Auth')->group(function(){
 		Route::post('login', 'LoginController@login');
 		Route::post('register', 'RegisterController@register');
