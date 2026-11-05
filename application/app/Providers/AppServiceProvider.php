@@ -43,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
+        $general = null;
         try {
             $general = gs();
             $activeTemplate = activeTemplate();
@@ -119,8 +120,8 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        if($general->force_ssl){
-            \URL::forceScheme('https');
+        if (!empty($general?->force_ssl)) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
 
