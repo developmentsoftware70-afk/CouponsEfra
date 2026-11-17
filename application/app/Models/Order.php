@@ -64,11 +64,51 @@ class Order extends Model
     }
 
     /**
-     * Merchant associated with the order (if any).
+     * Store associated with the order (via merchant_id).
+     */
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class, 'merchant_id');
+    }
+
+    /**
+     * Merchant alias for backward compatibility.
      */
     public function merchant(): BelongsTo
     {
-        return $this->belongsTo(Merchant::class);
+        return $this->belongsTo(Store::class, 'merchant_id');
+    }
+
+    /**
+     * Get clean store / brand name.
+     */
+    public function getStoreNameAttribute()
+    {
+        if ($this->store && !empty($this->store->name)) {
+            return $this->store->name;
+        }
+
+        $product = $this->product_name ?? '';
+        if (preg_match('/(?:on|at|from)\s+([A-Za-z0-9\s&]+?)(?:\s+Big|\s+Fashion|\s+Sale|\s+Official|$)/i', $product, $m)) {
+            return trim($m[1]);
+        }
+        if (str_contains($product, ' - ')) {
+            $parts = explode(' - ', $product);
+            return trim($parts[0]);
+        }
+
+        return $this->source ? ucwords(str_replace('_', ' ', $this->source)) : 'Partner Store';
+    }
+
+    /**
+     * Get store logo image URL.
+     */
+    public function getStoreLogoAttribute()
+    {
+        if ($this->store && $this->store->image) {
+            return getImage(getFilePath('store') . '/' . $this->store->image);
+        }
+        return $this->image_url;
     }
 
     /**

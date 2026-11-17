@@ -161,13 +161,25 @@
     .check-item, .check-item-stores {
         display: block !important;
     }
+
+    /* Real-time filtering hide state */
+    .check-item.ck-sidebar-hidden, .check-item-stores.ck-sidebar-hidden {
+        display: none !important;
+    }
+    .ck-sidebar-no-match {
+        font-size: 12px;
+        color: #94a3b8;
+        padding: 8px 0;
+        font-style: italic;
+        display: none;
+    }
 </style>
 
 <div class="side-bar-wrap">
     <div class="section-search-box mb-4">
-        <form>
-            <input class="form--control" id="searchValue" name="search" type="text" placeholder="@lang('Search')">
-            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+        <form onsubmit="return false;">
+            <input class="form--control" id="searchValue" name="sidebar_search" type="text" placeholder="@lang('Search')" autocomplete="off">
+            <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
         </form>
     </div>
     @php
@@ -178,9 +190,9 @@
     @endphp
 
     @if(!empty($cats) && count($cats) > 0)
-    <div class="categories">
+    <div class="categories" id="sidebarCategoriesWrap">
         <h6 class="title">@lang('Categories')</h6>
-        <div class="category-list">
+        <div class="category-list" id="sidebarCategoryList">
             @php
                 $categoryCount = count($cats);
             @endphp
@@ -192,14 +204,15 @@
                     </div>
                 </div>
             @endforeach
+            <div class="ck-sidebar-no-match no-cat-match">@lang('No categories found')</div>
         </div>
     </div>
     @endif
 
     @if(!empty($stors) && count($stors) > 0)
-    <div class="categories">
+    <div class="categories" id="sidebarStoresWrap">
         <h6 class="title">@lang('Stores')</h6>
-        <div class="category-list">
+        <div class="category-list" id="sidebarStoreList">
             @php
                 $storeCount = count($stors);
             @endphp
@@ -212,6 +225,7 @@
                 </div>
             </div>
             @endforeach
+            <div class="ck-sidebar-no-match no-store-match">@lang('No stores found')</div>
         </div>
     </div>
     @endif
@@ -246,3 +260,69 @@
         </div>
     @endif
 </div>
+
+<script>
+    (function () {
+        function filterSidebarCategoriesAndStores() {
+            var searchInput = document.getElementById('searchValue');
+            if (!searchInput) return;
+            var q = (searchInput.value || '').trim().toLowerCase();
+
+            // 1. Filter Categories in this sidebar
+            var catItems = document.querySelectorAll('#sidebarCategoryList .check-item');
+            var catVisible = 0;
+            catItems.forEach(function (item) {
+                var label = item.querySelector('label');
+                var text = label ? label.textContent.toLowerCase() : '';
+                if (!q || text.indexOf(q) !== -1) {
+                    item.classList.remove('ck-sidebar-hidden');
+                    catVisible++;
+                } else {
+                    item.classList.add('ck-sidebar-hidden');
+                }
+            });
+
+            var noCat = document.querySelector('#sidebarCategoryList .no-cat-match');
+            if (noCat) {
+                noCat.style.display = (catItems.length > 0 && q && catVisible === 0) ? 'block' : 'none';
+            }
+
+            // 2. Filter Stores in this sidebar
+            var storeItems = document.querySelectorAll('#sidebarStoreList .check-item-stores');
+            var storeVisible = 0;
+            storeItems.forEach(function (item) {
+                var label = item.querySelector('label');
+                var text = label ? label.textContent.toLowerCase() : '';
+                if (!q || text.indexOf(q) !== -1) {
+                    item.classList.remove('ck-sidebar-hidden');
+                    storeVisible++;
+                } else {
+                    item.classList.add('ck-sidebar-hidden');
+                }
+            });
+
+            var noStore = document.querySelector('#sidebarStoreList .no-store-match');
+            if (noStore) {
+                noStore.style.display = (storeItems.length > 0 && q && storeVisible === 0) ? 'block' : 'none';
+            }
+        }
+
+        // Live input & keyup handling
+        document.addEventListener('input', function (e) {
+            if (e.target && e.target.id === 'searchValue') {
+                filterSidebarCategoriesAndStores();
+            }
+        });
+        document.addEventListener('keyup', function (e) {
+            if (e.target && e.target.id === 'searchValue') {
+                filterSidebarCategoriesAndStores();
+            }
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', filterSidebarCategoriesAndStores);
+        } else {
+            filterSidebarCategoriesAndStores();
+        }
+    })();
+</script>

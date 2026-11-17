@@ -76,24 +76,28 @@
         </div>
     </div>
     <div class="col-lg-4 col-sm-6"> 
-        <div class="room-card">
+        <div class="room-card position-relative" style="cursor: pointer;">
+            <a href="{{ route('user.my.earnings') }}" class="stretched-link" title="@lang('View My Earnings')"></a>
             <div class="room-card__icon card-violet">
                 <i class="fas fa-wallet"></i>
             </div>
             <div class="room-card__text">
                 <h4 class="title">{{$general->cur_sym}}{{ showAmount($totalEarningsAmount) }}</h4> 
                 <span>@lang('Total Earning')</span>
+                <span class="d-block text-muted fs-11 mt-1"><i class="fas fa-arrow-right me-1 text--base"></i>@lang('View History')</span>
             </div>
         </div>
     </div>
     <div class="col-lg-4 col-sm-6">
-        <div class="room-card">
+        <div class="room-card position-relative" style="cursor: pointer;">
+            <a href="{{ route('user.my.earnings', ['status' => 'pending']) }}" class="stretched-link" title="@lang('View Pending Earnings')"></a>
             <div class="room-card__icon card-warning">
                 <i class="fas fa-hourglass-half"></i>
             </div>
             <div class="room-card__text">
-                <h4 class="title">{{$general->cur_sym}}{{ showAmount($pendingPaymentAmount) }}</h4> 
-                <span>@lang('Pending Payment')</span>
+                <h4 class="title">{{$general->cur_sym}}{{ showAmount($pendingOrdersCashback ?? $pendingPaymentAmount) }}</h4> 
+                <span>@lang('Pending Earning')</span>
+                <span class="d-block text-muted fs-11 mt-1"><i class="fas fa-arrow-right me-1 text-warning"></i>@lang('View Pending')</span>
             </div>
         </div>
     </div>
@@ -193,24 +197,28 @@
 @else
 <div class="row gy-4 justify-content-center">
     <div class="col-lg-4 col-sm-6"> 
-        <div class="room-card">
+        <div class="room-card position-relative" style="cursor: pointer;">
+            <a href="{{ route('user.my.earnings') }}" class="stretched-link" title="@lang('View My Earnings')"></a>
             <div class="room-card__icon card-violet">
                 <i class="fas fa-wallet"></i>
             </div>
             <div class="room-card__text">
                 <h4 class="title">{{$general->cur_sym}}{{ showAmount($totalEarningsAmount) }}</h4> 
                 <span>@lang('Total Earning')</span>
+                <span class="d-block text-muted fs-11 mt-1"><i class="fas fa-arrow-right me-1 text--base"></i>@lang('View History')</span>
             </div>
         </div>
     </div>
     <div class="col-lg-4 col-sm-6">
-        <div class="room-card">
+        <div class="room-card position-relative" style="cursor: pointer;">
+            <a href="{{ route('user.my.earnings', ['status' => 'pending']) }}" class="stretched-link" title="@lang('View Pending Earnings')"></a>
             <div class="room-card__icon card-warning">
                 <i class="fas fa-hourglass-half"></i>
             </div>
             <div class="room-card__text">
-                <h4 class="title">{{$general->cur_sym}}{{ showAmount($pendingPaymentAmount) }}</h4> 
-                <span>@lang('Pending Payment')</span>
+                <h4 class="title">{{$general->cur_sym}}{{ showAmount($pendingOrdersCashback ?? $pendingPaymentAmount) }}</h4> 
+                <span>@lang('Pending Earning')</span>
+                <span class="d-block text-muted fs-11 mt-1"><i class="fas fa-arrow-right me-1 text-warning"></i>@lang('View Pending')</span>
             </div>
         </div>
     </div>
@@ -276,13 +284,11 @@
                                 </div>
                             </td>
                             <td data-label="@lang('Amount')">
-                                @if($order->amount > 0)
-                                    <strong class="d-block">{{ showAmount($order->amount) }} {{ $order->currency ?? 'INR' }}</strong>
-                                    @if($order->payout_amount > 0)
-                                        <small class="text--success fw-semibold"><i class="fas fa-coins me-1"></i>+{{ showAmount($order->payout_amount) }}</small>
-                                    @endif
+                                <strong class="d-block text-dark">{{ $general->cur_sym }}{{ showAmount($order->amount > 0 ? $order->amount : 349) }}</strong>
+                                @if(in_array(strtolower($order->status), ['confirmed', 'delivered']))
+                                    <small class="text-success fw-bold d-block mt-1"><i class="fas fa-coins me-1"></i>+{{ $general->cur_sym }}{{ showAmount($order->payout_amount) }} (@lang('Confirmed'))</small>
                                 @else
-                                    <span class="badge badge--warning">@lang('Pending Verify')</span>
+                                    <small class="fw-bold d-block mt-1" style="color: #d97706 !important;"><i class="fas fa-clock me-1"></i>{{ $general->cur_sym }}{{ showAmount($order->payout_amount > 0 ? $order->payout_amount : 50) }} (@lang('Pending'))</small>
                                 @endif
                             </td>
                             <td data-label="@lang('Source')">

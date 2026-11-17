@@ -202,14 +202,28 @@ class SiteController extends Controller
         // Create initial tracking order for coupon store visit
         $productImage = $coupon->image ?? @$coupon->store->image ?? null;
 
+        $estAmount = (float)($coupon->price ?: 349.00);
+        $estPayout = 0;
+        if (!empty($coupon->cashback_amount)) {
+            $cb = (float) $coupon->cashback_amount;
+            $estPayout = ($cb > 0 && $cb <= 100) ? round(($estAmount * $cb) / 100, 2) : $cb;
+        } elseif (preg_match('/Flat\s*₹?\s*(\d+)\s*Cashback/i', $coupon->title, $m)) {
+            $estPayout = (float) $m[1];
+        } elseif (preg_match('/Extra\s*(\d+(?:\.\d+)?)\s*%\s*Cashback/i', $coupon->title, $m)) {
+            $estPayout = round(($estAmount * (float)$m[1]) / 100, 2);
+        } else {
+            $estPayout = round($estAmount * 0.10, 2);
+        }
+        if ($estPayout <= 0) $estPayout = 50.00;
+
         $tempOrder = Order::create([
             'click_id'      => $clickId,
             'user_id'       => auth()->id(),
             'merchant_id'   => $coupon->store_id ?? null,
             'product_name'  => $coupon->title,
             'product_image' => $productImage,
-            'amount'        => 0,
-            'payout_amount' => 0,
+            'amount'        => $estAmount,
+            'payout_amount' => $estPayout,
             'currency'      => 'INR',
             'status'        => 'pending',
             'source'        => 'coupon_section',
@@ -276,14 +290,18 @@ class SiteController extends Controller
         // Create initial tracking order for deal visit
         $productImage = $deal->image ?? null;
 
+        $estAmount = (float)($deal->price ?: 349.00);
+        $estPayout = round($estAmount * 0.10, 2);
+        if ($estPayout <= 0) $estPayout = 50.00;
+
         $tempOrder = Order::create([
             'click_id'      => $clickId,
             'user_id'       => auth()->id(),
             'merchant_id'   => $deal->store_id ?? null,
             'product_name'  => $deal->title,
             'product_image' => $productImage,
-            'amount'        => 0,
-            'payout_amount' => 0,
+            'amount'        => $estAmount,
+            'payout_amount' => $estPayout,
             'currency'      => 'INR',
             'status'        => 'pending',
             'source'        => 'deal_section',
@@ -353,8 +371,8 @@ class SiteController extends Controller
             'merchant_id'   => $slider->store_id ?? null,
             'product_name'  => $slider->title ?? 'Featured Offer',
             'product_image' => $productImage,
-            'amount'        => 0,
-            'payout_amount' => 0,
+            'amount'        => 500.00,
+            'payout_amount' => 50.00,
             'currency'      => 'INR',
             'status'        => 'pending',
             'source'        => 'slider_section',
@@ -780,9 +798,20 @@ class SiteController extends Controller
             $query->whereIn('store_id', $stores);
         }
         if (!empty($search)) {
+            $lowerSearch = strtolower($search);
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%$search%");  
-            });
+                $q->where('title', 'LIKE', "%$search%")
+                  ->orWhereHas('store', function ($sq) use ($search) {
+                      $sq->where('name', 'LIKE', "%$search%");
+                  })
+                  ->orWhereHas('category', function ($cq) use ($search) {
+                      $cq->where('name', 'LIKE', "%$search%");
+                  });
+            })->orderByRaw("CASE 
+                WHEN LOWER(title) = ? THEN 1 
+                WHEN LOWER(title) LIKE ? THEN 2 
+                ELSE 3 
+            END", [$lowerSearch, $lowerSearch . '%']);
         }
 
         $exclusiveCoupons = $query->get();
@@ -823,9 +852,17 @@ class SiteController extends Controller
         }
 
         if (!empty($search)) {
+            $lowerSearch = strtolower($search);
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%$search%");  
-            });
+                $q->where('title', 'LIKE', "%$search%")
+                  ->orWhereHas('deal_category', function($dcq) use ($search) {
+                      $dcq->where('title', 'LIKE', "%$search%");
+                  });
+            })->orderByRaw("CASE 
+                WHEN LOWER(title) = ? THEN 1 
+                WHEN LOWER(title) LIKE ? THEN 2 
+                ELSE 3 
+            END", [$lowerSearch, $lowerSearch . '%']);
         }
 
         $deals = $query->get();
@@ -855,9 +892,20 @@ class SiteController extends Controller
             $query->whereIn('store_id', $stores);
         }
         if (!empty($search)) {
+            $lowerSearch = strtolower($search);
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%$search%");  
-            });
+                $q->where('title', 'LIKE', "%$search%")
+                  ->orWhereHas('store', function ($sq) use ($search) {
+                      $sq->where('name', 'LIKE', "%$search%");
+                  })
+                  ->orWhereHas('category', function ($cq) use ($search) {
+                      $cq->where('name', 'LIKE', "%$search%");
+                  });
+            })->orderByRaw("CASE 
+                WHEN LOWER(title) = ? THEN 1 
+                WHEN LOWER(title) LIKE ? THEN 2 
+                ELSE 3 
+            END", [$lowerSearch, $lowerSearch . '%']);
         }
 
         $featureCoupons = $query->get();
@@ -886,12 +934,20 @@ class SiteController extends Controller
             $query->whereIn('store_id', $stores);
         }
         if (!empty($search)) {
+            $lowerSearch = strtolower($search);
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%$search%")
                   ->orWhereHas('store', function ($sq) use ($search) {
                       $sq->where('name', 'LIKE', "%$search%");
+                  })
+                  ->orWhereHas('category', function ($cq) use ($search) {
+                      $cq->where('name', 'LIKE', "%$search%");
                   });
-            });
+            })->orderByRaw("CASE 
+                WHEN LOWER(title) = ? THEN 1 
+                WHEN LOWER(title) LIKE ? THEN 2 
+                ELSE 3 
+            END", [$lowerSearch, $lowerSearch . '%']);
         }
 
         $coupons = $query->get();
@@ -922,7 +978,15 @@ class SiteController extends Controller
 
     // 
     public function storeCoupons($id) {
-        $store = Store::findOrFail($id);
+        $store = Store::find($id);
+        if (!$store) {
+            $store = Store::where('name', 'LIKE', '%' . $id . '%')->first();
+        }
+        if (!$store) {
+            $notify[] = ['error', 'Store not found or currently unavailable'];
+            return to_route('brands')->withNotify($notify);
+        }
+        $id = $store->id;
         $pageTitle =  $store->name;
         $coupons = Coupon::with(['category', 'store','wishlists'])->where('status', 1)->where('store_id', $id)->latest()->paginate(getPaginate());
         $this->recordImpressions($coupons, 'coupon');
@@ -992,14 +1056,16 @@ class SiteController extends Controller
         $stores = Store::where('status', 1)
             ->where('name', 'LIKE', "%$search%")
             ->orderByRaw("CASE WHEN LOWER(name) = ? THEN 1 WHEN LOWER(name) LIKE ? THEN 2 ELSE 3 END", [$lowerSearch, $lowerSearch . '%'])
-            ->take(5)
+            ->take(6)
             ->get()
             ->map(function ($store) {
                 return [
                     'id' => $store->id,
                     'name' => $store->name,
                     'image' => getImage(getFilePath('store') . '/' . $store->image),
-                    'url' => route('store.coupons', $store->id),
+                    'url' => route('store.coupons', $store->id, false),
+                    'tag' => 'in Stores',
+                    'subtitle' => 'Visit Store & Earn Cashback',
                 ];
             });
 
@@ -1023,14 +1089,18 @@ class SiteController extends Controller
                     'code' => $coupon->coupon_code,
                     'store_name' => @$coupon->store->name ?? '',
                     'store_image' => @$coupon->store->image ? getImage(getFilePath('store') . '/' . $coupon->store->image) : null,
-                    'url' => route('coupon.details', $coupon->slug ?? $coupon->id),
+                    'url' => route('coupon.details', $coupon->slug ?? $coupon->id, false),
+                    'name' => @$coupon->store->name ?: $coupon->title,
+                    'image' => @$coupon->store->image ? getImage(getFilePath('store') . '/' . $coupon->store->image) : null,
+                    'tag' => 'in Products',
+                    'subtitle' => $coupon->title,
                 ];
             });
 
         return response()->json([
             'status' => 'success',
             'query' => $search,
-            'search_url' => route('single.coupon.search') . '?search=' . urlencode($search),
+            'search_url' => route('single.coupon.search', [], false) . '?search=' . urlencode($search),
             'stores' => $stores,
             'coupons' => $coupons
         ]);

@@ -224,7 +224,7 @@
             <div class="main-content-cards">
                 <div class="row gy-4">
                     @forelse($coupons as $index => $item)
-                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
                         <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($index * 0.05) }}s">
                             <div class="vertical-card-img">
                                 @if($item->image)
@@ -389,7 +389,7 @@
                 <span>@lang('Search Keyword')</span>
             </label>
             <div class="position-relative">
-                <input type="text" class="form-control form-control-sm" id="searchValue" placeholder="@lang('Type keywords...')" value="{{ $searchTerm }}">
+                <input type="text" class="form-control form-control-sm" id="drawerSearchValue" placeholder="@lang('Type keywords...')" value="{{ $searchTerm }}">
             </div>
         </div>
 
@@ -525,7 +525,7 @@
         function runFilter() {
             var categories = [];
             var stores = [];
-            var searchValue = $('#searchValue').val() || '';
+            var searchValue = $('#drawerSearchValue').val() || $('#searchValue').val() || '';
 
             $('.filter-by-category:checked').each(function() {
                 var val = parseInt($(this).val());
@@ -571,9 +571,9 @@
             });
         }
 
-        // Live search filter input inside drawer
+        // Live search filter input inside drawer and sidebar
         var searchTimeout = null;
-        $("#searchValue").on('input', function () {
+        $("#drawerSearchValue, #searchValue").on('input', function () {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(function() {
                 runFilter();
@@ -589,7 +589,7 @@
         $('#resetAllFiltersBtn').on('click', function(e) {
             e.preventDefault();
             $('.filter-by-category, .filter-by-stores').prop('checked', false);
-            $('#searchValue').val('{{ $searchTerm }}');
+            $('#drawerSearchValue, #searchValue').val('{{ $searchTerm }}');
             updateFilterBadge();
             runFilter();
         });

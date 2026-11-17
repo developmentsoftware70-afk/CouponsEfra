@@ -568,22 +568,22 @@
     min-height: 380px !important;
 }
 
-/* Left Column */
+/* Left Column - Clean White Background (CashKaro 1:1) */
 .ck-left-col {
     width: 48% !important;
-    background: #edf1f6 !important;
-    border-right: 1px solid #dbe3ed !important;
+    background: #ffffff !important;
+    border-right: 1px solid #f1f5f9 !important;
     display: flex !important;
     flex-direction: column !important;
 }
 
 .ck-col-header {
-    padding: 14px 18px !important;
+    padding: 12px 18px !important;
     font-size: 13px !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     color: #1e293b !important;
-    background: #e2e8f0 !important;
-    border-bottom: 1px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    border-bottom: 1px solid #f1f5f9 !important;
     letter-spacing: -0.1px !important;
 }
 
@@ -591,25 +591,26 @@
     display: flex !important;
     flex-direction: column !important;
     overflow-y: auto !important;
-    max-height: 340px !important;
+    max-height: 320px !important;
 }
 
 .ck-list-item {
-    padding: 10px 18px !important;
-    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 11px 18px !important;
+    border-bottom: 1px solid #f8fafc !important;
     display: block !important;
     text-decoration: none !important;
+    background: #ffffff !important;
     transition: background 0.15s ease !important;
 }
 .ck-list-item:last-child {
     border-bottom: none !important;
 }
 .ck-list-item:hover {
-    background: #dbe4ef !important;
+    background: #f8fafc !important;
 }
 .ck-item-title {
-    font-size: 13px !important;
-    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
     color: #1e293b !important;
     display: block !important;
     white-space: nowrap !important;
@@ -619,10 +620,31 @@
 }
 .ck-item-tag {
     font-size: 12px !important;
-    font-weight: 600 !important;
-    color: #1d4ed8 !important;
+    font-weight: 500 !important;
+    color: #2563eb !important;
     display: block !important;
-    margin-top: 1px !important;
+    margin-top: 2px !important;
+}
+
+/* See More Link at bottom of left column (CashKaro 1:1) */
+.ck-see-more-link {
+    display: none;
+    padding: 12px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #2563eb !important;
+    text-decoration: none !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: auto !important;
+    border-top: 1px solid #f1f5f9 !important;
+    transition: color 0.15s ease !important;
+}
+.ck-see-more-link.show {
+    display: flex !important;
+}
+.ck-see-more-link:hover {
+    color: #1d4ed8 !important;
 }
 
 /* Right Column */
@@ -638,7 +660,8 @@
 
 /* Big Hero Card */
 .ck-hero-card {
-    background: #f1f4f9 !important;
+    background: #f8fafc !important;
+    border: 1px solid #f1f5f9 !important;
     border-radius: 12px !important;
     padding: 24px 16px !important;
     display: flex !important;
@@ -651,13 +674,12 @@
     flex-grow: 1 !important;
 }
 .ck-hero-card:hover {
-    background: #e9eff7 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    background: #f1f5f9 !important;
 }
 .ck-hero-logo {
-    height: 48px !important;
-    max-width: 170px !important;
+    height: 64px !important;
+    width: 160px !important;
+    max-width: 90% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -667,12 +689,13 @@
     max-width: 100% !important;
     object-fit: contain !important;
 }
-.ck-hero-cashback {
-    font-size: 16px !important;
-    font-weight: 800 !important;
-    color: #1d4ed8 !important;
-    letter-spacing: -0.2px !important;
+.ck-hero-action-text {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #2563eb !important;
+    letter-spacing: -0.1px !important;
     text-align: center !important;
+    margin-top: 4px !important;
 }
 
 /* Bottom Picks Grid */
@@ -682,7 +705,8 @@
     gap: 10px !important;
 }
 .ck-pick-card {
-    background: #f1f4f9 !important;
+    background: #ffffff !important;
+    border: 1px solid #f1f5f9 !important;
     border-radius: 10px !important;
     padding: 12px 10px !important;
     display: flex !important;
@@ -694,24 +718,27 @@
     transition: all 0.2s ease !important;
 }
 .ck-pick-card:hover {
-    background: #e9eff7 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    background: #f8fafc !important;
 }
 .ck-pick-header {
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #1e293b !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
     text-align: center !important;
     margin-bottom: 6px !important;
 }
 .ck-pick-logo {
-    height: 26px !important;
+    height: 28px !important;
     max-width: 85px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin-bottom: 6px !important;
+}
+.ck-pick-logo img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
 }
 .ck-pick-brand {
     font-size: 18px !important;
@@ -730,7 +757,7 @@
     font-size: 14px !important;
 }
 .ck-pick-desc {
-    font-size: 11px !important;
+    font-size: 10.5px !important;
     font-weight: 500 !important;
     color: #475569 !important;
     line-height: 1.3 !important;
@@ -845,7 +872,7 @@
     color: #b45309 !important;
 }
 .search-rec-footer-btn {
-    display: flex !important;
+    display: none !important;
     align-items: center !important;
     justify-content: space-between !important;
     margin-top: 10px !important;
@@ -858,6 +885,9 @@
     font-weight: 600 !important;
     text-decoration: none !important;
     transition: all 0.15s ease !important;
+}
+.search-rec-footer-btn.show {
+    display: flex !important;
 }
 .search-rec-footer-btn:hover {
     background: #4f46e5 !important;
@@ -1099,6 +1129,32 @@ $trendingCoupons = App\Models\Coupon::with('store')
     ->take(4)
     ->get();
 
+// All Stores & Coupons for instant 0ms client-side search matching
+$allStoresSearchData = App\Models\Store::where('status', 1)->get()->map(function($s) {
+    $c = $s->coupons()->where('status', 1)->first();
+    return [
+        'id' => $s->id,
+        'name' => $s->name,
+        'title' => $s->name,
+        'image' => getImage(getFilePath('store') . '/' . $s->image),
+        'url' => route('store.coupons', $s->id, false),
+        'tag' => 'in Stores',
+        'subtitle' => $c ? $c->title : 'Visit Store & Earn Cashback'
+    ];
+});
+
+$allCouponsSearchData = App\Models\Coupon::with('store')->where('status', 1)->latest()->take(40)->get()->map(function($c) {
+    return [
+        'id' => $c->id,
+        'name' => @$c->store->name ?: $c->title,
+        'title' => $c->title,
+        'image' => @$c->store->image ? getImage(getFilePath('store') . '/' . $c->store->image) : '',
+        'url' => route('coupon.details', $c->slug ?? $c->id, false),
+        'tag' => 'in Products',
+        'subtitle' => $c->title
+    ];
+});
+
 // Hero Store (Right Column Top Card)
 $heroStore = App\Models\Store::where('status', 1)
     ->where('name', 'LIKE', '%Flipkart%')
@@ -1153,7 +1209,12 @@ $pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
                         <li class="hero-search-bar" id="heroSearchBarContainer">
                             <form action="{{route('single.coupon.search')}}" method="get" id="headerSearchForm" autocomplete="off">
                                 <button class="search-btn" type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
-                                <input class="form--control" id="headerSearchInput" name="search" type="text" placeholder="@lang('Search for any brand or product')" autocomplete="off" value="{{ request()->search ?? '' }}">
+                                <input class="form--control" id="headerSearchInput" name="search" type="text" 
+                                       placeholder="@lang('Search for any brand or product')" autocomplete="off" 
+                                       value="{{ request()->search ?? '' }}"
+                                       oninput="window.ckHandleHeaderSearch && window.ckHandleHeaderSearch(this.value)"
+                                       onfocus="window.ckShowHeaderDropdown && window.ckShowHeaderDropdown(this.value)"
+                                       onclick="window.ckShowHeaderDropdown && window.ckShowHeaderDropdown(this.value)">
                             </form>
 
                             <!-- SMART RECOMMENDATIONS DROPDOWN (CashKaro Exact 2-Column Replica) -->
@@ -1163,103 +1224,108 @@ $pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
                                     <i class="fas fa-spinner fa-spin"></i> @lang('Searching offers & stores...')
                                 </div>
 
-                                <!-- Initial Recommendations (Dynamic from User's Database) -->
-                                <div class="search-rec-initial" id="searchRecInitial">
-                                    <div class="ck-dropdown-grid">
-                                        <!-- LEFT COLUMN: Trending Deals (Real Stores & Real Offers from Database) -->
-                                        <div class="ck-left-col">
-                                            <div class="ck-col-header">
-                                                Trending Deals:
-                                            </div>
-                                            <div class="ck-trending-list">
-                                                @foreach($trendingStores as $tStore)
-                                                <a href="{{ route('store.coupons', $tStore->id) }}" class="ck-list-item">
-                                                    <span class="ck-item-title">{{ $tStore->name }}</span>
-                                                    <span class="ck-item-tag">in Stores</span>
-                                                </a>
-                                                @endforeach
+                                <div class="ck-dropdown-grid" id="ckDropdownGrid">
+                                    <!-- LEFT COLUMN: Trending Deals or Live Search Results -->
+                                    <div class="ck-left-col">
+                                        <div class="ck-col-header" id="ckColHeader">
+                                            Trending Deals:
+                                        </div>
+                                        <div class="ck-trending-list" id="ckItemsList">
+                                            @foreach($trendingStores as $tStore)
+                                            @php
+                                                $tCoupon = $tStore->coupons()->where('status', 1)->first();
+                                                $tSubtitle = $tCoupon ? $tCoupon->title : 'Visit Store & Earn Cashback';
+                                                $tImg = getImage(getFilePath('store').'/'.$tStore->image);
+                                            @endphp
+                                            <a href="{{ route('store.coupons', $tStore->id) }}" 
+                                               class="ck-list-item"
+                                               data-name="{{ $tStore->name }}"
+                                               data-image="{{ $tImg }}"
+                                               data-subtitle="{{ $tSubtitle }}"
+                                               data-url="{{ route('store.coupons', $tStore->id) }}"
+                                               data-tag="in Stores">
+                                                <span class="ck-item-title">{{ $tStore->name }}</span>
+                                                <span class="ck-item-tag">in Stores</span>
+                                            </a>
+                                            @endforeach
 
-                                                @foreach($trendingCoupons as $tCoupon)
-                                                <a href="{{ route('coupon.details', $tCoupon->slug ?? $tCoupon->id) }}" class="ck-list-item">
-                                                    <span class="ck-item-title">{{ Str::limit($tCoupon->title, 42) }}</span>
-                                                    <span class="ck-item-tag">in Products</span>
-                                                </a>
-                                                @endforeach
-                                            </div>
+                                            @foreach($trendingCoupons as $tCoupon)
+                                            @php
+                                                $cStore = $tCoupon->store;
+                                                $cImg = $cStore ? getImage(getFilePath('store').'/'.$cStore->image) : '';
+                                                $cSubtitle = $tCoupon->title;
+                                                $cName = $cStore ? $cStore->name : $tCoupon->title;
+                                            @endphp
+                                            <a href="{{ route('coupon.details', $tCoupon->slug ?? $tCoupon->id) }}" 
+                                               class="ck-list-item"
+                                               data-name="{{ $cName }}"
+                                               data-image="{{ $cImg }}"
+                                               data-subtitle="{{ $cSubtitle }}"
+                                               data-url="{{ route('coupon.details', $tCoupon->slug ?? $tCoupon->id) }}"
+                                               data-tag="in Products">
+                                                <span class="ck-item-title">{{ Str::limit($tCoupon->title, 42) }}</span>
+                                                <span class="ck-item-tag">in Products</span>
+                                            </a>
+                                            @endforeach
                                         </div>
 
-                                        <!-- RIGHT COLUMN: Hero Store + Picks (From Database) -->
-                                        <div class="ck-right-col">
-                                            <!-- Big Hero Store Card (Top Store from DB, e.g. Flipkart) -->
-                                            @if($heroStore)
-                                            <a href="{{ route('store.coupons', $heroStore->id) }}" class="ck-hero-card">
-                                                <div class="ck-hero-logo">
-                                                    <img src="{{ getImage(getFilePath('store').'/'.$heroStore->image) }}" alt="{{ $heroStore->name }}">
+                                        <!-- See More Link at bottom of left column (CashKaro 1:1) -->
+                                        <a href="#" id="ckSeeMoreBtn" class="ck-see-more-link" style="display: none;">
+                                            <span>@lang('See More')</span>
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+
+                                        <!-- Empty State when search returns 0 results -->
+                                        <div class="ck-search-empty" id="ckSearchEmpty" style="display: none; padding: 30px 15px; text-align: center;">
+                                            <i class="fas fa-search-minus fa-2x text-muted mb-2"></i>
+                                            <p style="font-size: 13px; color: #64748b; margin-bottom: 4px;">@lang('No stores or coupons match your search.')</p>
+                                            <small class="text-muted" style="font-size: 11px;">@lang('Press Enter to see all related results')</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- RIGHT COLUMN: Dynamic Hero Preview Card + Picks -->
+                                    <div class="ck-right-col">
+                                        <!-- Big Hero Store Card (Dynamic Preview on Search) -->
+                                        @php
+                                            $initialHeroImg = $heroStore ? getImage(getFilePath('store').'/'.$heroStore->image) : '';
+                                            $initialHeroName = $heroStore ? $heroStore->name : 'Trending Deal';
+                                            $initialHeroSub = @$heroCoupon ? Str::limit($heroCoupon->title, 32) : 'Up To 3% Cashback';
+                                            $initialHeroUrl = $heroStore ? route('store.coupons', $heroStore->id) : '#';
+                                        @endphp
+                                        <a href="{{ $initialHeroUrl }}" class="ck-hero-card" id="ckHeroCard">
+                                            <div class="ck-hero-logo" id="ckHeroLogoBox">
+                                                <img id="ckHeroImg" src="{{ $initialHeroImg }}" alt="{{ $initialHeroName }}">
+                                            </div>
+                                            <div class="ck-hero-action-text" id="ckHeroSubtitle">
+                                                {{ $initialHeroSub }}
+                                            </div>
+                                        </a>
+
+                                        <!-- Bottom 2 Pick Cards -->
+                                        <div class="ck-picks-grid" id="ckPicksGrid">
+                                            <!-- Pick of the Day -->
+                                            @if($pickOfDayStore)
+                                            <a href="{{ route('store.coupons', $pickOfDayStore->id) }}" class="ck-pick-card">
+                                                <div class="ck-pick-header">Pick of the Day</div>
+                                                <div class="ck-pick-logo">
+                                                    <img src="{{ getImage(getFilePath('store').'/'.$pickOfDayStore->image) }}" alt="{{ $pickOfDayStore->name }}">
                                                 </div>
-                                                <div class="ck-hero-cashback">
-                                                    {{ @$heroCoupon ? Str::limit($heroCoupon->title, 32) : 'Up To 6.5% Cashback' }}
-                                                </div>
+                                                <div class="ck-pick-desc">{{ @$pickOfDayCoupon->title ? Str::limit($pickOfDayCoupon->title, 38) : $pickOfDayStore->name }}</div>
                                             </a>
                                             @endif
 
-                                            <!-- Bottom 2 Pick Cards -->
-                                            <div class="ck-picks-grid">
-                                                <!-- Pick of the Day -->
-                                                @if($pickOfDayStore)
-                                                <a href="{{ route('store.coupons', $pickOfDayStore->id) }}" class="ck-pick-card">
-                                                    <div class="ck-pick-header">Pick of the Day</div>
-                                                    <div class="ck-pick-logo">
-                                                        <img src="{{ getImage(getFilePath('store').'/'.$pickOfDayStore->image) }}" alt="{{ $pickOfDayStore->name }}">
-                                                    </div>
-                                                    <div class="ck-pick-desc">{{ @$pickOfDayCoupon->title ? Str::limit($pickOfDayCoupon->title, 38) : $pickOfDayStore->name }}</div>
-                                                </a>
-                                                @endif
-
-                                                <!-- Pick of the Week -->
-                                                @if($pickOfWeekStore)
-                                                <a href="{{ route('store.coupons', $pickOfWeekStore->id) }}" class="ck-pick-card">
-                                                    <div class="ck-pick-header">Pick of the Week</div>
-                                                    <div class="ck-pick-logo">
-                                                        <img src="{{ getImage(getFilePath('store').'/'.$pickOfWeekStore->image) }}" alt="{{ $pickOfWeekStore->name }}">
-                                                    </div>
-                                                    <div class="ck-pick-desc">{{ @$pickOfWeekCoupon->title ? Str::limit($pickOfWeekCoupon->title, 38) : $pickOfWeekStore->name }}</div>
-                                                </a>
-                                                @endif
-                                            </div>
+                                            <!-- Pick of the Week -->
+                                            @if($pickOfWeekStore)
+                                            <a href="{{ route('store.coupons', $pickOfWeekStore->id) }}" class="ck-pick-card">
+                                                <div class="ck-pick-header">Pick of the Week</div>
+                                                <div class="ck-pick-logo">
+                                                    <img src="{{ getImage(getFilePath('store').'/'.$pickOfWeekStore->image) }}" alt="{{ $pickOfWeekStore->name }}">
+                                                </div>
+                                                <div class="ck-pick-desc">{{ @$pickOfWeekCoupon->title ? Str::limit($pickOfWeekCoupon->title, 38) : $pickOfWeekStore->name }}</div>
+                                            </a>
+                                            @endif
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Live Search Results (shown when typing) -->
-                                <div class="search-rec-results" id="searchRecResults" style="display: none;">
-                                    <!-- Stores Results -->
-                                    <div class="search-rec-section" id="searchRecStoresSec" style="display: none;">
-                                        <div class="search-rec-title">
-                                            <span><i class="fas fa-store text-primary"></i> @lang('Stores')</span>
-                                        </div>
-                                        <div class="search-rec-items-list" id="searchRecStoresList"></div>
-                                    </div>
-
-                                    <!-- Coupons Results -->
-                                    <div class="search-rec-section mb-0" id="searchRecCouponsSec" style="display: none;">
-                                        <div class="search-rec-title">
-                                            <span><i class="fas fa-ticket-alt text-success"></i> @lang('Coupons & Offers')</span>
-                                        </div>
-                                        <div class="search-rec-items-list" id="searchRecCouponsList"></div>
-                                    </div>
-
-                                    <!-- No Results Found -->
-                                    <div class="search-rec-empty" id="searchRecEmpty" style="display: none;">
-                                        <i class="fas fa-search-minus fa-2x text-muted mb-2"></i>
-                                        <p>@lang('No stores or coupons match your search.')</p>
-                                        <small class="text-muted">@lang('Press Enter to see all related results')</small>
-                                    </div>
-
-                                    <!-- View All Footer -->
-                                    <a href="#" id="searchRecViewAllBtn" class="search-rec-footer-btn">
-                                        <span>@lang('See all results for') "<strong id="searchRecQueryText"></strong>"</span>
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
                                 </div>
                             </div>
                         </li>
@@ -1474,146 +1540,342 @@ $pickOfWeekCoupon = App\Models\Coupon::where('status', 1)
 
 <script>
 (function() {
-    function setupSearchDropdown() {
-        var input = document.getElementById('headerSearchInput');
-        var box = document.getElementById('searchRecommendationBox');
-        var container = document.getElementById('heroSearchBarContainer');
-        var initial = document.getElementById('searchRecInitial');
-        var results = document.getElementById('searchRecResults');
-        var loading = document.getElementById('searchRecLoading');
-        var storesSec = document.getElementById('searchRecStoresSec');
-        var storesList = document.getElementById('searchRecStoresList');
-        var couponsSec = document.getElementById('searchRecCouponsSec');
-        var couponsList = document.getElementById('searchRecCouponsList');
-        var empty = document.getElementById('searchRecEmpty');
-        var viewAllBtn = document.getElementById('searchRecViewAllBtn');
-        var queryText = document.getElementById('searchRecQueryText');
-        var suggestUrl = "{{ route('search.suggest') }}";
-        var debounceTimer = null;
+    // Expose global variables and helper functions immediately
+    window.ckLocalStores = @json($allStoresSearchData ?? []);
+    window.ckLocalCoupons = @json($allCouponsSearchData ?? []);
+    window.ckSuggestUrl = "{{ route('search.suggest', [], false) }}";
+    window.ckSearchUrlBase = "{{ route('single.coupon.search', [], false) }}";
+    window.ckDebounceTimer = null;
+    window.ckInitialItemsHtml = null;
+    window.ckInitialHeroState = null;
 
-        if (!input || !box) return;
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
 
-        function showBox(e) {
-            if (e && e.stopPropagation) e.stopPropagation();
-            box.classList.add('active');
-            var val = input.value.trim();
-            if (val.length === 0) {
-                if (initial) initial.style.display = 'block';
-                if (results) results.style.display = 'none';
-                if (loading) loading.style.display = 'none';
+    function escapeAttr(text) {
+        if (!text) return '';
+        return String(text).replace(/"/g, '&quot;');
+    }
+
+    function highlightMatch(text, query) {
+        if (!text || !query) return escapeHtml(text || '');
+        var q = String(query).trim();
+        if (!q) return escapeHtml(text);
+        var idx = text.toLowerCase().indexOf(q.toLowerCase());
+        if (idx === -1) return escapeHtml(text);
+        var before = escapeHtml(text.substring(0, idx));
+        var match = escapeHtml(text.substring(idx, idx + q.length));
+        var after = escapeHtml(text.substring(idx + q.length));
+        return before + '<strong style="font-weight: 700; color: #0f172a;">' + match + '</strong>' + after;
+    }
+
+    function getElements() {
+        return {
+            input: document.getElementById('headerSearchInput') || document.querySelector('.hero-search-bar input'),
+            box: document.getElementById('searchRecommendationBox'),
+            container: document.getElementById('heroSearchBarContainer'),
+            colHeader: document.getElementById('ckColHeader'),
+            itemsList: document.getElementById('ckItemsList'),
+            seeMoreBtn: document.getElementById('ckSeeMoreBtn'),
+            searchEmpty: document.getElementById('ckSearchEmpty'),
+            loading: document.getElementById('searchRecLoading'),
+            heroCard: document.getElementById('ckHeroCard'),
+            heroImg: document.getElementById('ckHeroImg'),
+            heroSubtitle: document.getElementById('ckHeroSubtitle')
+        };
+    }
+
+    window.ckInitInitialState = function() {
+        var els = getElements();
+        if (els.itemsList && window.ckInitialItemsHtml === null) {
+            window.ckInitialItemsHtml = els.itemsList.innerHTML;
+        }
+        if (window.ckInitialHeroState === null && els.heroCard) {
+            window.ckInitialHeroState = {
+                name: 'Flipkart',
+                image: els.heroImg ? els.heroImg.getAttribute('src') : '',
+                subtitle: els.heroSubtitle ? els.heroSubtitle.textContent.trim() : 'Up To 3% Cashback',
+                url: els.heroCard ? els.heroCard.getAttribute('href') : '#'
+            };
+        }
+    };
+
+    window.ckUpdateHeroPreview = function(name, image, subtitle, url) {
+        var els = getElements();
+        if (els.heroImg) {
+            if (image) {
+                els.heroImg.src = image;
+                els.heroImg.alt = name || '';
+                els.heroImg.style.display = 'block';
             } else {
-                handleSearch(val);
+                els.heroImg.style.display = 'none';
             }
         }
+        if (els.heroSubtitle) {
+            if (name && name.toLowerCase() === 'amazon') {
+                els.heroSubtitle.textContent = 'Visit Amazon';
+            } else if (subtitle && subtitle.trim().length > 0) {
+                els.heroSubtitle.textContent = subtitle;
+            } else if (name) {
+                els.heroSubtitle.textContent = 'Visit ' + name;
+            } else {
+                els.heroSubtitle.textContent = 'Visit Store';
+            }
+        }
+        if (els.heroCard && url) {
+            els.heroCard.href = url;
+        }
+    };
 
-        function hideBox() {
-            box.classList.remove('active');
+    window.ckRestoreInitial = function() {
+        window.ckInitInitialState();
+        var els = getElements();
+        if (els.colHeader) {
+            els.colHeader.style.display = 'block';
+            els.colHeader.textContent = 'Trending Deals:';
+        }
+        if (els.itemsList) {
+            els.itemsList.style.display = 'flex';
+            if (window.ckInitialItemsHtml) {
+                els.itemsList.innerHTML = window.ckInitialItemsHtml;
+            }
+        }
+        if (els.seeMoreBtn) {
+            els.seeMoreBtn.style.display = 'none';
+            els.seeMoreBtn.classList.remove('show');
+        }
+        if (els.searchEmpty) els.searchEmpty.style.display = 'none';
+        if (els.loading) els.loading.style.display = 'none';
+        if (window.ckInitialHeroState) {
+            window.ckUpdateHeroPreview(
+                window.ckInitialHeroState.name,
+                window.ckInitialHeroState.image,
+                window.ckInitialHeroState.subtitle,
+                window.ckInitialHeroState.url
+            );
+        }
+    };
+
+    window.ckFilterLocalResults = function(query) {
+        var q = (query || '').trim().toLowerCase();
+        if (!q) return [];
+
+        var exactStores = [];
+        var startsWithStores = [];
+        var containsStores = [];
+
+        (window.ckLocalStores || []).forEach(function(s) {
+            var sName = (s.name || '').toLowerCase();
+            if (sName === q) {
+                exactStores.push(s);
+            } else if (sName.startsWith(q)) {
+                startsWithStores.push(s);
+            } else if (sName.includes(q)) {
+                containsStores.push(s);
+            }
+        });
+
+        // Sort startsWith stores so Amazon & shorter brand names match first on 'a', 'am', 'ama'
+        startsWithStores.sort(function(a, b) {
+            var aLower = (a.name || '').toLowerCase();
+            var bLower = (b.name || '').toLowerCase();
+            if (aLower === 'amazon') return -1;
+            if (bLower === 'amazon') return 1;
+            return aLower.length - bLower.length;
+        });
+
+        var matchedStores = exactStores.concat(startsWithStores).concat(containsStores);
+
+        var matchedCoupons = [];
+        (window.ckLocalCoupons || []).forEach(function(c) {
+            var cTitle = (c.title || '').toLowerCase();
+            var cName = (c.name || '').toLowerCase();
+            if (cTitle.includes(q) || cName.includes(q)) {
+                matchedCoupons.push(c);
+            }
+        });
+
+        return matchedStores.concat(matchedCoupons).slice(0, 10);
+    };
+
+    window.ckRenderResults = function(results, query) {
+        var els = getElements();
+        // In CashKaro, Trending Deals header is hidden when search results are shown
+        if (els.colHeader) {
+            els.colHeader.style.display = 'none';
+        }
+        if (els.seeMoreBtn) {
+            els.seeMoreBtn.href = window.ckSearchUrlBase + '?search=' + encodeURIComponent(query);
+            els.seeMoreBtn.style.display = 'flex';
+            els.seeMoreBtn.classList.add('show');
         }
 
-        input.addEventListener('focus', showBox);
-        input.addEventListener('click', showBox);
-        input.addEventListener('mousedown', showBox);
+        if (results && results.length > 0) {
+            if (els.searchEmpty) els.searchEmpty.style.display = 'none';
+            if (els.itemsList) {
+                els.itemsList.style.display = 'flex';
+                els.itemsList.innerHTML = results.map(function(item) {
+                    return '<a href="' + escapeAttr(item.url) + '" class="ck-list-item"' +
+                        ' data-name="' + escapeAttr(item.name) + '"' +
+                        ' data-image="' + escapeAttr(item.image) + '"' +
+                        ' data-subtitle="' + escapeAttr(item.subtitle) + '"' +
+                        ' data-url="' + escapeAttr(item.url) + '"' +
+                        ' data-tag="' + escapeAttr(item.tag) + '">' +
+                        '<span class="ck-item-title">' + highlightMatch(item.title || item.name, query) + '</span>' +
+                        '<span class="ck-item-tag">' + escapeHtml(item.tag) + '</span>' +
+                    '</a>';
+                }).join('');
 
-        document.addEventListener('click', function(e) {
-            if (container && !container.contains(e.target)) {
-                hideBox();
+                // HERO CARD UPDATES DYNAMICALLY ONLY ON SEARCH (NO HOVER JUMPING)
+                var first = results[0];
+                window.ckUpdateHeroPreview(first.name, first.image, first.subtitle, first.url);
             }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideBox();
+        } else {
+            if (els.itemsList) els.itemsList.innerHTML = '';
+            if (els.searchEmpty) els.searchEmpty.style.display = 'block';
+            if (els.seeMoreBtn) {
+                els.seeMoreBtn.style.display = 'none';
+                els.seeMoreBtn.classList.remove('show');
             }
-        });
+        }
+    };
 
-        input.addEventListener('input', function() {
-            var val = input.value.trim();
-            clearTimeout(debounceTimer);
+    window.ckShowHeaderDropdown = function(val) {
+        window.ckInitInitialState();
+        var els = getElements();
+        if (els.box) {
+            els.box.classList.add('active');
+            els.box.style.display = 'block';
+        }
+        var query = (val !== undefined && val !== null) ? String(val) : (els.input ? els.input.value : '');
+        if (query.trim().length === 0) {
+            window.ckRestoreInitial();
+        } else {
+            window.ckHandleHeaderSearch(query);
+        }
+    };
 
-            if (val.length === 0) {
-                if (loading) loading.style.display = 'none';
-                if (results) results.style.display = 'none';
-                if (initial) initial.style.display = 'block';
-                return;
-            }
+    window.ckHideHeaderDropdown = function() {
+        var els = getElements();
+        if (els.box) {
+            els.box.classList.remove('active');
+            els.box.style.display = 'none';
+        }
+    };
 
-            if (initial) initial.style.display = 'none';
-            if (loading) loading.style.display = 'block';
-            if (results) results.style.display = 'none';
+    window.ckHandleHeaderSearch = function(query) {
+        window.ckInitInitialState();
+        var els = getElements();
+        if (els.box) {
+            els.box.classList.add('active');
+            els.box.style.display = 'block';
+        }
 
-            debounceTimer = setTimeout(function() {
-                handleSearch(val);
-            }, 200);
-        });
+        var val = (query !== undefined && query !== null) ? String(query).trim() : (els.input ? els.input.value.trim() : '');
+        clearTimeout(window.ckDebounceTimer);
 
-        function handleSearch(val) {
-            fetch(suggestUrl + '?search=' + encodeURIComponent(val))
+        if (val.length === 0) {
+            window.ckRestoreInitial();
+            return;
+        }
+
+        // 1. INSTANT 0ms local match (Never freezes or waits for network!)
+        var instantMatches = window.ckFilterLocalResults(val);
+        if (instantMatches.length > 0) {
+            window.ckRenderResults(instantMatches, val);
+        } else {
+            window.ckRenderResults([], val);
+        }
+
+        // 2. Background AJAX fetch to enrich / supplement results
+        if (els.loading) els.loading.style.display = 'block';
+
+        window.ckDebounceTimer = setTimeout(function() {
+            fetch(window.ckSuggestUrl + '?search=' + encodeURIComponent(val))
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
-                    if (loading) loading.style.display = 'none';
-                    if (results) results.style.display = 'block';
+                    var curEls = getElements();
+                    if (curEls.loading) curEls.loading.style.display = 'none';
 
-                    if (queryText) queryText.textContent = val;
-                    if (viewAllBtn) viewAllBtn.href = data.search_url;
+                    // Verify query hasn't changed while network was in flight
+                    var currentVal = curEls.input ? curEls.input.value.trim() : '';
+                    if (currentVal.toLowerCase() !== val.toLowerCase()) return;
 
-                    var hasStores = data.stores && data.stores.length > 0;
-                    var hasCoupons = data.coupons && data.coupons.length > 0;
-
-                    if (hasStores && storesSec && storesList) {
-                        storesSec.style.display = 'block';
-                        storesList.innerHTML = data.stores.map(function(store) {
-                            return '<a href="' + store.url + '" class="search-rec-item">' +
-                                '<div class="search-rec-item-left">' +
-                                    '<div class="search-rec-item-icon"><img src="' + store.image + '" alt="' + escapeHtml(store.name) + '"></div>' +
-                                    '<div class="search-rec-item-info">' +
-                                        '<div class="search-rec-item-title">' + escapeHtml(store.name) + '</div>' +
-                                        '<div class="search-rec-item-sub">Store & Coupons</div>' +
-                                    '</div>' +
-                                '</div>' +
-                                '<span class="search-rec-badge badge-store">Store</span>' +
-                            '</a>';
-                        }).join('');
-                    } else if (storesSec) {
-                        storesSec.style.display = 'none';
-                        if (storesList) storesList.innerHTML = '';
+                    var allResults = [];
+                    if (data.stores && data.stores.length > 0) {
+                        data.stores.forEach(function(s) {
+                            allResults.push({
+                                name: s.name,
+                                title: s.title || s.name,
+                                image: s.image,
+                                url: s.url,
+                                tag: s.tag || 'in Stores',
+                                subtitle: s.subtitle || 'Visit Store & Earn Cashback'
+                            });
+                        });
                     }
-
-                    if (hasCoupons && couponsSec && couponsList) {
-                        couponsSec.style.display = 'block';
-                        couponsList.innerHTML = data.coupons.map(function(coupon) {
-                            return '<a href="' + coupon.url + '" class="search-rec-item">' +
-                                '<div class="search-rec-item-left">' +
-                                    '<div class="search-rec-item-icon"><i class="fas fa-tag"></i></div>' +
-                                    '<div class="search-rec-item-info">' +
-                                        '<div class="search-rec-item-title">' + escapeHtml(coupon.title) + '</div>' +
-                                        '<div class="search-rec-item-sub">' + (coupon.store_name ? escapeHtml(coupon.store_name) + ' • ' : '') + (coupon.code ? escapeHtml(coupon.code) : coupon.type) + '</div>' +
-                                    '</div>' +
-                                '</div>' +
-                                '<span class="search-rec-badge ' + (coupon.type === 'Code' ? 'badge-code' : 'badge-deal') + '">' + coupon.type + '</span>' +
-                            '</a>';
-                        }).join('');
-                    } else if (couponsSec) {
-                        couponsSec.style.display = 'none';
-                        if (couponsList) couponsList.innerHTML = '';
+                    if (data.coupons && data.coupons.length > 0) {
+                        data.coupons.forEach(function(c) {
+                            allResults.push({
+                                name: c.name || c.store_name || c.title,
+                                title: c.title,
+                                image: c.image || '',
+                                url: c.url,
+                                tag: c.tag || 'in Products',
+                                subtitle: c.subtitle || c.title
+                            });
+                        });
                     }
-
-                    if (!hasStores && !hasCoupons && empty) {
-                        empty.style.display = 'block';
-                    } else if (empty) {
-                        empty.style.display = 'none';
+                    if (allResults.length > 0) {
+                        window.ckRenderResults(allResults, val);
+                    } else if (instantMatches.length === 0) {
+                        window.ckRenderResults([], val);
                     }
                 })
                 .catch(function() {
-                    if (loading) loading.style.display = 'none';
+                    var curEls = getElements();
+                    if (curEls.loading) curEls.loading.style.display = 'none';
                 });
+        }, 120);
+    };
+
+    function setupSearchDropdown() {
+        window.ckInitInitialState();
+
+        var els = getElements();
+        if (els.input) {
+            els.input.addEventListener('focus', function() { window.ckShowHeaderDropdown(this.value); });
+            els.input.addEventListener('click', function() { window.ckShowHeaderDropdown(this.value); });
+            els.input.addEventListener('input', function() { window.ckHandleHeaderSearch(this.value); });
+            els.input.addEventListener('keyup', function(e) {
+                if (e.key === 'Escape') return;
+                window.ckHandleHeaderSearch(this.value);
+            });
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            var div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            var els = getElements();
+            if (els.container && !els.container.contains(e.target)) {
+                window.ckHideHeaderDropdown();
+            }
+        });
+
+        // Global Event Delegation strictly for header search input
+        document.addEventListener('input', function(e) {
+            if (e.target && (e.target.id === 'headerSearchInput' || (e.target.closest && e.target.closest('.hero-search-bar')))) {
+                window.ckHandleHeaderSearch(e.target.value);
+            }
+        });
+
+        // Keyboard Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.ckHideHeaderDropdown();
+            }
+        });
     }
 
     if (document.readyState === 'loading') {

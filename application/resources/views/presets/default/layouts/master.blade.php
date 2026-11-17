@@ -47,10 +47,6 @@
 </div>
 <!-- ==================== Dashboard End Here ==================== -->
 
-@include($activeTemplate.'components.cookie')
-
-@include($activeTemplate.'components.cookie')
-
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="{{asset('assets/common/js/jquery-3.7.1.min.js')}}"></script>
@@ -83,25 +79,19 @@
         var inputElements = $('input,select');
         $.each(inputElements, function (index, element) {
             element = $(element);
+            if (!element.attr('id')) {
+                element.attr('id',element.attr('name'));
+            }
             element.closest('.form-group').find('label').attr('for',element.attr('name'));
-            element.attr('id',element.attr('name'))
         });
-
-        $('.policy').on('click',function(){
-            $.get('{{route('cookie.accept')}}', function(response){
-                $('.cookies-card').addClass('d-none');
-            });
-        });
-
-        setTimeout(function(){
-            $('.cookies-card').removeClass('hide')
-        },2000);
 
         var inputElements = $('[type=text],select,textarea');
         $.each(inputElements, function (index, element) {
             element = $(element);
+            if (!element.attr('id')) {
+                element.attr('id',element.attr('name'));
+            }
             element.closest('.form-group').find('label').attr('for',element.attr('name'));
-            element.attr('id',element.attr('name'))
         });
 
         $.each($('input, select, textarea'), function (i, element) {

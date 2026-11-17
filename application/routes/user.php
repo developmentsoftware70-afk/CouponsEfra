@@ -61,6 +61,8 @@ Route::middleware('auth')->name('user.')->group(function () {
                 // Payouts & Withdrawals
                 Route::get('payouts', 'payouts')->name('payouts');
                 Route::post('payouts/request', 'payoutRequest')->name('payouts.request');
+                Route::post('payouts/account/update', 'updatePayoutAccount')->name('payouts.account.update');
+                Route::post('payouts/request/update/{id}', 'updatePayoutRequest')->name('payouts.request.update');
                 // my earnings
                 Route::get('earnings-list','myEarnings')->name('my.earnings');
                 Route::get('earnings','viewEarnings')->name('earnings.view');

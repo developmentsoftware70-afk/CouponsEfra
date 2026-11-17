@@ -1,6 +1,6 @@
 <div class="row gy-4">
     @forelse($coupons as $index => $item)
-    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
         <div class="vertical-coupon-card wow animate__animated animate__fadeInUp" data-wow-delay="{{ 0.1 + ($index * 0.05) }}s">
             <div class="vertical-card-img">
                 @if($item->image)

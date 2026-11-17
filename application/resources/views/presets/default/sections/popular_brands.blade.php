@@ -1,88 +1,45 @@
 @php
     $popularBrandsContent = getContent('popular_brands.content', true);
     $popularBrandsElements = getContent('popular_brands.element');
+    if ($popularBrandsElements) {
+        $popularBrandsElements = $popularBrandsElements->reverse();
+    }
 
-    // Priority map for brands: higher score = displayed first
-    $priorityWeights = [
-        'amazon' => 1000,
-        'flipkart' => 950,
-        'hyphen' => 900,
-        'bacca bucci' => 850,
-        'baccabucci' => 850,
-        'myntra' => 800,
-        'nykaa' => 750,
-        'firstcry' => 700,
-        'neemans' => 650,
-        'dot & key' => 600,
-        'dot and key' => 600,
-        'wakefit' => 550,
-        'cashify' => 500,
-        'healthkart' => 450,
-        'mcaffeine' => 400,
-        'wow skin' => 350,
-        'noise' => 300,
-        'noice' => 300,
-        'nilkamal' => 250,
-        'nilkamal furniture' => 250,
-        'the man company' => 200,
-        'daily object' => 150,
-        'daily objects' => 150,
-        'igp' => 100,
-        'furlenco' => 90,
-        'guvi' => 80,
-        'bajaj finserv' => 70,
-        'search my journey' => 60,
-        'stockedge' => 50,
-    ];
+    $allStores = App\Models\Store::where('status', 1)->with('coupons')->get();
+    $homepageBrands = collect();
 
-    $brandsList = collect();
-
-    // 1. Load brands configured in Admin Panel > Manage Frontend > Most Popular Brands
     if ($popularBrandsElements && $popularBrandsElements->count() > 0) {
-        foreach ($popularBrandsElements as $idx => $elem) {
+        foreach ($popularBrandsElements as $elem) {
             $bName = @$elem->data_values->brand_name;
             $kName = strtolower(trim($bName));
-            // Priority preserved from admin ordering / priority map
-            $score = $priorityWeights[$kName] ?? (990 - $idx * 10);
-            $brandsList->push((object)[
+
+            // Dynamically match active store from database by name
+            $matchedStore = $allStores->first(function($st) use ($kName) {
+                $stName = strtolower(trim($st->name));
+                return $stName === $kName || str_starts_with($stName, $kName) || str_starts_with($kName, $stName);
+            });
+
+            // Dynamically resolve URL using route('store.coupons', $id)
+            if ($matchedStore) {
+                $brandLink = route('store.coupons', $matchedStore->id);
+                $firstCoupon = $matchedStore->coupons->where('status', 1)->first();
+                $cashbackText = ($firstCoupon && !empty($firstCoupon->cashback_amount))
+                    ? 'Upto ' . $firstCoupon->cashback_amount . '% Cashback'
+                    : (@$elem->data_values->cashback_text ?: 'Upto 7% Cashback');
+            } else {
+                $brandLink = @$elem->data_values->link ?: route('brands');
+                $cashbackText = @$elem->data_values->cashback_text ?: 'Upto 7% Cashback';
+            }
+
+            $homepageBrands->push((object)[
                 'name' => $bName,
                 'sale_tag' => @$elem->data_values->sale_tag ?: 'Sale Live Now',
-                'cashback_text' => @$elem->data_values->cashback_text ?: 'Upto 7% Cashback',
-                'image' => getImage('assets/images/frontend/popular_brands/' . @$elem->data_values->brand_logo),
-                'link' => @$elem->data_values->link ?: 'javascript:void(0)',
-                'priority' => $score
-            ]);
-        }
-    }
-
-    // 2. Also load active stores from DB (deduplicated by name)
-    $existingNames = $brandsList->pluck('name')->map(function($n) { return strtolower(trim($n)); })->all();
-    $activeStores = App\Models\Store::where('status', 1)->get()->unique(function($s) {
-        return strtolower(trim($s->name));
-    });
-
-    foreach ($activeStores as $st) {
-        $k = strtolower(trim($st->name));
-        if (!in_array($k, $existingNames)) {
-            $coupon = $st->coupons()->where('status', 1)->first();
-            $cashbackText = ($coupon && !empty($coupon->cashback_amount)) 
-                ? 'Upto ' . $coupon->cashback_amount . '% Cashback' 
-                : 'Upto 5% Cashback';
-
-            $brandsList->push((object)[
-                'name' => $st->name,
-                'sale_tag' => 'Sale Live Now',
                 'cashback_text' => $cashbackText,
-                'image' => getImage(getFilePath('store') . '/' . $st->image),
-                'link' => route('store.coupons', $st->id),
-                'priority' => $priorityWeights[$k] ?? 10
+                'image' => getImage('assets/images/frontend/popular_brands/' . @$elem->data_values->brand_logo),
+                'link' => $brandLink,
             ]);
         }
     }
-
-    // Sort by priority descending (Amazon, Flipkart, Hyphen, Bacca Bucci, Myntra, Nykaa...)
-    // Take top 18 cards for the homepage (3 rows of 6 columns)
-    $homepageBrands = $brandsList->sortByDesc('priority')->values()->take(18);
 @endphp
 
 @push('style')

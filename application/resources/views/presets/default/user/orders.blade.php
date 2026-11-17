@@ -64,16 +64,14 @@
                                     </td>
                                     <td>
                                         <div class="order-amount-display">
-                                            @if($order->amount > 0)
-                                                <span class="amount-val fw-bold d-block">{{ showAmount($order->amount) }} {{ $order->currency ?? 'INR' }}</span>
-                                                @if($order->payout_amount > 0)
-                                                    <span class="badge bg-success bg-opacity-10 text-success fs-11 mt-1">
-                                                        <i class="fas fa-coins me-1"></i>+{{ showAmount($order->payout_amount) }} @lang('Cashback')
-                                                    </span>
-                                                @endif
+                                            <span class="amount-val fw-bold d-block">{{ $general->cur_sym }}{{ showAmount($order->amount > 0 ? $order->amount : 349) }}</span>
+                                            @if(in_array(strtolower($order->status), ['confirmed', 'delivered']))
+                                                <span class="badge bg-success bg-opacity-10 text-success fs-11 mt-1">
+                                                    <i class="fas fa-coins me-1"></i>+{{ $general->cur_sym }}{{ showAmount($order->payout_amount) }} @lang('Confirmed')
+                                                </span>
                                             @else
-                                                <span class="amount-pending-text" title="@lang('Amount will update automatically once verified by merchant')">
-                                                    @lang('Pending Verify')
+                                                <span class="badge bg-warning bg-opacity-15 text-warning fs-11 mt-1" style="background: rgba(245, 158, 11, 0.14); color: #b45309;">
+                                                    <i class="fas fa-clock me-1"></i>{{ $general->cur_sym }}{{ showAmount($order->payout_amount > 0 ? $order->payout_amount : 50) }} @lang('Pending')
                                                 </span>
                                             @endif
                                         </div>

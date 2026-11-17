@@ -18,6 +18,12 @@ class LanguageMiddleware
     {
         session()->put('lang', $this->getCode());
         app()->setLocale(session('lang',  $this->getCode()));
+
+        // Auto-accept GDPR cookie automatically for all requests
+        if (!\Cookie::get('gdpr_cookie')) {
+            \Cookie::queue('gdpr_cookie', 'accepted', 43200);
+        }
+
         return $next($request);
     }
 
