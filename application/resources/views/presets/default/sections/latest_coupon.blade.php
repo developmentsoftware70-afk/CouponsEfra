@@ -517,12 +517,16 @@
     (function($) {
         "use strict";
 
-        // Slick Slider initialization for Flash Deals
+        // Slick Slider initialization for Flash Deals (Auto-scroll enabled)
         if ($('.ck-latest-slider').length > 0) {
             $('.ck-latest-slider').slick({
                 dots: false,
-                infinite: false,
-                speed: 350,
+                infinite: true,
+                autoplay: true,
+                autoplaySpeed: 2500,
+                speed: 700,
+                pauseOnHover: true,
+                pauseOnFocus: true,
                 slidesToShow: 3.2,
                 slidesToScroll: 1,
                 arrows: true,

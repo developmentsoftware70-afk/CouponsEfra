@@ -169,6 +169,13 @@
     </a>
 </li>
 
+<li class="sidebar-menu-item {{menuActive('admin.custom.sections.*')}}">
+    <a href="{{route('admin.custom.sections.index')}}" class="nav-link ">
+        <i class="menu-icon la la-plus-circle"></i>
+        <span class="menu-title">@lang('Custom Sections')</span>
+    </a>
+</li>
+
 <li class="sidebar-menu-item sidebar-dropdown">
     <a href="javascript:void(0)" class="{{menuActive('admin.frontend.sections*',3)}}">
         <i class="menu-icon la la-grip-horizontal"></i>

@@ -14,7 +14,7 @@
                                 <th>@lang('Category')</th>
                                 <th>@lang('Code')</th>
                                 <th>@lang('Featured')</th>
-                                <th>@lang('Exclusive')</th>
+                                <th>@lang('Top Brand')</th>
                                 <th>@lang('Status')</th>
                                 <th>@lang('Actions')</th>
                             </tr>
@@ -36,11 +36,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($item->is_exclusive == 1)
-                                    
-                                    <span><i class="fas fa-check-circle"></i></span>
+                                    @if($item->is_top_brand == 1 || $item->is_exclusive == 1 || $item->is_popular == 1)
+                                    <span class="base-color"><i class="fas fa-check-circle"></i></span>
                                     @else 
-                                    
                                     <span><i class="fas fa-times"></i></span>
                                     @endif
                                 </td>

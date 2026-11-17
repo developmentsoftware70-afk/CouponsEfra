@@ -181,12 +181,51 @@ function getTemplates()
 function getPageSections($arr = false)
 {
     $jsonUrl = resource_path('views/') . str_replace('.', '/', activeTemplate()) . 'sections/builder/builder.json';
-    $sections = json_decode(file_get_contents($jsonUrl));
+    $sections = json_decode(file_get_contents($jsonUrl), true) ?: [];
+
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('custom_sections')) {
+            $customSections = \App\Models\CustomSection::where('status', 1)->get();
+            foreach ($customSections as $cs) {
+                $imgSize = match($cs->layout_type) {
+                    'banner_slider' => '1920x450',
+                    'promo_box'     => '800x400',
+                    default         => '400x300',
+                };
+
+                $sections[$cs->key] = [
+                    'builder'      => true,
+                    'no_selection' => false,
+                    'name'         => $cs->name . ' (Custom)',
+                    'is_custom'    => true,
+                    'layout_type'  => $cs->layout_type,
+                    'content'      => [
+                        'heading'    => 'text',
+                        'subheading' => 'text',
+                    ],
+                    'element'      => [
+                        'images' => [
+                            'item_image' => [
+                                'size' => $imgSize
+                            ]
+                        ],
+                        'title'         => 'text',
+                        'sale_tag'      => 'text',
+                        'cashback_text' => 'text',
+                        'link'          => 'text',
+                        'modal'         => true,
+                    ]
+                ];
+            }
+        }
+    } catch (\Throwable $e) {}
+
     if ($arr) {
-        $sections = json_decode(file_get_contents($jsonUrl), true);
         ksort($sections);
+        return $sections;
     }
-    return $sections;
+
+    return json_decode(json_encode($sections));
 }
 
 function getImage($image, $size = null)

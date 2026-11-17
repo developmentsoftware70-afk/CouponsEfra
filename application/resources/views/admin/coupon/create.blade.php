@@ -123,18 +123,9 @@
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group mt-4">
-                                    <label class="fw-bold" for="is_exclusive">@lang('Exclusive')</label>
-                                    <label class="switch m-0" for="is_exclusive">
-                                        <input type="checkbox" class="toggle-switch" name="is_exclusive"  id="is_exclusive">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group mt-4">
-                                    <label class="fw-bold" for="is_popular">@lang('Popular')</label>
-                                    <label class="switch m-0" for="is_popular">
-                                        <input type="checkbox" class="toggle-switch" name="is_popular" id="is_popular">
+                                    <label class="fw-bold" for="is_top_brand">@lang('Top Brand')</label>
+                                    <label class="switch m-0" for="is_top_brand">
+                                        <input type="checkbox" class="toggle-switch" name="is_top_brand" id="is_top_brand">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
@@ -173,6 +164,16 @@
                                         <input type="checkbox" class="toggle-switch" name="is_background" id="is_background">
                                         <span class="slider round"></span>
                                     </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3 mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="fw-bold" for="priority">@lang('Priority Level / Order')</label>
+                                    <input type="number" name="priority" id="priority" class="form-control" value="{{ old('priority', 0) }}" placeholder="@lang('e.g. 1000, 950, 100')">
+                                    <small class="text-muted">@lang('Top Brand me sabse pehle dikhane ke liye bada number dalein (Amazon=1000, Flipkart=950, etc.)')</small>
                                 </div>
                             </div>
                         </div>

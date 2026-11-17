@@ -348,5 +348,14 @@ Route::middleware('admin')->group(function () {
         });
 
     });
+
+    // Custom Dynamic Sections
+    Route::controller('CustomSectionController')->prefix('custom-sections')->name('custom.sections.')->group(function(){
+        Route::get('/', 'index')->name('index');
+        Route::post('store', 'store')->name('store');
+        Route::post('update/{id}', 'update')->name('update');
+        Route::post('status/{id}', 'status')->name('status');
+        Route::post('delete/{id}', 'destroy')->name('delete');
+    });
 });
 

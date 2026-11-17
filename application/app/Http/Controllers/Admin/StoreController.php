@@ -28,6 +28,7 @@ class StoreController extends Controller
           $store->description=$request->description;
           $store->status=1 ;
           $store->show_on_front=$request->show_on_front;
+          $store->priority_score=$request->priority_score ?? 0;
   
           if ($request->hasFile('image')) {
               try {
@@ -58,6 +59,7 @@ class StoreController extends Controller
           $store->description=$request->description;
           $store->status=$request->status ? 1 : 0;
           $store->show_on_front=$request->show_on_front ? 1 : 0;
+          $store->priority_score=$request->priority_score ?? 0;
   
           if ($request->hasFile('image')) {
               try {

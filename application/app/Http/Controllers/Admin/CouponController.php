@@ -49,8 +49,11 @@ class CouponController extends Controller
             $coupon->cashback_amount=$request->cashback_amount;
             $coupon->price=$request->price ?? 0;
             $coupon->is_featured=$request->is_featured ? 1 : 0;
-            $coupon->is_exclusive=$request->is_exclusive ? 1 : 0;
-            $coupon->is_popular=$request->is_popular ? 1 : 0;
+            $isTopBrand = $request->is_top_brand ? 1 : ($request->is_exclusive || $request->is_popular ? 1 : 0);
+            $coupon->is_top_brand = $isTopBrand;
+            $coupon->is_exclusive = $isTopBrand;
+            $coupon->is_popular = $isTopBrand;
+            $coupon->priority = $request->priority ?? 0;
             $coupon->is_sale=$request->is_sale ? 1 : 0;
             $coupon->is_cashback=$request->is_cashback ? 1 : 0;
             $coupon->is_earning=$request->is_earning ? 1 : 0;
@@ -71,6 +74,7 @@ class CouponController extends Controller
             \Illuminate\Support\Facades\Cache::forget('home_exclusive_coupons_16');
             \Illuminate\Support\Facades\Cache::forget('home_cashback_coupons_16');
             \Illuminate\Support\Facades\Cache::forget('home_featured_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_top_brands_coupons_32');
             \Illuminate\Support\Facades\Cache::forget('home_latest_coupons_12');
             \Illuminate\Support\Facades\Cache::forget('home_categories_elements_8');
             \Illuminate\Support\Facades\Cache::forget('home_feature_stores_10');
@@ -116,8 +120,11 @@ class CouponController extends Controller
             $coupon->cashback_amount=$request->cashback_amount;
             $coupon->price=$request->price ?? 0;
             $coupon->is_featured=$request->is_featured ? 1 : 0;
-            $coupon->is_exclusive=$request->is_exclusive ? 1 : 0;
-            $coupon->is_popular=$request->is_popular ? 1 : 0;
+            $isTopBrand = $request->is_top_brand ? 1 : ($request->is_exclusive || $request->is_popular ? 1 : 0);
+            $coupon->is_top_brand = $isTopBrand;
+            $coupon->is_exclusive = $isTopBrand;
+            $coupon->is_popular = $isTopBrand;
+            $coupon->priority = $request->priority ?? 0;
             $coupon->is_sale=$request->is_sale ? 1 : 0;
             $coupon->is_cashback=$request->is_cashback ? 1 : 0;
             $coupon->is_earning=$request->is_earning ? 1 : 0;
@@ -139,6 +146,7 @@ class CouponController extends Controller
             \Illuminate\Support\Facades\Cache::forget('home_exclusive_coupons_16');
             \Illuminate\Support\Facades\Cache::forget('home_cashback_coupons_16');
             \Illuminate\Support\Facades\Cache::forget('home_featured_coupons_16');
+            \Illuminate\Support\Facades\Cache::forget('home_top_brands_coupons_32');
             \Illuminate\Support\Facades\Cache::forget('home_latest_coupons_12');
             \Illuminate\Support\Facades\Cache::forget('home_categories_elements_8');
             \Illuminate\Support\Facades\Cache::forget('home_feature_stores_10');

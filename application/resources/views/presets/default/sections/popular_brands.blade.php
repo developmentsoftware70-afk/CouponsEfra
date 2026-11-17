@@ -1,45 +1,147 @@
 @php
+    /*
+    |--------------------------------------------------------------------------
+    | Most Popular Brands — Hybrid Tier Architecture
+    | (Documentation: most_popular_brands_logic_documentation.md)
+    |--------------------------------------------------------------------------
+    |
+    | TIER 1 — Anchor Giants: Admin-configured brands sorted by priority_score
+    |           (Amazon=1000, Flipkart=950, Myntra=900, Nykaa=850, etc.)
+    |           These always appear first. Guarantees brand credibility.
+    |
+    | TIER 2 — Dynamic Engagement Rank: Remaining active stores ranked by
+    |           Hybrid Score = (click_count * 0.2) + (cashback_amount * 0.3)
+    |           + (priority_score * 0.5) using best coupon data.
+    |
+    | Total display: Top 12 brands (Tier1 fills first, Tier2 fills remaining)
+    |--------------------------------------------------------------------------
+    */
+
     $popularBrandsContent = getContent('popular_brands.content', true);
     $popularBrandsElements = getContent('popular_brands.element');
-    if ($popularBrandsElements) {
-        $popularBrandsElements = $popularBrandsElements->reverse();
-    }
 
-    $allStores = App\Models\Store::where('status', 1)->with('coupons')->get();
-    $homepageBrands = collect();
+    // ── TIER 1: Admin-configured anchor brands (from popular_brands.element) ──
+    // Load all active stores with their coupons
+    $allStores = App\Models\Store::where('status', 1)->with(['coupons' => function($q) {
+        $q->where('status', 1)->orderByDesc('cashback_amount');
+    }])->get();
+
+    $tier1Brands = collect();
+    $tier1StoreIds = collect(); // Track which store IDs are already in Tier1
 
     if ($popularBrandsElements && $popularBrandsElements->count() > 0) {
+        // Build tier1 with store priority_score for ordering
+        $tier1Raw = collect();
         foreach ($popularBrandsElements as $elem) {
             $bName = @$elem->data_values->brand_name;
             $kName = strtolower(trim($bName));
 
-            // Dynamically match active store from database by name
+            // Match active store by name
             $matchedStore = $allStores->first(function($st) use ($kName) {
                 $stName = strtolower(trim($st->name));
-                return $stName === $kName || str_starts_with($stName, $kName) || str_starts_with($kName, $stName);
+                return $stName === $kName
+                    || str_starts_with($stName, $kName)
+                    || str_starts_with($kName, $stName);
             });
 
-            // Dynamically resolve URL using route('store.coupons', $id)
+            // Best coupon for this store (highest cashback)
             if ($matchedStore) {
-                $brandLink = route('store.coupons', $matchedStore->id);
-                $firstCoupon = $matchedStore->coupons->where('status', 1)->first();
-                $cashbackText = ($firstCoupon && !empty($firstCoupon->cashback_amount))
-                    ? 'Upto ' . $firstCoupon->cashback_amount . '% Cashback'
+                $brandLink    = route('store.coupons', $matchedStore->id);
+                $bestCoupon   = $matchedStore->coupons->first();
+                $cashbackAmt  = $bestCoupon ? (float) $bestCoupon->cashback_amount : 0;
+                $cashbackText = $cashbackAmt > 0
+                    ? 'Upto ' . $cashbackAmt . '% Cashback'
                     : (@$elem->data_values->cashback_text ?: 'Upto 7% Cashback');
+                $storeClickCount = $matchedStore->coupons->sum('click_count');
+                $priorityScore   = $matchedStore->priority_score ?? 0;
             } else {
-                $brandLink = @$elem->data_values->link ?: route('brands');
-                $cashbackText = @$elem->data_values->cashback_text ?: 'Upto 7% Cashback';
+                $brandLink       = @$elem->data_values->link ?: route('brands');
+                $cashbackText    = @$elem->data_values->cashback_text ?: 'Upto 7% Cashback';
+                $cashbackAmt     = 0;
+                $storeClickCount = 0;
+                $priorityScore   = 0;
             }
 
-            $homepageBrands->push((object)[
-                'name' => $bName,
-                'sale_tag' => @$elem->data_values->sale_tag ?: 'Sale Live Now',
-                'cashback_text' => $cashbackText,
-                'image' => getImage('assets/images/frontend/popular_brands/' . @$elem->data_values->brand_logo),
-                'link' => $brandLink,
+            // Hybrid Score for ordering within Tier1
+            // Formula (doc §4): clicks*0.2 + cashback*0.3 + priority*0.5
+            $hybridScore = ($storeClickCount * 0.2) + ($cashbackAmt * 0.3) + ($priorityScore * 0.5);
+
+            $tier1Raw->push((object)[
+                'store_id'     => $matchedStore ? $matchedStore->id : null,
+                'name'         => $bName,
+                'sale_tag'     => @$elem->data_values->sale_tag ?: 'Sale Live Now',
+                'cashback_text'=> $cashbackText,
+                'image'        => getImage('assets/images/frontend/popular_brands/' . @$elem->data_values->brand_logo),
+                'link'         => $brandLink,
+                'hybrid_score' => $hybridScore,
+                'priority_score'=> $priorityScore,
             ]);
+
+            if ($matchedStore) {
+                $tier1StoreIds->push($matchedStore->id);
+            }
         }
+
+        // Sort Tier1: ONLY brands with priority_score > 0 go first (true anchor brands)
+        // Brands with priority_score = 0 from admin panel move to Tier2 pool
+        $tier1Brands = $tier1Raw
+            ->filter(fn($b) => $b->priority_score > 0)  // Only anchor brands in Tier1
+            ->sortByDesc('priority_score')
+            ->values()
+            ->take(9); // Tier1 takes up to 9 slots
+
+        // Brands added in admin panel but priority=0 → add their store IDs back to pool
+        // (they'll compete in Tier2 by hybrid score)
+        $tier1StoreIds = $tier1Brands->pluck('store_id')->filter()->values();
     }
+
+    // ── TIER 2: Dynamic engagement — all stores NOT in Tier1, ranked by hybrid score ──
+    // Includes: admin-added brands with priority=0 + all other active stores with coupons
+    $tier2Brands = collect();
+    $slotsLeft   = 12 - $tier1Brands->count();
+
+    if ($slotsLeft > 0) {
+        $tier2Stores = $allStores
+            ->whereNotIn('id', $tier1StoreIds->toArray())
+            ->filter(function($st) {
+                return $st->coupons->count() > 0; // Only stores with active coupons
+            })
+            ->map(function($st) {
+                $bestCoupon   = $st->coupons->first();
+                $cashbackAmt  = $bestCoupon ? (float) $bestCoupon->cashback_amount : 0;
+                $clickCount   = $st->coupons->sum('click_count');
+                $priorityScore= $st->priority_score ?? 0;
+
+                // Cap cashback at 30% for scoring (avoid rupee amounts skewing rank)
+                // cashback_amount is percentage (e.g. 7 = 7%), max meaningful = 30
+                $cashbackScore = min($cashbackAmt, 30);
+
+                // Hybrid Score (doc §4 Tier 2 formula)
+                $hybridScore  = ($clickCount * 0.2) + ($cashbackScore * 0.3) + ($priorityScore * 0.5);
+
+                $cashbackText = $cashbackAmt > 0
+                    ? 'Upto ' . $cashbackAmt . '% Cashback'
+                    : 'Visit Store';
+
+                return (object)[
+                    'store_id'     => $st->id,
+                    'name'         => $st->name,
+                    'sale_tag'     => 'Sale Live Now',
+                    'cashback_text'=> $cashbackText,
+                    'image'        => getImage('assets/images/frontend/logo/' . $st->image),
+                    'link'         => route('store.coupons', $st->id),
+                    'hybrid_score' => $hybridScore,
+                ];
+            })
+            ->sortByDesc('hybrid_score')
+            ->take($slotsLeft)
+            ->values();
+
+        $tier2Brands = $tier2Stores;
+    }
+
+    // ── Merge Tier1 + Tier2 for final display ──
+    $homepageBrands = $tier1Brands->concat($tier2Brands);
 @endphp
 
 @push('style')
@@ -47,9 +149,9 @@
     /* Most Popular Brands Section */
     .popular-brands-section {
         padding-top: 28px;
-        padding-bottom: 24px;
+        padding-bottom: 10px;
         margin-top: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 0px;
         position: relative;
     }
 
@@ -271,13 +373,6 @@
                 </a>
             </div>
             @endforeach
-        </div>
-
-        {{-- Bottom View More Link (Consistent with other sections) --}}
-        <div class="row pt-3">
-            <div class="col-lg-12 text-end">
-                <a href="{{ route('brands') }}" class="view-more-link">@lang('View More')</a>
-            </div>
         </div>
     </div>
 </section>

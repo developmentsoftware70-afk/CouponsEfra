@@ -12,6 +12,7 @@
                                 <th>@lang('Image')</th>
                                 <th>@lang('Status')</th>
                                 <th>@lang('Show On Front')</th>
+                                <th>@lang('Priority')</th>
                                 <th>@lang('Actions')</th>
                             </tr>
                         </thead>
@@ -38,11 +39,14 @@
                                     <span class="badge badge--danger">@lang('No')</span>
                                     @endif
                                 </td>
+                                <td>
+                                    <span class="badge badge--dark">{{ $item->priority_score ?? 0 }}</span>
+                                </td>
                                 <td>                                    
                                     <div class="button--group">
                                         @if($item->user_id == 0)
                                             <button title="@lang('Edit')"
-                                                class="btn btn-sm btn--success editBtn" data-id="{{$item->id}}" data-status="{{$item->status}}" data-show_on_front="{{$item->show_on_front}}" data-name="{{$item->name}}" data-description="{{$item->description}}">
+                                                class="btn btn-sm btn--success editBtn" data-id="{{$item->id}}" data-status="{{$item->status}}" data-show_on_front="{{$item->show_on_front}}" data-priority_score="{{$item->priority_score ?? 0}}" data-name="{{$item->name}}" data-description="{{$item->description}}">
                                                 <i class="la la-edit"></i>
                                             </button>
                                         @endif
@@ -121,6 +125,13 @@
                             </select>
                         </div>
                     </div>
+                    <div class="row form-group">
+                        <label>@lang('Priority Score')</label>
+                        <div class="col-sm-12">
+                            <input type="number" class="form-control" value="{{ old('priority_score', 0) }}" name="priority_score" placeholder="@lang('e.g. 1000 for top, 950, 0 for normal')">
+                            <small class="text-muted">@lang('Most Popular Brands section me rank decide karta hai (Amazon=1000, Flipkart=950, etc.)')</small>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn--primary btn-global" id="btn-save"
@@ -181,6 +192,13 @@
                                 <option value="0" {{ @$item->show_on_front == 0 ? 'selected' : '' }}>@lang('No')</option>
                                 <option value="1" {{ @$item->show_on_front == 1 ? 'selected' : '' }}>@lang('Yes')</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label>@lang('Priority Score')</label>
+                        <div class="col-sm-12">
+                            <input type="number" class="form-control" name="priority_score" placeholder="@lang('e.g. 1000 for top, 950, 0 for normal')">
+                            <small class="text-muted">@lang('Most Popular Brands section me rank decide karta hai (Amazon=1000, Flipkart=950, etc.)')</small>
                         </div>
                     </div>
                 </div>
@@ -273,6 +291,8 @@
             var statusValue = $(this).data('status');
             modal.find('select[name=status]').val(statusValue);
            
+            modal.find('input[name=priority_score]').val($(this).data('priority_score') || 0);
+
             modal.modal('show');
         });
 
