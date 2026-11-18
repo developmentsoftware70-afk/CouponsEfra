@@ -53,7 +53,7 @@ class CouponController extends Controller
             $coupon->is_top_brand = $isTopBrand;
             $coupon->is_exclusive = $isTopBrand;
             $coupon->is_popular = $isTopBrand;
-            $coupon->priority = $request->priority ?? 0;
+            $coupon->priority = $isTopBrand ? ($request->priority ?? 0) : 0;
             $coupon->is_sale=$request->is_sale ? 1 : 0;
             $coupon->is_cashback=$request->is_cashback ? 1 : 0;
             $coupon->is_earning=$request->is_earning ? 1 : 0;
@@ -124,7 +124,7 @@ class CouponController extends Controller
             $coupon->is_top_brand = $isTopBrand;
             $coupon->is_exclusive = $isTopBrand;
             $coupon->is_popular = $isTopBrand;
-            $coupon->priority = $request->priority ?? 0;
+            $coupon->priority = $isTopBrand ? ($request->priority ?? 0) : 0;
             $coupon->is_sale=$request->is_sale ? 1 : 0;
             $coupon->is_cashback=$request->is_cashback ? 1 : 0;
             $coupon->is_earning=$request->is_earning ? 1 : 0;

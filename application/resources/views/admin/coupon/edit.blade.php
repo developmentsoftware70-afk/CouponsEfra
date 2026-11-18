@@ -178,7 +178,10 @@
                             </div>
                         </div>
 
-                        <div class="row mt-3 mb-3">
+                        @php
+                            $isTopBrandChecked = ($coupon->is_top_brand || $coupon->is_exclusive || $coupon->is_popular);
+                        @endphp
+                        <div class="row mt-3 mb-3" id="topBrandPriorityRow" style="display: {{ $isTopBrandChecked ? 'flex' : 'none' }};">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="fw-bold" for="priority">@lang('Priority Level / Order')</label>
@@ -198,3 +201,19 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+<script>
+    (function ($) {
+        "use strict";
+        function togglePriorityField() {
+            if ($('#is_top_brand').is(':checked')) {
+                $('#topBrandPriorityRow').slideDown(200);
+            } else {
+                $('#topBrandPriorityRow').slideUp(200);
+            }
+        }
+        $('#is_top_brand').on('change', togglePriorityField);
+    })(jQuery);
+</script>
+@endpush

@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title> {{ $general->siteName(__($pageTitle)) }}</title>
+    <title>{{ !empty($seoContents['title']) ? $seoContents['title'] : $general->siteName(__($pageTitle)) }}</title>
     @include('includes.seo')
     @stack('seo')
     <!-- Bootstrap CSS -->
@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/glightbox.min.css')}}">
     <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/slick.css')}}">
     <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/main.css')}}">
-    <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/custom.css')}}?v={{ time() }}">
+    <link rel="stylesheet" href="{{asset($activeTemplateTrue.'css/custom.css')}}?v={{ @filemtime(base_path('../assets/presets/default/css/custom.css')) ?: '1.0' }}">
     @stack('style-lib')
     @stack('style')
 

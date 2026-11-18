@@ -20,10 +20,13 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-content" style="margin-bottom: 20px;">
-                    <div class="title-wrap">
-                        <h2 class="section-title mb-2 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
+                    <div class="title-wrap d-flex justify-content-between align-items-center">
+                        <h2 class="section-title mb-0 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
                             {{ __($latestCoupon->data_values->heading) }}
                         </h2>
+                        <a href="{{ route('latest.coupons') }}" class="pop-brands-view-all">
+                            @lang('View All') <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -110,13 +113,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- View More Link at Bottom Right --}}
-        <div class="row pt-2">
-            <div class="col-lg-12 text-end">
-                <a href="{{ route('latest.coupons') }}" class="view-more-link">@lang('View More')</a>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -154,6 +150,22 @@
 .flash-deals-slider-wrap {
     position: relative;
     padding: 0 10px;
+}
+
+/* Show 3 FULL cards aligned flush-left + clean peek of the 4th upcoming card on the right */
+.ck-latest-slider .slick-list {
+    padding: 0 9% 0 0 !important;
+    box-sizing: border-box;
+}
+@media (max-width: 1199px) {
+    .ck-latest-slider .slick-list {
+        padding: 0 12% 0 0 !important;
+    }
+}
+@media (max-width: 600px) {
+    .ck-latest-slider .slick-list {
+        padding: 0 14% 0 0 !important;
+    }
 }
 
 .flash-card-link {
@@ -527,7 +539,7 @@
                 speed: 700,
                 pauseOnHover: true,
                 pauseOnFocus: true,
-                slidesToShow: 3.2,
+                slidesToShow: 3,
                 slidesToScroll: 1,
                 arrows: true,
                 prevArrow: '<button type="button" class="slick-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>',
@@ -536,21 +548,21 @@
                     {
                         breakpoint: 1200,
                         settings: {
-                            slidesToShow: 2.5,
+                            slidesToShow: 2,
                             arrows: true
                         }
                     },
                     {
                         breakpoint: 992,
                         settings: {
-                            slidesToShow: 2.1,
+                            slidesToShow: 2,
                             arrows: true
                         }
                     },
                     {
                         breakpoint: 600,
                         settings: {
-                            slidesToShow: 1.15,
+                            slidesToShow: 1,
                             arrows: true
                         }
                     }

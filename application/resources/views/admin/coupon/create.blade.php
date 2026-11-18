@@ -125,7 +125,7 @@
                                 <div class="form-group mt-4">
                                     <label class="fw-bold" for="is_top_brand">@lang('Top Brand')</label>
                                     <label class="switch m-0" for="is_top_brand">
-                                        <input type="checkbox" class="toggle-switch" name="is_top_brand" id="is_top_brand">
+                                        <input type="checkbox" class="toggle-switch" name="is_top_brand" id="is_top_brand" {{ old('is_top_brand') ? 'checked' : '' }}>
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
@@ -168,7 +168,7 @@
                             </div>
                         </div>
 
-                        <div class="row mt-3 mb-3">
+                        <div class="row mt-3 mb-3" id="topBrandPriorityRow" style="display: {{ old('is_top_brand') ? 'flex' : 'none' }};">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="fw-bold" for="priority">@lang('Priority Level / Order')</label>
@@ -188,3 +188,20 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+<script>
+    (function ($) {
+        "use strict";
+        function togglePriorityField() {
+            if ($('#is_top_brand').is(':checked')) {
+                $('#topBrandPriorityRow').slideDown(200);
+            } else {
+                $('#topBrandPriorityRow').slideUp(200);
+                $('#priority').val(0);
+            }
+        }
+        $('#is_top_brand').on('change', togglePriorityField);
+    })(jQuery);
+</script>
+@endpush

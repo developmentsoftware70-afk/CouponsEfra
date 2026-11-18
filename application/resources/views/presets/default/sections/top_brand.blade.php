@@ -46,8 +46,9 @@
         margin-bottom: 18px;
     }
     .pop-brands-view-all {
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
         color: #0047ff !important;
         text-decoration: none !important;
         display: inline-flex;
@@ -230,15 +231,6 @@
             </div>
         </div>
         @endif
-
-        {{-- Bottom View All CTA --}}
-        <div class="row pt-3">
-            <div class="col-lg-12 text-center">
-                <a href="{{ route('brands') }}" class="pop-brands-view-all fs-14 fw-bold">
-                    @lang('View All Brands') <i class="fas fa-arrow-right ms-1"></i>
-                </a>
-            </div>
-        </div>
     </div>
 </section>
 
