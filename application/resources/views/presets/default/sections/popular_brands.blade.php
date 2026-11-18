@@ -45,8 +45,10 @@
                 return strtolower(trim($st->name)) === $kName;
             });
 
-            if ($exactMatch && !isset($elementMetaByStoreId[$exactMatch->id])) {
-                $elementMetaByStoreId[$exactMatch->id] = $elem;
+            if ($exactMatch) {
+                if (!isset($elementMetaByStoreId[$exactMatch->id])) {
+                    $elementMetaByStoreId[$exactMatch->id] = $elem;
+                }
             } else {
                 $pendingPrefixElements[] = [$elem, $kName];
             }
