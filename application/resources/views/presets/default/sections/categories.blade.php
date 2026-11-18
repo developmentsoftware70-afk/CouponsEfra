@@ -203,14 +203,17 @@
 
 <section class="top-categories-section">
     <div class="container-fluid container-custom">
-        {{-- Section Header (Site Standard) --}}
+        {{-- Section Header: Heading on Left, View All on Top-Right --}}
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-content">
-                    <div class="title-wrap">
-                        <h2 class="section-title mb-2 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
+                    <div class="title-wrap d-flex justify-content-between align-items-center">
+                        <h2 class="section-title mb-0 wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
                             {{ __($popularCoupon->data_values->heading) }}
                         </h2>
+                        <a href="{{ route('categories') }}" class="pop-brands-view-all">
+                            @lang('View All') <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -231,13 +234,6 @@
                     </a>
                 </div>
                 @endforeach
-            </div>
-        </div>
-
-        {{-- Bottom View More Link (Consistent with other sections) --}}
-        <div class="row pt-2">
-            <div class="col-lg-12 text-end">
-                <a href="{{ route('categories') }}" class="view-more-link">@lang('View More')</a>
             </div>
         </div>
     </div>

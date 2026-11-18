@@ -133,7 +133,47 @@ class SiteController extends Controller
             ->take(6)
             ->get();
 
-        return view($this->activeTemplate . 'coupon_details', compact('pageTitle', 'coupon', 'relatedCoupons'));
+        $general = gs();
+        $storeName = $coupon->store ? $coupon->store->name : $general->site_name;
+        $couponUrl = route('coupon.details', $coupon->slug ?? $coupon->id);
+        $couponImg = $coupon->image
+            ? getImage(getFilePath('coupon') . '/' . $coupon->image)
+            : ($coupon->store && $coupon->store->image ? getImage(getFilePath('store') . '/' . $coupon->store->image) : null);
+        $cleanDesc = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) $coupon->description))));
+        $metaDesc  = $cleanDesc ?: "Grab {$coupon->title} from {$storeName}. Verified coupon codes, discount offers & cashback on {$general->site_name}.";
+
+        $seoContents = [
+            'title'       => "{$coupon->title} | {$storeName} - {$general->site_name}",
+            'description' => $metaDesc,
+            'keywords'    => [$storeName . ' coupon', $storeName . ' promo code', $coupon->title, 'cashback offers'],
+            'image'       => $couponImg,
+            'canonical'   => $couponUrl,
+            'schema'      => [
+                '@context' => 'https://schema.org',
+                '@graph'   => [
+                    [
+                        '@type'         => 'Offer',
+                        'name'          => $coupon->title,
+                        'description'   => \Illuminate\Support\Str::limit($metaDesc, 200, ''),
+                        'url'           => $couponUrl,
+                        'image'         => $couponImg,
+                        'availability'  => 'https://schema.org/InStock',
+                        'validThrough'  => $coupon->expire_date ? \Carbon\Carbon::parse($coupon->expire_date)->toIso8601String() : null,
+                        'seller'        => ['@type' => 'Organization', 'name' => $storeName],
+                    ],
+                    [
+                        '@type'           => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Coupons', 'item' => route('coupon')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $coupon->title, 'item' => $couponUrl],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        return view($this->activeTemplate . 'coupon_details', compact('pageTitle', 'coupon', 'relatedCoupons', 'seoContents'));
     }
 
     public function dealDetails($id)
@@ -176,7 +216,42 @@ class SiteController extends Controller
             $relatedDeals = $relatedDeals->concat($moreDeals);
         }
 
-        return view($this->activeTemplate . 'deal_details', compact('pageTitle', 'deal', 'store', 'coupon', 'relatedDeals'));
+        $general  = gs();
+        $dealUrl  = route('deal.details', $deal->id);
+        $dealImg  = $deal->image ? getImage(getFilePath('deal') . '/' . $deal->image) : null;
+        $dealDesc = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) ($deal->description ?? '')))))
+            ?: "Shop {$deal->title} with exclusive cashback and discount offers on {$general->site_name}.";
+
+        $seoContents = [
+            'title'       => "{$deal->title} | Best Deal & Cashback - {$general->site_name}",
+            'description' => $dealDesc,
+            'keywords'    => [$deal->title, $categoryTitle ?: 'deals', 'discount deal', 'cashback'],
+            'image'       => $dealImg,
+            'canonical'   => $dealUrl,
+            'schema'      => [
+                '@context' => 'https://schema.org',
+                '@graph'   => [
+                    [
+                        '@type'       => 'Offer',
+                        'name'        => $deal->title,
+                        'description' => \Illuminate\Support\Str::limit($dealDesc, 200, ''),
+                        'url'         => $dealUrl,
+                        'image'       => $dealImg,
+                        'availability'=> 'https://schema.org/InStock',
+                    ],
+                    [
+                        '@type'           => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Deals', 'item' => route('deal')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $deal->title, 'item' => $dealUrl],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        return view($this->activeTemplate . 'deal_details', compact('pageTitle', 'deal', 'store', 'coupon', 'relatedDeals', 'seoContents'));
     }
 
     public function goStore($id)
@@ -492,9 +567,51 @@ class SiteController extends Controller
 
     public function blogDetails($slug,$id){
         $blog = Frontend::where('id',$id)->where('data_keys','blog.element')->firstOrFail();
-        $pageTitle = "Blog Details";
+        $blogTitle = @$blog->data_values->title ?: 'Blog Details';
+        $pageTitle = $blogTitle;
         $latests = Frontend::where('data_keys','blog.element')->orderBy('id','desc')->limit(5)->get();
-        return view($this->activeTemplate.'blog_details',compact('blog','pageTitle','latests'));
+
+        $general  = gs();
+        $blogUrl  = route('blog.details', [slug($blogTitle), $blog->id]);
+        $blogImg  = !empty($blog->data_values->blog_image) ? getImage('assets/images/frontend/blog/' . $blog->data_values->blog_image) : null;
+        $blogDesc = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) (@$blog->data_values->description ?? '')))));
+
+        $seoContents = [
+            'title'       => "{$blogTitle} - {$general->site_name}",
+            'description' => $blogDesc ?: "{$blogTitle} - Read cashback tips, shopping guides and latest offers on {$general->site_name}.",
+            'type'        => 'article',
+            'image'       => $blogImg,
+            'canonical'   => $blogUrl,
+            'schema'      => [
+                '@context' => 'https://schema.org',
+                '@graph'   => [
+                    [
+                        '@type'         => 'Article',
+                        'headline'      => $blogTitle,
+                        'description'   => \Illuminate\Support\Str::limit($blogDesc, 200, ''),
+                        'image'         => $blogImg,
+                        'url'           => $blogUrl,
+                        'datePublished' => $blog->created_at ? $blog->created_at->toIso8601String() : null,
+                        'dateModified'  => $blog->updated_at ? $blog->updated_at->toIso8601String() : null,
+                        'publisher'     => [
+                            '@type' => 'Organization',
+                            'name'  => $general->site_name,
+                            'logo'  => ['@type' => 'ImageObject', 'url' => getImage(getFilePath('logoIcon') . '/logo.png')],
+                        ],
+                    ],
+                    [
+                        '@type'           => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => route('blog')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $blogTitle, 'item' => $blogUrl],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        return view($this->activeTemplate.'blog_details',compact('blog','pageTitle','latests','seoContents'));
     }
 
     public function cookieAccept(){
@@ -630,7 +747,25 @@ class SiteController extends Controller
         $stores = Store::where('status', 1)->whereHas('coupons', function($q) {
             $q->where('status', 1);
         })->latest()->get();
-        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
+        $general = gs();
+        $baseCouponUrl = route('coupon');
+        $canonicalCouponUrl = $coupons->currentPage() > 1 ? $baseCouponUrl . '?page=' . $coupons->currentPage() : $baseCouponUrl;
+        $seoContents = [
+            'title'       => "Latest Verified Coupons, Promo Codes & Cashback Offers - {$general->site_name}",
+            'description' => "Browse all verified coupons, promo codes, discount deals and cashback offers across top Indian brands on {$general->site_name}.",
+            'keywords'    => ['coupons', 'promo codes', 'cashback offers', 'discount codes india'],
+            'canonical'   => $canonicalCouponUrl,
+            'schema'      => [
+                '@context'        => 'https://schema.org',
+                '@type'           => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Coupons', 'item' => route('coupon')],
+                ],
+            ],
+        ];
+
+        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores', 'seoContents'));
     }
     // categories
     public function categories() {
@@ -768,7 +903,7 @@ class SiteController extends Controller
             WHEN 'daily object' THEN 150
             WHEN 'daily objects' THEN 150
             ELSE 10 END DESC, id DESC";
-        $stores = Store::with('coupons')->where('status', 1)->orderByRaw($rawOrder)->paginate(24);
+        $stores = Store::with('coupons')->where('status', 1)->orderByDesc('priority_score')->orderByRaw($rawOrder)->paginate(24);
         return view($this->activeTemplate . 'brands', compact('pageTitle', 'stores'));
     }
 
@@ -972,7 +1107,28 @@ class SiteController extends Controller
             $q->where('status', 1);
         })->latest()->get();
        
-        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores'));
+        $general = gs();
+        $catUrl  = route('category.coupons', $category->id);
+        $canonicalCatUrl = $coupons->currentPage() > 1 ? $catUrl . '?page=' . $coupons->currentPage() : $catUrl;
+        $catImg  = $category->image ? getImage(getFilePath('category') . '/' . $category->image) : null;
+        $seoContents = [
+            'title'       => "{$category->name} Coupons, Deals & Cashback Offers - {$general->site_name}",
+            'description' => "Explore the latest verified {$category->name} coupons, promo codes, discount deals and extra cashback offers on {$general->site_name}.",
+            'keywords'    => [$category->name . ' coupons', $category->name . ' deals', $category->name . ' cashback', $category->name . ' offers'],
+            'image'       => $catImg,
+            'canonical'   => $canonicalCatUrl,
+            'schema'      => [
+                '@context'        => 'https://schema.org',
+                '@type'           => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Categories', 'item' => route('categories')],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => $category->name, 'item' => $catUrl],
+                ],
+            ],
+        ];
+
+        return  view($this->activeTemplate . 'coupons',compact('pageTitle', 'coupons', 'categories', 'stores', 'seoContents'));
 
     }
 
@@ -1009,7 +1165,31 @@ class SiteController extends Controller
             $this->recordImpressions($relatedCategoryCoupons, 'coupon');
         }
 
-        return view($this->activeTemplate . 'coupons', compact('pageTitle', 'store', 'coupons', 'categories', 'stores', 'primaryCategory', 'relatedCategoryCoupons'));
+        $general  = gs();
+        $storeUrl = route('store.coupons', $store->id);
+        $canonicalStoreUrl = $coupons->currentPage() > 1 ? $storeUrl . '?page=' . $coupons->currentPage() : $storeUrl;
+        $storeImg = $store->image ? getImage(getFilePath('store') . '/' . $store->image) : null;
+        $storeDesc = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) ($store->description ?? '')))))
+            ?: "Get verified {$store->name} coupons, promo codes, discount deals and extra cashback offers on {$general->site_name}.";
+
+        $seoContents = [
+            'title'       => "{$store->name} Coupons, Promo Codes & Cashback Offers - {$general->site_name}",
+            'description' => $storeDesc,
+            'keywords'    => [$store->name . ' coupons', $store->name . ' promo codes', $store->name . ' cashback', $store->name . ' discount offers'],
+            'image'       => $storeImg,
+            'canonical'   => $canonicalStoreUrl,
+            'schema'      => [
+                '@context'        => 'https://schema.org',
+                '@type'           => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Brands', 'item' => route('brands')],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => $store->name, 'item' => $storeUrl],
+                ],
+            ],
+        ];
+
+        return view($this->activeTemplate . 'coupons', compact('pageTitle', 'store', 'coupons', 'categories', 'stores', 'primaryCategory', 'relatedCategoryCoupons', 'seoContents'));
     }
 
     public function singleCouponSearch(Request $request) {
@@ -1150,6 +1330,107 @@ class SiteController extends Controller
         $dealCategories = DealCategory::where('status', 1)->latest()->get();
 
         return view($this->activeTemplate . 'deals', compact('pageTitle', 'deals', 'dealCategories'));
+    }
+
+    /**
+     * Dynamic XML Sitemap for Google & Search Engines (/sitemap.xml)
+     */
+    public function sitemap()
+    {
+        $xml = Cache::remember('site_sitemap_xml_v2', 3600, function () {
+            // Always anchor sitemap URLs to configured APP_URL (never trust incoming Host / X-Forwarded-Host header)
+            $baseUrl = rtrim((string) config('app.url'), '/');
+            $absUrl  = function (string $relativePath) use ($baseUrl): string {
+                return $baseUrl . '/' . ltrim($relativePath, '/');
+            };
+
+            $urls = [];
+
+            // 1. Static core pages (omit lastmod rather than emitting sitemap generation time)
+            $staticRoutes = [
+                ['loc' => $baseUrl . '/',                                   'priority' => '1.0', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('brands', [], false)),              'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('coupon', [], false)),              'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('latest.coupons', [], false)),      'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('cashback.coupons', [], false)),    'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('exclusive.coupons', [], false)),   'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('deal', [], false)),                'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('categories', [], false)),          'priority' => '0.8', 'changefreq' => 'weekly'],
+                ['loc' => $absUrl(route('blog', [], false)),                'priority' => '0.7', 'changefreq' => 'weekly'],
+            ];
+            foreach ($staticRoutes as $sr) {
+                $urls[] = $sr;
+            }
+
+            // 2. Active Stores (Brands)
+            foreach (Store::where('status', 1)->orderByDesc('priority_score')->get(['id', 'updated_at']) as $st) {
+                $urls[] = [
+                    'loc'        => $absUrl(route('store.coupons', $st->id, false)),
+                    'lastmod'    => $st->updated_at ? $st->updated_at->toAtomString() : null,
+                    'changefreq' => 'daily',
+                    'priority'   => '0.85',
+                ];
+            }
+
+            // 3. Active Categories
+            foreach (Category::where('status', 1)->get(['id', 'updated_at']) as $cat) {
+                $urls[] = [
+                    'loc'        => $absUrl(route('category.coupons', $cat->id, false)),
+                    'lastmod'    => $cat->updated_at ? $cat->updated_at->toAtomString() : null,
+                    'changefreq' => 'weekly',
+                    'priority'   => '0.75',
+                ];
+            }
+
+            // 4. Active Coupons (slug URLs)
+            foreach (Coupon::where('status', 1)->latest()->get(['id', 'slug', 'updated_at']) as $cp) {
+                $urls[] = [
+                    'loc'        => $absUrl(route('coupon.details', $cp->slug ?: $cp->id, false)),
+                    'lastmod'    => $cp->updated_at ? $cp->updated_at->toAtomString() : null,
+                    'changefreq' => 'daily',
+                    'priority'   => '0.8',
+                ];
+            }
+
+            // 5. Active Deals
+            foreach (Deal::where('status', 1)->latest()->get(['id', 'updated_at']) as $dl) {
+                $urls[] = [
+                    'loc'        => $absUrl(route('deal.details', $dl->id, false)),
+                    'lastmod'    => $dl->updated_at ? $dl->updated_at->toAtomString() : null,
+                    'changefreq' => 'daily',
+                    'priority'   => '0.7',
+                ];
+            }
+
+            // 6. Blogs
+            foreach (Frontend::where('data_keys', 'blog.element')->latest()->get(['id', 'data_values', 'updated_at']) as $bl) {
+                $bTitle = @$bl->data_values->title ?: 'blog';
+                $urls[] = [
+                    'loc'        => $absUrl(route('blog.details', [slug($bTitle), $bl->id], false)),
+                    'lastmod'    => $bl->updated_at ? $bl->updated_at->toAtomString() : null,
+                    'changefreq' => 'monthly',
+                    'priority'   => '0.7',
+                ];
+            }
+
+            $out  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+            $out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+            foreach ($urls as $u) {
+                $out .= "  <url>\n";
+                $out .= '    <loc>' . htmlspecialchars($u['loc'], ENT_XML1, 'UTF-8') . "</loc>\n";
+                if (!empty($u['lastmod'])) {
+                    $out .= '    <lastmod>' . $u['lastmod'] . "</lastmod>\n";
+                }
+                $out .= '    <changefreq>' . $u['changefreq'] . "</changefreq>\n";
+                $out .= '    <priority>' . $u['priority'] . "</priority>\n";
+                $out .= "  </url>\n";
+            }
+            $out .= '</urlset>';
+
+            return $out;
+        });
+
+        return response($xml, 200)->header('Content-Type', 'application/xml; charset=utf-8');
     }
 
 
