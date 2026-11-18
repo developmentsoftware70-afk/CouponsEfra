@@ -12,7 +12,13 @@
             ? $seoContents['image']
             : getImage(getFilePath('seo') . '/' . $seo->image);
         $metaType        = !empty($seoContents['type']) ? $seoContents['type'] : 'website';
-        $metaCanonical   = !empty($seoContents['canonical']) ? $seoContents['canonical'] : url()->current();
+        $rawCanonical    = !empty($seoContents['canonical']) ? $seoContents['canonical'] : url()->current();
+        $reqPage         = filter_var(request()->query('page'), FILTER_VALIDATE_INT);
+        if ($reqPage && $reqPage > 1 && !str_contains($rawCanonical, 'page=')) {
+            $metaCanonical = $rawCanonical . (str_contains($rawCanonical, '?') ? '&' : '?') . 'page=' . $reqPage;
+        } else {
+            $metaCanonical = $rawCanonical;
+        }
         $metaRobots      = !empty($seoContents['robots']) ? $seoContents['robots'] : 'index, follow';
         $socialTitle     = !empty($seoContents['social_title']) ? $seoContents['social_title'] : $metaTitle;
         $socialDesc      = !empty($seoContents['social_description']) ? $seoContents['social_description'] : ($metaDescription ?: ($seo->social_description ?? ''));
@@ -84,11 +90,11 @@
                 ],
             ];
         @endphp
-        <script type="application/ld+json">{!! json_encode($homeSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        <script type="application/ld+json">{!! json_encode($homeSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     @endif
 
     {{-- Page-Specific Structured Data (Offer / Article / BreadcrumbList) --}}
     @if(!empty($seoContents['schema']))
-        <script type="application/ld+json">{!! json_encode($seoContents['schema'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        <script type="application/ld+json">{!! json_encode($seoContents['schema'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     @endif
 @endif

@@ -27,23 +27,43 @@
     }])->get();
 
     // Map curated metadata (custom logo, sale tag, fallback cashback) from popular_brands.element to store_id
+    // Pass 1: exact normalized name match first so prefix matches never overwrite an exact store
     $elementMetaByStoreId = [];
     $unmatchedElements    = collect();
 
     if ($popularBrandsElements && $popularBrandsElements->count() > 0) {
+        $pendingPrefixElements = [];
+
         foreach ($popularBrandsElements as $elem) {
             $bName = @$elem->data_values->brand_name;
-            $kName = strtolower(trim($bName));
+            $kName = strtolower(trim((string) $bName));
+            if ($kName === '') {
+                continue;
+            }
 
-            $matchedStore = $allStores->first(function($st) use ($kName) {
-                $stName = strtolower(trim($st->name));
-                return $stName === $kName
-                    || str_starts_with($stName, $kName)
-                    || str_starts_with($kName, $stName);
+            $exactMatch = $allStores->first(function($st) use ($kName) {
+                return strtolower(trim($st->name)) === $kName;
             });
 
-            if ($matchedStore) {
-                $elementMetaByStoreId[$matchedStore->id] = $elem;
+            if ($exactMatch && !isset($elementMetaByStoreId[$exactMatch->id])) {
+                $elementMetaByStoreId[$exactMatch->id] = $elem;
+            } else {
+                $pendingPrefixElements[] = [$elem, $kName];
+            }
+        }
+
+        // Pass 2: fallback to prefix match only for stores that did not already have an exact match
+        foreach ($pendingPrefixElements as [$elem, $kName]) {
+            $prefixMatch = $allStores->first(function($st) use ($kName, $elementMetaByStoreId) {
+                if (isset($elementMetaByStoreId[$st->id])) {
+                    return false;
+                }
+                $stName = strtolower(trim($st->name));
+                return str_starts_with($stName, $kName) || str_starts_with($kName, $stName);
+            });
+
+            if ($prefixMatch) {
+                $elementMetaByStoreId[$prefixMatch->id] = $elem;
             } else {
                 $unmatchedElements->push($elem);
             }

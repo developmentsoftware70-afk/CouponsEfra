@@ -748,11 +748,13 @@ class SiteController extends Controller
             $q->where('status', 1);
         })->latest()->get();
         $general = gs();
+        $baseCouponUrl = route('coupon');
+        $canonicalCouponUrl = $coupons->currentPage() > 1 ? $baseCouponUrl . '?page=' . $coupons->currentPage() : $baseCouponUrl;
         $seoContents = [
             'title'       => "Latest Verified Coupons, Promo Codes & Cashback Offers - {$general->site_name}",
             'description' => "Browse all verified coupons, promo codes, discount deals and cashback offers across top Indian brands on {$general->site_name}.",
             'keywords'    => ['coupons', 'promo codes', 'cashback offers', 'discount codes india'],
-            'canonical'   => route('coupon'),
+            'canonical'   => $canonicalCouponUrl,
             'schema'      => [
                 '@context'        => 'https://schema.org',
                 '@type'           => 'BreadcrumbList',
@@ -1107,13 +1109,14 @@ class SiteController extends Controller
        
         $general = gs();
         $catUrl  = route('category.coupons', $category->id);
+        $canonicalCatUrl = $coupons->currentPage() > 1 ? $catUrl . '?page=' . $coupons->currentPage() : $catUrl;
         $catImg  = $category->image ? getImage(getFilePath('category') . '/' . $category->image) : null;
         $seoContents = [
             'title'       => "{$category->name} Coupons, Deals & Cashback Offers - {$general->site_name}",
             'description' => "Explore the latest verified {$category->name} coupons, promo codes, discount deals and extra cashback offers on {$general->site_name}.",
             'keywords'    => [$category->name . ' coupons', $category->name . ' deals', $category->name . ' cashback', $category->name . ' offers'],
             'image'       => $catImg,
-            'canonical'   => $catUrl,
+            'canonical'   => $canonicalCatUrl,
             'schema'      => [
                 '@context'        => 'https://schema.org',
                 '@type'           => 'BreadcrumbList',
@@ -1164,6 +1167,7 @@ class SiteController extends Controller
 
         $general  = gs();
         $storeUrl = route('store.coupons', $store->id);
+        $canonicalStoreUrl = $coupons->currentPage() > 1 ? $storeUrl . '?page=' . $coupons->currentPage() : $storeUrl;
         $storeImg = $store->image ? getImage(getFilePath('store') . '/' . $store->image) : null;
         $storeDesc = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) ($store->description ?? '')))))
             ?: "Get verified {$store->name} coupons, promo codes, discount deals and extra cashback offers on {$general->site_name}.";
@@ -1173,7 +1177,7 @@ class SiteController extends Controller
             'description' => $storeDesc,
             'keywords'    => [$store->name . ' coupons', $store->name . ' promo codes', $store->name . ' cashback', $store->name . ' discount offers'],
             'image'       => $storeImg,
-            'canonical'   => $storeUrl,
+            'canonical'   => $canonicalStoreUrl,
             'schema'      => [
                 '@context'        => 'https://schema.org',
                 '@type'           => 'BreadcrumbList',
@@ -1333,31 +1337,36 @@ class SiteController extends Controller
      */
     public function sitemap()
     {
-        $xml = Cache::remember('site_sitemap_xml_v1', 3600, function () {
-            $urls = [];
-            $now  = now()->toAtomString();
+        $xml = Cache::remember('site_sitemap_xml_v2', 3600, function () {
+            // Always anchor sitemap URLs to configured APP_URL (never trust incoming Host / X-Forwarded-Host header)
+            $baseUrl = rtrim((string) config('app.url'), '/');
+            $absUrl  = function (string $relativePath) use ($baseUrl): string {
+                return $baseUrl . '/' . ltrim($relativePath, '/');
+            };
 
-            // 1. Static core pages
+            $urls = [];
+
+            // 1. Static core pages (omit lastmod rather than emitting sitemap generation time)
             $staticRoutes = [
-                ['loc' => url('/'),                     'priority' => '1.0', 'changefreq' => 'daily'],
-                ['loc' => route('brands'),              'priority' => '0.9', 'changefreq' => 'daily'],
-                ['loc' => route('coupon'),              'priority' => '0.9', 'changefreq' => 'daily'],
-                ['loc' => route('latest.coupons'),      'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => route('cashback.coupons'),    'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => route('exclusive.coupons'),   'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => route('deal'),                'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => route('categories'),          'priority' => '0.8', 'changefreq' => 'weekly'],
-                ['loc' => route('blog'),                'priority' => '0.7', 'changefreq' => 'weekly'],
+                ['loc' => $baseUrl . '/',                                   'priority' => '1.0', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('brands', [], false)),              'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('coupon', [], false)),              'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('latest.coupons', [], false)),      'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('cashback.coupons', [], false)),    'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('exclusive.coupons', [], false)),   'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('deal', [], false)),                'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => $absUrl(route('categories', [], false)),          'priority' => '0.8', 'changefreq' => 'weekly'],
+                ['loc' => $absUrl(route('blog', [], false)),                'priority' => '0.7', 'changefreq' => 'weekly'],
             ];
             foreach ($staticRoutes as $sr) {
-                $urls[] = array_merge($sr, ['lastmod' => $now]);
+                $urls[] = $sr;
             }
 
             // 2. Active Stores (Brands)
             foreach (Store::where('status', 1)->orderByDesc('priority_score')->get(['id', 'updated_at']) as $st) {
                 $urls[] = [
-                    'loc'        => route('store.coupons', $st->id),
-                    'lastmod'    => ($st->updated_at ? $st->updated_at->toAtomString() : $now),
+                    'loc'        => $absUrl(route('store.coupons', $st->id, false)),
+                    'lastmod'    => $st->updated_at ? $st->updated_at->toAtomString() : null,
                     'changefreq' => 'daily',
                     'priority'   => '0.85',
                 ];
@@ -1366,8 +1375,8 @@ class SiteController extends Controller
             // 3. Active Categories
             foreach (Category::where('status', 1)->get(['id', 'updated_at']) as $cat) {
                 $urls[] = [
-                    'loc'        => route('category.coupons', $cat->id),
-                    'lastmod'    => ($cat->updated_at ? $cat->updated_at->toAtomString() : $now),
+                    'loc'        => $absUrl(route('category.coupons', $cat->id, false)),
+                    'lastmod'    => $cat->updated_at ? $cat->updated_at->toAtomString() : null,
                     'changefreq' => 'weekly',
                     'priority'   => '0.75',
                 ];
@@ -1376,8 +1385,8 @@ class SiteController extends Controller
             // 4. Active Coupons (slug URLs)
             foreach (Coupon::where('status', 1)->latest()->get(['id', 'slug', 'updated_at']) as $cp) {
                 $urls[] = [
-                    'loc'        => route('coupon.details', $cp->slug ?: $cp->id),
-                    'lastmod'    => ($cp->updated_at ? $cp->updated_at->toAtomString() : $now),
+                    'loc'        => $absUrl(route('coupon.details', $cp->slug ?: $cp->id, false)),
+                    'lastmod'    => $cp->updated_at ? $cp->updated_at->toAtomString() : null,
                     'changefreq' => 'daily',
                     'priority'   => '0.8',
                 ];
@@ -1386,8 +1395,8 @@ class SiteController extends Controller
             // 5. Active Deals
             foreach (Deal::where('status', 1)->latest()->get(['id', 'updated_at']) as $dl) {
                 $urls[] = [
-                    'loc'        => route('deal.details', $dl->id),
-                    'lastmod'    => ($dl->updated_at ? $dl->updated_at->toAtomString() : $now),
+                    'loc'        => $absUrl(route('deal.details', $dl->id, false)),
+                    'lastmod'    => $dl->updated_at ? $dl->updated_at->toAtomString() : null,
                     'changefreq' => 'daily',
                     'priority'   => '0.7',
                 ];
@@ -1397,8 +1406,8 @@ class SiteController extends Controller
             foreach (Frontend::where('data_keys', 'blog.element')->latest()->get(['id', 'data_values', 'updated_at']) as $bl) {
                 $bTitle = @$bl->data_values->title ?: 'blog';
                 $urls[] = [
-                    'loc'        => route('blog.details', [slug($bTitle), $bl->id]),
-                    'lastmod'    => ($bl->updated_at ? $bl->updated_at->toAtomString() : $now),
+                    'loc'        => $absUrl(route('blog.details', [slug($bTitle), $bl->id], false)),
+                    'lastmod'    => $bl->updated_at ? $bl->updated_at->toAtomString() : null,
                     'changefreq' => 'monthly',
                     'priority'   => '0.7',
                 ];
@@ -1409,7 +1418,9 @@ class SiteController extends Controller
             foreach ($urls as $u) {
                 $out .= "  <url>\n";
                 $out .= '    <loc>' . htmlspecialchars($u['loc'], ENT_XML1, 'UTF-8') . "</loc>\n";
-                $out .= '    <lastmod>' . $u['lastmod'] . "</lastmod>\n";
+                if (!empty($u['lastmod'])) {
+                    $out .= '    <lastmod>' . $u['lastmod'] . "</lastmod>\n";
+                }
                 $out .= '    <changefreq>' . $u['changefreq'] . "</changefreq>\n";
                 $out .= '    <priority>' . $u['priority'] . "</priority>\n";
                 $out .= "  </url>\n";
