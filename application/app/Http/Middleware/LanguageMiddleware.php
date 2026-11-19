@@ -24,6 +24,14 @@ class LanguageMiddleware
             \Cookie::queue('gdpr_cookie', 'accepted', 43200);
         }
 
+        // Global Referral Tracking: capture ?ref= or ?reference= on any incoming page
+        $ref = $request->query('ref') ?? $request->query('reference');
+        if ($ref) {
+            $cleanRef = trim($ref);
+            session()->put('reference', $cleanRef);
+            \Cookie::queue('reference', $cleanRef, 43200); // 30-day tracking cookie
+        }
+
         return $next($request);
     }
 

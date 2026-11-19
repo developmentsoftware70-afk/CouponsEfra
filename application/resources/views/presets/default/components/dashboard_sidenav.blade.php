@@ -101,6 +101,12 @@
                     @lang('Payout / Withdraw')
                 </a>
             </li>
+            <li class="sidebar-menu-list__item {{ Route::is('user.referral') ? 'active' : '' }}">
+                <a href="{{ route('user.referral') }}" class="sidebar-menu-list__link">
+                    <span class="icon"><i class="fas fa-gift text-warning"></i></span>
+                    @lang('Refer & Earn')
+                </a>
+            </li>
             <li class="sidebar-menu-list__item {{ Route::is('user.my.wishlist') ? 'active' : '' }}">
                 <a href="{{ route('user.my.wishlist') }}" class="sidebar-menu-list__link">
                     <span class="icon"><i class="far fa-heart"></i></span>

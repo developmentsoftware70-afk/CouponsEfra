@@ -15,7 +15,10 @@ class SocialLoginController extends Controller
     // Redirect user to Google
     public function redirect()
     {
-        if (!session()->has('url.intended')) {
+        $intendedParam = trim((string) request('intended', ''));
+        if ($intendedParam !== '' && str_starts_with($intendedParam, '/') && !str_starts_with($intendedParam, '//')) {
+            session()->put('url.intended', url($intendedParam));
+        } elseif (!session()->has('url.intended')) {
             $prev = url()->previous();
             if ($prev && $prev != url()->current() && !str_contains($prev, '/user/login') && !str_contains($prev, '/user/register')) {
                 session()->put('url.intended', $prev);
@@ -44,6 +47,8 @@ class SocialLoginController extends Controller
                     'ev' => 1,
                     'sv' => 1,
                 ]);
+
+                \App\Services\ReferralService::handleRegistration($user);
             } else if (!$user->provider_id) {
                 // Link Google to existing account
                 $user->update([

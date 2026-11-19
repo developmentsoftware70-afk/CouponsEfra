@@ -568,6 +568,89 @@
     </script>
     @endauth
 
+    @guest
+    {{-- Global Login Required Modal for Grab Deal / Merchant Redirects (Item #2: Modal + Page Login Support) --}}
+    <div class="modal fade" id="globalLoginModal" tabindex="-1" aria-labelledby="globalLoginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden;">
+                <div class="modal-header border-0 pb-1" style="background: linear-gradient(135deg, #0047ff, #002ea6); color: #fff; padding: 20px 24px;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-1" id="globalLoginModalLabel">@lang('Login to Activate Cashback')</h5>
+                        <p class="mb-0" style="font-size: 12.5px; color: rgba(255,255,255,0.88);">@lang('Sign in to track your cashback & continue directly to this deal.')</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form method="POST" action="{{ route('user.login') }}" id="globalLoginModalForm">
+                        @csrf
+                        <input type="hidden" name="intended_url" id="modalIntendedUrl" value="">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">@lang('Username or Email')</label>
+                            <input type="text" name="username" class="form-control" style="border-radius: 10px; padding: 10px 14px;" placeholder="@lang('Enter username or email')" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">@lang('Password')</label>
+                            <input type="password" name="password" class="form-control" style="border-radius: 10px; padding: 10px 14px;" placeholder="@lang('Enter password')" required>
+                        </div>
+                        <button type="submit" class="btn w-100 fw-bold text-white py-2" style="background: #0047ff; border-radius: 10px;">
+                            @lang('Login & Continue to Deal') <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    </form>
+
+                    @if(Route::has('google.redirect'))
+                        <div class="text-center my-3 position-relative">
+                            <hr class="my-2">
+                            <span class="bg-white px-2 text-muted" style="font-size: 12px; position: relative; top: -18px;">@lang('OR')</span>
+                        </div>
+                        <a href="{{ route('google.redirect') }}" id="modalGoogleLoginBtn" class="btn btn-outline-dark w-100 fw-semibold py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 10px;">
+                            <i class="fab fa-google text-danger"></i> @lang('Continue with Google')
+                        </a>
+                    @endif
+
+                    <div class="text-center mt-3" style="font-size: 13px;">
+                        @lang("Don't have an account?")
+                        <a href="{{ route('user.register') }}" class="fw-bold text-primary text-decoration-none">@lang('Sign Up Free')</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function($) {
+            "use strict";
+            // Intercept Grab Deal / Store Redirect links for guests to show sleek Login Modal first
+            $(document).on('click', 'a[href*="/go/"], a.require-login-cta', function(e) {
+                if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+                var href = $(this).attr('href');
+                if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
+
+                // Match internal redirect routes (/go/{id}, /deal/go/{id}, /slider/go/{id})
+                try {
+                    var parsed = new URL(href, window.location.origin);
+                    if (parsed.origin === window.location.origin && /^\/(go|deal\/go|slider\/go)\/\d+/.test(parsed.pathname)) {
+                        e.preventDefault();
+                        var relTarget = parsed.pathname + parsed.search;
+                        $('#modalIntendedUrl').val(relTarget);
+                        var gBtn = $('#modalGoogleLoginBtn');
+                        if (gBtn.length) {
+                            var baseG = gBtn.data('base-href') || gBtn.attr('href');
+                            gBtn.data('base-href', baseG);
+                            gBtn.attr('href', baseG + (baseG.indexOf('?') !== -1 ? '&' : '?') + 'intended=' + encodeURIComponent(relTarget));
+                        }
+                        var modalEl = document.getElementById('globalLoginModal');
+                        if (modalEl && typeof bootstrap !== 'undefined') {
+                            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                } catch (err) {}
+            });
+        })(jQuery);
+    </script>
+    @endguest
+
 </body>
 </html>
 

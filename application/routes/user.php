@@ -75,6 +75,9 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::post('twofactor/enable', 'create2fa')->name('twofactor.enable');
                 Route::post('twofactor/disable', 'disable2fa')->name('twofactor.disable');
 
+                // Referral Program
+                Route::get('referral', 'referral')->name('referral');
+
                 //Report
                 Route::any('deposit/history', 'depositHistory')->name('deposit.history');
                 Route::get('transactions','transactions')->name('transactions');

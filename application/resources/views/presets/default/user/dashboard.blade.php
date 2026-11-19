@@ -236,6 +236,30 @@
 </div>
 @endif
 
+{{-- Refer & Earn Quick Banner --}}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-radius: 14px; background: linear-gradient(135deg, #0d3b66 0%, #0047ff 100%); color: #fff;">
+            <div class="card-body p-3 p-md-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white text-primary" style="width: 48px; height: 48px; min-width: 48px;">
+                        <i class="fas fa-gift fs-4 text-warning"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">@lang('Refer Friends & Earn Flat ₹'){{ showAmount(gs()->referral_reward_amount ?? 50) }} @lang('Cash!')</h6>
+                        <small class="text-white-50">@lang('Invite friends to shop on CouponsEfra. Earn flat reward when they make their first ₹'){{ (int)(gs()->referral_min_purchase ?? 500) }}+ @lang('purchase.')</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('user.referral') }}" class="btn btn-warning fw-bold btn-sm px-3 py-2" style="border-radius: 8px;">
+                        <i class="fas fa-share-alt me-1"></i> @lang('Invite & Earn')
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <section class="dashboard-section account-form mt-4">
     <div class="row">
         <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">

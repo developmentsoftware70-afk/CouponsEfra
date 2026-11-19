@@ -17,6 +17,8 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\PayoutRequest;
 use App\Models\AdminNotification;
+use App\Models\ReferralLog;
+use App\Services\ReferralService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserController extends Controller
@@ -698,6 +700,53 @@ class UserController extends Controller
             'pendingCashback',
             'currentMonthCycle',
             'currentPayableDate'
+        ));
+    }
+
+    public function referral()
+    {
+        $pageTitle = 'My Referral Dashboard';
+        $user = auth()->user();
+
+        // Ensure user has referral_code
+        if (empty($user->referral_code)) {
+            $user->referral_code = ReferralService::generateUniqueCode();
+            $user->save();
+        }
+
+        // Stats
+        $totalFriends = ReferralLog::where('referrer_id', $user->id)->count();
+
+        $qualifiedReferrals = ReferralLog::where('referrer_id', $user->id)
+            ->whereIn('status', ['pending_confirmation', 'confirmed'])
+            ->count();
+
+        $totalEarned = (float) ReferralLog::where('referrer_id', $user->id)
+            ->where('status', 'confirmed')
+            ->sum('reward_amount');
+
+        $pendingRewards = (float) ReferralLog::where('referrer_id', $user->id)
+            ->where('status', 'pending_confirmation')
+            ->sum('reward_amount');
+
+        $logs = ReferralLog::with(['referee', 'order'])
+            ->where('referrer_id', $user->id)
+            ->latest()
+            ->paginate(getPaginate(15));
+
+        $minPurchase = gs()->referral_min_purchase ?? 500;
+        $rewardAmount = gs()->referral_reward_amount ?? 50;
+
+        return view($this->activeTemplate . 'user.referral', compact(
+            'pageTitle',
+            'user',
+            'totalFriends',
+            'qualifiedReferrals',
+            'totalEarned',
+            'pendingRewards',
+            'logs',
+            'minPurchase',
+            'rewardAmount'
         ));
     }
 

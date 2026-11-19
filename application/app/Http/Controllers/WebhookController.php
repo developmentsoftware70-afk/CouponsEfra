@@ -248,6 +248,9 @@ class WebhookController extends Controller
             // Ignore event broadcast error
         }
 
+        // 10. Process Referral Reward on Qualifying Order (Min ₹500, First Purchase)
+        \App\Services\ReferralService::evaluateOrder($order);
+
         Log::info("Real-time Purchase Processed: Order #{$order->id}, User #{$order->user_id}, Amount: {$order->amount}, Payout: {$order->payout_amount}, Status: {$order->status}");
 
         return response()->json([

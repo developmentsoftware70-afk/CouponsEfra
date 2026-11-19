@@ -78,6 +78,9 @@ class OrderController extends Controller
             } catch (\Exception $e) {}
         }
 
+        // Re-evaluate referral reward when order status changes (e.g. pending -> confirmed or rejected)
+        \App\Services\ReferralService::evaluateOrder($order);
+
         $notify[] = ['success', 'Order status & details updated successfully'];
         return back()->withNotify($notify);
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminNotification;
 use App\Models\User;
 use App\Models\UserLogin;
+use App\Services\ReferralService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
@@ -135,9 +136,9 @@ class RegisterController extends Controller
     {
         $general = gs();
 
-        $referBy = session()->get('reference');
+        $referBy = session()->get('reference') ?? request()->cookie('reference');
         if ($referBy) {
-            $referUser = User::where('username', $referBy)->first();
+            $referUser = User::where('referral_code', $referBy)->orWhere('username', $referBy)->first();
         } else {
             $referUser = null;
         }
@@ -146,10 +147,11 @@ class RegisterController extends Controller
         $user->email = strtolower(trim($data['email']));
         $user->password = Hash::make($data['password']);
         $user->username = trim($data['username']);
+        $user->referral_code = ReferralService::generateUniqueCode();
         $user->signup_type = $data['signup_type'];
         $user->organization_name = $data['organization_name'];
         $user->traffic_source = $data['traffic_source'];
-        $user->ref_by = $referUser ? $referUser->id : 0;
+        $user->ref_by = ($referUser && $referUser->id !== $user->id) ? $referUser->id : 0;
         $user->country_code = $data['country_code'];
         $user->mobile = $data['mobile_code'].$data['mobile'];
         $user->address = [
@@ -166,6 +168,9 @@ class RegisterController extends Controller
         $user->ts = 0;
         $user->tv = 1;
         $user->save();
+
+        // Handle referral logging & link
+        ReferralService::handleRegistration($user, $referBy);
 
 
         $adminNotification = new AdminNotification();

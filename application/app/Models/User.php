@@ -94,4 +94,35 @@ class User extends Authenticatable
         return $this->where('balance','>', 0);
     }
 
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'ref_by');
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'ref_by');
+    }
+
+    public function referralLogs()
+    {
+        return $this->hasMany(ReferralLog::class, 'referrer_id')->latest();
+    }
+
+    public function getReferralCodeAttribute($value)
+    {
+        if (empty($value) && $this->id) {
+            $code = 'CE' . strtoupper(substr(md5($this->id . ($this->username ?? '') . 'ce_salt'), 0, 6));
+            \Illuminate\Support\Facades\DB::table('users')->where('id', $this->id)->update(['referral_code' => $code]);
+            $this->attributes['referral_code'] = $code;
+            return $code;
+        }
+        return $value;
+    }
+
+    public function getReferralLinkAttribute()
+    {
+        $code = $this->referral_code ?: ($this->username ?: $this->id);
+        return route('home') . '?ref=' . urlencode($code);
+    }
 }

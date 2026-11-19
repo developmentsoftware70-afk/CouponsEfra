@@ -162,7 +162,24 @@ class LoginController extends Controller
 
         \Cookie::queue('couponsefra_logged_in', '1', 60 * 24 * 30, '/', null, false, false);
 
-        $intendedUrl = session()->pull('url.intended');
+        // Support both modal login (intended_url input) and page redirect (session url.intended)
+        $requestedIntended = trim((string) $request->input('intended_url', ''));
+        $intendedUrl = null;
+        if ($requestedIntended !== '') {
+            // Strictly allow only safe relative paths or same-origin URLs (prevent open redirect)
+            $appHost = parse_url(url('/'), PHP_URL_HOST);
+            if (str_starts_with($requestedIntended, '/') && !str_starts_with($requestedIntended, '//')) {
+                $intendedUrl = url($requestedIntended);
+            } elseif (parse_url($requestedIntended, PHP_URL_HOST) === $appHost && in_array(parse_url($requestedIntended, PHP_URL_SCHEME), ['http', 'https'], true)) {
+                $intendedUrl = $requestedIntended;
+            }
+        }
+        if (!$intendedUrl) {
+            $intendedUrl = session()->pull('url.intended');
+        } else {
+            session()->forget('url.intended');
+        }
+
         if ($intendedUrl && $intendedUrl !== route('home') && $intendedUrl !== url('/') && $intendedUrl !== url()->to('/')) {
             return redirect()->to($intendedUrl);
         }

@@ -46,6 +46,7 @@ class GeneralSettingController extends Controller
         $general->agree = $request->agree ? 1 : 0;
         $general->homepage = $request->homepage;
         $general->save();
+        \Illuminate\Support\Facades\Cache::forget('GeneralSetting');
 
         $timezoneFile = config_path('timezone.php');
         $content = '<?php $timezone = '.$request->timezone.' ?>';

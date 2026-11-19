@@ -175,6 +175,13 @@ Route::middleware('admin')->group(function () {
         Route::post('/bulk-action', 'bulkAction')->name('bulk.action');
         Route::post('/pay-single/{id}', 'paySingle')->name('pay.single');
     });
+
+    // Referral Management
+    Route::controller('ReferralController')->name('referral.')->prefix('referral')->group(function(){
+        Route::get('/logs', 'index')->name('index');
+        Route::get('/settings', 'settings')->name('settings');
+        Route::post('/settings', 'updateSettings')->name('settings.update');
+    });
     
     // plan
     Route::controller('PlanController')->name('plan.')->prefix('plan')->group(function(){

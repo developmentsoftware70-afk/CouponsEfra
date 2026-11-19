@@ -74,6 +74,28 @@
                         @endif
                     </a>
                 </li>
+                <li class="sidebar-menu-item sidebar-dropdown">
+                    <a href="javascript:void(0)" class="{{menuActive('admin.referral.*',3)}}">
+                        <i class="menu-icon las la-user-friends"></i>
+                        <span class="menu-title">@lang('Referral Program')</span>
+                    </a>
+                    <div class="sidebar-submenu {{menuActive('admin.referral.*',2)}} ">
+                        <ul>
+                            <li class="sidebar-menu-item {{menuActive('admin.referral.index')}} ">
+                                <a href="{{route('admin.referral.index')}}" class="nav-link">
+                                    <i class="menu-icon las la-dot-circle"></i>
+                                    <span class="menu-title">@lang('Referral Logs')</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item {{menuActive('admin.referral.settings')}} ">
+                                <a href="{{route('admin.referral.settings')}}" class="nav-link">
+                                    <i class="menu-icon las la-dot-circle"></i>
+                                    <span class="menu-title">@lang('Referral Settings')</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
                 {{-- 
                 <li class="sidebar-menu-item  {{menuActive('admin.plan.*')}}">
                     <a href="{{route('admin.plan.index')}}" class="nav-link"
