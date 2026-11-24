@@ -11,6 +11,7 @@
                             <tr>
                                 <th>@lang('Deal Type')</th>
                                 <th>@lang('User Id')</th>
+                                <th>@lang('User Name')</th>
                                 <th>@lang('Compaign Name')</th>
                                 <th>@lang('Sale Amount')</th>
                                 <th>@lang('Earning Amount')</th>
@@ -25,6 +26,15 @@
                             <tr>
                                 <td>{{__($item->deal_type)}}</td>
                                 <td>{{__($item->user_id)}}</td>
+                                <td>
+                                    @if($item->user)
+                                        <a href="{{ route('admin.users.detail', $item->user_id) }}" class="fw-bold text--primary">
+                                            {{ $item->user->fullname ?: $item->user->username }}
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
+                                </td>
                                 <td>{{__($item->compaign_name)}}</td>
                                 <td>{{ showAmount($item->sale_amount) }} {{ $general->cur_text }}</td>
                                 <td>{{ showAmount($item->earning_amount) }} {{ $general->cur_text }}</td>

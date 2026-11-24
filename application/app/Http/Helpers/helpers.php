@@ -521,8 +521,9 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
         // source is strictly username_userid
     }
 
-    // 1. Generate or retrieve unique click_id
+    // 1. Generate or retrieve unique click_id and distinct sub_id
     $clickId = $options['click_id'] ?? ('clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10)));
+    $subId   = $options['sub_id']   ?? (str_starts_with($clickId, 'clk_') ? ('sub_' . substr($clickId, 4)) : ('sub_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10))));
 
     // 2. Dynamic generation based on user, campaign, and merchant
     $siteName = config('app.name', 'CouponsEfra');
@@ -560,8 +561,8 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
         '%7Bclick_id%7D'                 => $clickId,
         '{irclid}'                       => $clickId,
         '%7Birclid%7D'                   => $clickId,
-        '{sub1}'                         => $userId,
-        '%7Bsub1%7D'                     => $userId,
+        '{sub1}'                         => $subId,
+        '%7Bsub1%7D'                     => $subId,
         '{sub2}'                         => $orderId ?? 0,
         '%7Bsub2%7D'                     => $orderId ?? 0,
         '{p1}'                           => $clickId,
@@ -573,6 +574,16 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
         '%7Busername%7D'                 => $cleanUsername,
         '{userId}'                       => $userId,
         '%7BuserId%7D'                   => $userId,
+        '{subid}'                        => $subId,
+        '%7Bsubid%7D'                    => $subId,
+        '{sub_id}'                       => $subId,
+        '%7Bsub_id%7D'                   => $subId,
+        '{aff_sub}'                      => $subId,
+        '%7Baff_sub%7D'                  => $subId,
+        '{sid}'                          => $subId,
+        '%7Bsid%7D'                      => $subId,
+        '{ascsubtag}'                    => $subId,
+        '%7Bascsubtag%7D'                => $subId,
         '%7Bp3%7D'                       => $orderId ?? 0,
     ];
 
@@ -590,21 +601,30 @@ function appendTrackingSource($link, $user = null, $orderId = null, $options = [
     }
 
     // Target tracking params: p1, sub1, p2, sub2, click_id, irclid, utm_source, utm_medium, utm_campaign, utm_term, source
+    // Along with merchant & network standards (Admitad, Cuelinks, Flipkart, Amazon, CJ, Rakuten, vCommission, ShareASale)
     $trackingParams = [
-        'username'     => $cleanUsername,
-        'user_id'      => (string) $userId,
-        'userId'       => (string) $userId,
-        'p1'           => $clickId,
-        'sub1'         => $clickId,
-        'p2'           => (string) ($orderId ?? 0),
-        'sub2'         => (string) ($orderId ?? 0),
         'click_id'     => $clickId,
         'irclid'       => $clickId,
+        'p1'           => $clickId,
+        'sub1'         => $subId,
+        'subid'        => $subId,       // Admitad, Cuelinks, EarnKaro
+        'sub_id'       => $subId,       // Involve Asia, HasOffers
+        'aff_sub'      => $subId,       // vCommission
+        'affExtParam1' => $subId,       // Flipkart
+        'ascsubtag'    => $subId,       // Amazon
+        'sid'          => $subId,       // Commission Junction (CJ)
+        'afftrack'     => $subId,       // ShareASale
+        'u1'           => $subId,       // Rakuten / LinkShare
         'utm_source'   => $utmSource,
         'utm_medium'   => $utmMedium,
         'utm_campaign' => $campaign,
         'utm_term'     => $utmTerm,
         'source'       => $trackingId,
+        'p2'           => (string) ($orderId ?? 0),
+        'sub2'         => (string) ($orderId ?? 0),
+        'username'     => $cleanUsername,
+        'user_id'      => (string) $userId,
+        'userId'       => (string) $userId,
     ];
 
     foreach ($trackingParams as $key => $val) {

@@ -93,10 +93,13 @@ class UserController extends Controller
             ->where('status', 'confirmed')
             ->get();
 
-        $totalConfirmedCashback = $confirmedOrders->sum('payout_amount');
+        $totalConfirmedCashback = (float) $confirmedOrders->sum('payout_amount');
         $pendingCashback = (float) Order::where('user_id', $user->id)
             ->whereIn('status', ['pending', 'unreviewed'])
             ->sum('payout_amount');
+
+        // Wallet balance from referral rewards and credits
+        $walletBalance = (float) $user->balance;
 
         // 2. Net-45 (15th of next month) eligibility calculation
         $eligibleCashback = 0;
@@ -115,12 +118,19 @@ class UserController extends Controller
             }
         }
 
+        // Wallet balance is immediately eligible
+        $eligibleCashback += $walletBalance;
+
         // 3. Amount already requested or paid
-        $alreadyRequested = PayoutRequest::where('user_id', $user->id)
+        $alreadyRequested = (float) PayoutRequest::where('user_id', $user->id)
             ->whereIn('status', ['pending', 'under_review', 'confirmed', 'paid'])
             ->sum('amount');
 
-        $availableBalance = max(0, $totalConfirmedCashback - $alreadyRequested);
+        $totalWithdrawablePool = $totalConfirmedCashback + $walletBalance;
+        $availableBalance = max(0, $totalWithdrawablePool - $alreadyRequested);
+
+        // Minimum payout threshold (Default ₹500.00)
+        $minPayout = (float) (gs()->min_payout ?? 500.00);
 
         // Current Month Cycle & Payable Date
         $currentMonthCycle  = now()->format('F Y');
@@ -141,36 +151,51 @@ class UserController extends Controller
             'alreadyRequested',
             'currentMonthCycle',
             'currentPayableDate',
-            'payoutRequests'
+            'payoutRequests',
+            'minPayout'
         ));
     }
 
     public function payoutRequest(Request $request)
     {
         $user = auth()->user();
+        $minPayout = (float) (gs()->min_payout ?? 500.00);
 
         $request->validate([
-            'amount'              => 'required|numeric|min:1',
+            'amount'              => 'required|numeric|min:' . $minPayout,
             'payment_method'      => 'required|in:bank_transfer,upi',
             'account_holder_name' => 'required_if:payment_method,bank_transfer|nullable|string|max:100',
             'bank_name'           => 'required_if:payment_method,bank_transfer|nullable|string|max:100',
             'account_number'      => 'required_if:payment_method,bank_transfer|nullable|string|max:50',
             'ifsc_code'           => 'required_if:payment_method,bank_transfer|nullable|string|max:20',
             'upi_id'              => 'required_if:payment_method,upi|nullable|string|max:100',
+        ], [
+            'amount.min' => 'Minimum withdrawal amount is ₹' . showAmount($minPayout) . '. You entered ₹' . showAmount($request->amount) . '.',
         ]);
 
-        $totalConfirmedCashback = Order::where('user_id', $user->id)
+        $totalConfirmedCashback = (float) Order::where('user_id', $user->id)
             ->where('status', 'confirmed')
             ->sum('payout_amount');
 
-        $alreadyRequested = PayoutRequest::where('user_id', $user->id)
+        $walletBalance = (float) $user->balance;
+        $totalWithdrawablePool = $totalConfirmedCashback + $walletBalance;
+
+        $alreadyRequested = (float) PayoutRequest::where('user_id', $user->id)
             ->whereIn('status', ['pending', 'under_review', 'confirmed', 'paid'])
             ->sum('amount');
 
-        $availableBalance = max(0, $totalConfirmedCashback - $alreadyRequested);
+        $availableBalance = max(0, $totalWithdrawablePool - $alreadyRequested);
 
-        if ($availableBalance > 0 && $request->amount > $availableBalance) {
-            $notify[] = ['error', 'Insufficient balance. You can request up to ₹' . showAmount($availableBalance)];
+        // Strict Check 1: User cannot withdraw if available balance is less than minimum payout (₹500+)
+        if ($availableBalance < $minPayout) {
+            $shortage = $minPayout - $availableBalance;
+            $notify[] = ['error', 'Minimum withdrawal threshold is ₹' . showAmount($minPayout) . '. Your available balance is ₹' . showAmount($availableBalance) . '. You need ₹' . showAmount($shortage) . ' more confirmed cashback to request a payout.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        // Strict Check 2: Request amount cannot exceed available balance
+        if ($request->amount > $availableBalance) {
+            $notify[] = ['error', 'Insufficient balance. You can request up to ₹' . showAmount($availableBalance) . '.'];
             return back()->withNotify($notify)->withInput();
         }
 
@@ -686,7 +711,10 @@ class UserController extends Controller
             ->whereIn('status', ['pending', 'under_review', 'confirmed', 'paid'])
             ->sum('amount');
 
-        $availableBalance = max(0, $totalConfirmedCashback - $alreadyRequested);
+        $walletBalance = (float) $user->balance;
+        $totalWithdrawablePool = $totalConfirmedCashback + $walletBalance;
+        $availableBalance = max(0, $totalWithdrawablePool - $alreadyRequested);
+        $minPayout = (float) (gs()->min_payout ?? 500.00);
 
         $currentMonthCycle  = now()->format('F Y');
         $currentPayableDate = now()->addMonthNoOverflow()->startOfMonth()->addDays(14);
@@ -699,7 +727,8 @@ class UserController extends Controller
             'totalConfirmedCashback',
             'pendingCashback',
             'currentMonthCycle',
-            'currentPayableDate'
+            'currentPayableDate',
+            'minPayout'
         ));
     }
 

@@ -171,7 +171,7 @@
                             </td>
                             <td data-label="@lang('Actions')">
                                 <div class="button--group">
-                                    <a href="{{route("user.coupons.edit",$item->id)}}" title="@lang('Edit')"
+                                    <a href="{{route("user.coupons.edit" ,$item->id)}}" title="@lang('Edit')"
                                         class="btn btn--base btn--sm">
                                         <i class="la la-edit"></i>
                                     </a>                                     

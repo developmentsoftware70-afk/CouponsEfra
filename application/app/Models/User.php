@@ -8,7 +8,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($user) {
+            if (empty($user->id)) {
+                $maxId = self::max('id') ?? 0;
+                $user->id = $maxId + 1;
+            }
+        });
+    }
 
     /**
      * The attributes that should be hidden for arrays.

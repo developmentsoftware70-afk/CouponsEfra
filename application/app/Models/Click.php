@@ -9,6 +9,7 @@ class Click extends Model
 {
     protected $fillable = [
         'click_id',
+        'sub_id',
         'user_id',
         'coupon_id',
         'deal_id',

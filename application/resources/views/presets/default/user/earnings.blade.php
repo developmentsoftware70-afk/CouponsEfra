@@ -23,7 +23,7 @@
                         <i class="fas fa-clock text-warning fs-18"></i>
                     </div>
                     <h2 class="stat-num text-warning mb-1">{{ $general->cur_sym }}{{ showAmount($pendingEarnings) }}</h2>
-                    <small class="text-muted">@lang('Confirm hone par ye balance me add hoga')</small>
+                    <small class="text-muted">@lang('Will be added to balance upon confirmation')</small>
                 </div>
             </div>
 

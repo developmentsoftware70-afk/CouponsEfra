@@ -5,12 +5,15 @@
     <div class="col-lg-12">
         <div class="card b-radius--10 ">
             <div class="card-body p-0">
-                <div class="table-responsive--md  table-responsive">
-                    <table class="table table--light style--two">
+                <div class="table-responsive">
+                    <table class="table table--light style--two text-nowrap">
                         <thead>
                             <tr>
-                                <th>@lang('User')</th>
+                                <th>@lang('User ID')</th>
+                                <th>@lang('Username')</th>
                                 <th>@lang('Email')</th>
+                                <th>@lang('Mobile')</th>
+                                <th>@lang('Country')</th>
                                 <th>@lang('Joined At')</th>
                                 <th>@lang('Action')</th>
                             </tr>
@@ -19,21 +22,30 @@
                             @forelse($users as $user)
                             <tr>
                                 <td>
-                                    <a href="{{ route('admin.users.detail', $user->id) }}">{{$user->fullname}}
-                                        ({{$user->username}})</a>
+                                    <span class="badge badge--primary" style="font-size: 11px;">#{{ $user->id }}</span>
                                 </td>
 
+                                <td>
+                                    <a href="{{ route('admin.users.detail', $user->id) }}" class="fw-bold text--primary">
+                                        {{ $user->username }}
+                                    </a>
+                                </td>
 
                                 <td>
                                     {{ $user->email }}
                                 </td>
 
-
-
                                 <td>
-                                    {{ showDateTime($user->created_at) }}
+                                    {{ $user->dial_code ? '+' . $user->dial_code : '' }} {{ $user->mobile ?: '—' }}
                                 </td>
 
+                                <td>
+                                    <span class="fw-bold">{{ @$user->address->country ?: '—' }}</span>
+                                </td>
+
+                                <td>
+                                    {{ showDateTime($user->created_at) }} <br> <small class="text-muted">{{ diffForHumans($user->created_at) }}</small>
+                                </td>
 
                                 <td>
                                     <a title="@lang('User Profile')" href="{{ route('admin.users.detail', $user->id) }}"

@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'user/deposit',
         'ipn*',
-        'api/webhook*'
+        'api/webhook*',
+        'affiliate/postback*',
     ];
 }

@@ -62,6 +62,12 @@
                         <span class="menu-title">@lang('Orders & Tracking')</span>
                     </a>
                 </li>
+                <li class="sidebar-menu-item {{menuActive('admin.postback.*')}}">
+                    <a href="{{route('admin.postback.index')}}" class="nav-link">
+                        <i class="menu-icon las la-exchange-alt"></i>
+                        <span class="menu-title">@lang('Postback Manager')</span>
+                    </a>
+                </li>
                 <li class="sidebar-menu-item {{menuActive('admin.payouts.*')}}">
                     <a href="{{route('admin.payouts.index')}}" class="nav-link ">
                         <i class="menu-icon las la-hand-holding-usd"></i>
@@ -165,6 +171,12 @@
         <a href="{{route('admin.report.login.history')}}" class="nav-link">
             <i class="menu-icon las la-sign-in-alt"></i>
             <span class="menu-title">@lang('Login Activities')</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item {{menuActive('admin.report.brand.clicks*')}}">
+        <a href="{{route('admin.report.brand.clicks')}}" class="nav-link">
+            <i class="menu-icon las la-mouse-pointer"></i>
+            <span class="menu-title">@lang('Brand Clicks Report')</span>
         </a>
     </li>
     <li class="sidebar-menu-item {{menuActive('admin.report.notification.history')}}">

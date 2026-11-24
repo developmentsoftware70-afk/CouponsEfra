@@ -7,37 +7,47 @@
         <div class="card b-radius--10 ">
             <div class="card-body p-0">
 
-                <div class="table-responsive--sm table-responsive">
-                    <table class="table table--light style--two">
+                <div class="table-responsive">
+                    <table class="table table--light style--two text-nowrap">
                         <thead>
                             <tr>
-                                <th>@lang('User')</th>
-                                <th>@lang('Login at')</th>
+                                <th>@lang('User ID')</th>
+                                <th>@lang('Username')</th>
                                 <th>@lang('IP')</th>
-                                <th>@lang('Browser and OS')</th>
+                                <th>@lang('Browser')</th>
+                                <th>@lang('OS')</th>
+                                <th>@lang('Login Time')</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($loginLogs as $log)
                             <tr>
                                 <td>
-                                    <a href="{{ route('admin.users.detail', $log->user_id) }}">{{
-                                        @$log->user->fullname }}</a>
+                                    <span class="badge badge--primary" style="font-size: 11px;">#{{ $log->user_id }}</span>
                                 </td>
 
                                 <td>
-                                    {{showDateTime($log->created_at) }}
+                                    <a href="{{ route('admin.users.detail', $log->user_id) }}" class="text--primary fw-bold">
+                                        {{ @$log->user->username }}
+                                    </a>
                                 </td>
 
                                 <td>
                                     <span class="fw-bold">
-                                        <a href="{{route('admin.report.login.ipHistory',[$log->user_ip])}}">{{
-                                            $log->user_ip }}</a>
+                                        <a href="{{ route('admin.report.login.ipHistory', [$log->user_ip]) }}">{{ $log->user_ip }}</a>
                                     </span>
                                 </td>
 
                                 <td>
-                                    {{ __($log->browser) }}, {{ __($log->os) }}
+                                    {{ __($log->browser ?: 'Unknown') }}
+                                </td>
+
+                                <td>
+                                    {{ __($log->os ?: 'Unknown') }}
+                                </td>
+
+                                <td>
+                                    {{ showDateTime($log->created_at) }} <br> <small class="text-muted">{{ diffForHumans($log->created_at) }}</small>
                                 </td>
                             </tr>
                             @empty

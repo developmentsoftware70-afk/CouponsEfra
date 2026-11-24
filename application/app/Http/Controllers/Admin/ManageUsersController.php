@@ -97,7 +97,17 @@ class ManageUsersController extends Controller
         $user = User::findOrFail($id);
         $pageTitle = 'User Details / @'.$user->username;
         $countries = json_decode(file_get_contents(resource_path('views/includes/country.json')));
-        return view('admin.users.detail', compact('pageTitle', 'user','countries'));
+
+        // Brand-wise click analytics for this specific user
+        $userBrandClicks = \App\Models\Click::where('user_id', $user->id)
+            ->whereNotNull('store_id')
+            ->with('store')
+            ->selectRaw('store_id, COUNT(*) as total_clicks, COUNT(order_id) as total_orders, MAX(created_at) as last_clicked_at')
+            ->groupBy('store_id')
+            ->orderByDesc('total_clicks')
+            ->get();
+
+        return view('admin.users.detail', compact('pageTitle', 'user', 'countries', 'userBrandClicks'));
     }
 
 

@@ -21,7 +21,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>@lang('User ID & Name') </label>
+                                    <label>@lang('User') </label>
                                     <select class="form-control" name="user_id" required>
                                         @foreach($users as $item)
                                             <option value="{{$item->id}}" {{ $item->id == $earningReport->user_id ? 'selected' : '' }}>{{ ($item->firstname ?? '') . ' ' . ($item->lastname ?? '') }}</option>

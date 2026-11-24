@@ -122,4 +122,5 @@ Route::get('/api/check-auth', function () {
 
 // Merchant Order Webhook / Postback (GET & POST)
 Route::match(['get', 'post'], '/api/webhook/order', [WebhookController::class, 'handleMerchantCallback'])->name('webhook.order');
+Route::match(['get', 'post'], '/affiliate/postback', [WebhookController::class, 'handleMerchantCallback'])->name('affiliate.postback');
 

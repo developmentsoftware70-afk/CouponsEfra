@@ -262,51 +262,53 @@ class SiteController extends Controller
         }
 
         $coupon = Coupon::with('store')->findOrFail($id);
+
+        // 1. Secure Redirect Validation: Prevent open redirects, javascript: or data: URIs
+        $rawLink = trim($coupon->link ?? '');
+        if (!filter_var($rawLink, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $rawLink)) {
+            $notify[] = ['error', 'Security Alert: Invalid or unsafe redirect destination link'];
+            return back()->withNotify($notify);
+        }
+
+        $userAgent = request()->userAgent() ?? 'Unknown';
+
+        // 2. Fraud Click Protection: Filter known automated bots & web spiders
+        if ($this->isBotRequest($userAgent)) {
+            return redirect()->away($rawLink);
+        }
+
+        // 3. Duplicate Click Handling: Deduplicate clicks within 30 seconds from same user
+        $recentClick = Click::where('user_id', auth()->id())
+            ->where('coupon_id', $coupon->id)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->latest()
+            ->first();
+
+        if ($recentClick) {
+            $link = $recentClick->final_url ?: $rawLink;
+            $pageTitle = "Activating Cashback...";
+            return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'coupon'));
+        }
+
         $coupon->increment('click_count');
         DailyMetric::incrementClicks(1);
         
-        $clickId = 'clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10));
+        $merchant = @$coupon->store->name ?? 'store';
+        $timestamp = time();
+        $random = strtolower(\Illuminate\Support\Str::random(10));
+        $clickId = 'clk_' . $timestamp . '_' . $random;
+        $subId   = 'sub_' . $timestamp . '_' . $random;
         $ip = getRealIP();
-        $userAgent = request()->userAgent() ?? 'Unknown';
         $osBrowser = ClientInfo::osBrowser();
         $os = $osBrowser['os_platform'] ?? 'Unknown';
         $browser = $osBrowser['browser'] ?? 'Unknown';
         $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
         $campaign = request('utm_campaign', request('campaign', 'coupon_campaign'));
 
-        // Create initial tracking order for coupon store visit
-        $productImage = $coupon->image ?? @$coupon->store->image ?? null;
-
-        $estAmount = (float)($coupon->price ?: 349.00);
-        $estPayout = 0;
-        if (!empty($coupon->cashback_amount)) {
-            $cb = (float) $coupon->cashback_amount;
-            $estPayout = ($cb > 0 && $cb <= 100) ? round(($estAmount * $cb) / 100, 2) : $cb;
-        } elseif (preg_match('/Flat\s*₹?\s*(\d+)\s*Cashback/i', $coupon->title, $m)) {
-            $estPayout = (float) $m[1];
-        } elseif (preg_match('/Extra\s*(\d+(?:\.\d+)?)\s*%\s*Cashback/i', $coupon->title, $m)) {
-            $estPayout = round(($estAmount * (float)$m[1]) / 100, 2);
-        } else {
-            $estPayout = round($estAmount * 0.10, 2);
-        }
-        if ($estPayout <= 0) $estPayout = 50.00;
-
-        $tempOrder = Order::create([
-            'click_id'      => $clickId,
-            'user_id'       => auth()->id(),
-            'merchant_id'   => $coupon->store_id ?? null,
-            'product_name'  => $coupon->title,
-            'product_image' => $productImage,
-            'amount'        => $estAmount,
-            'payout_amount' => $estPayout,
-            'currency'      => 'INR',
-            'status'        => 'pending',
-            'source'        => 'coupon_section',
-        ]);
-
         $options = [
             'click_id'     => $clickId,
-            'merchant'     => @$coupon->store->name ?? 'store',
+            'sub_id'       => $subId,
+            'merchant'     => $merchant,
             'campaign'     => $campaign,
             'title'        => $coupon->title,
             'utm_source'   => request('utm_source', auth()->user()->username),
@@ -314,15 +316,16 @@ class SiteController extends Controller
             'utm_term'     => request('utm_term', $coupon->slug ?? $coupon->title),
         ];
 
-        $link = appendTrackingSource($coupon->link, auth()->user(), $tempOrder->id, $options);
+        $link = appendTrackingSource($coupon->link, auth()->user(), null, $options);
 
-        // Store granular click data
+        // Store granular click data (real purchase order will be created via merchant callback)
         Click::create([
             'click_id'        => $clickId,
+            'sub_id'          => $subId,
             'user_id'         => auth()->id(),
             'coupon_id'       => $coupon->id,
             'store_id'        => $coupon->store_id ?? null,
-            'order_id'        => $tempOrder->id,
+            'order_id'        => null,
             'campaign'        => $campaign,
             'utm_source'      => $options['utm_source'],
             'utm_medium'      => $options['utm_medium'],
@@ -350,40 +353,51 @@ class SiteController extends Controller
         }
 
         $deal = Deal::findOrFail($id);
+
+        // 1. Secure Redirect Validation: Prevent unsafe URLs
+        $rawLink = trim($deal->link ?? '');
+        if (!filter_var($rawLink, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $rawLink)) {
+            $notify[] = ['error', 'Security Alert: Invalid or unsafe redirect destination link'];
+            return back()->withNotify($notify);
+        }
+
+        $userAgent = request()->userAgent() ?? 'Unknown';
+
+        // 2. Fraud Click Protection: Filter automated bots
+        if ($this->isBotRequest($userAgent)) {
+            return redirect()->away($rawLink);
+        }
+
+        // 3. Duplicate Click Handling: Deduplicate clicks within 30 seconds
+        $recentClick = Click::where('user_id', auth()->id())
+            ->where('deal_id', $deal->id)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->latest()
+            ->first();
+
+        if ($recentClick) {
+            $link = $recentClick->final_url ?: $rawLink;
+            $pageTitle = "Activating Cashback...";
+            return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'deal'));
+        }
+
         $deal->increment('click_count');
         DailyMetric::incrementClicks(1);
 
-        $clickId = 'clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10));
+        $timestamp = time();
+        $random = strtolower(\Illuminate\Support\Str::random(10));
+        $clickId = 'clk_' . $timestamp . '_' . $random;
+        $subId   = 'sub_' . $timestamp . '_' . $random;
         $ip = getRealIP();
-        $userAgent = request()->userAgent() ?? 'Unknown';
         $osBrowser = ClientInfo::osBrowser();
         $os = $osBrowser['os_platform'] ?? 'Unknown';
         $browser = $osBrowser['browser'] ?? 'Unknown';
         $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
         $campaign = request('utm_campaign', request('campaign', 'deal_campaign'));
 
-        // Create initial tracking order for deal visit
-        $productImage = $deal->image ?? null;
-
-        $estAmount = (float)($deal->price ?: 349.00);
-        $estPayout = round($estAmount * 0.10, 2);
-        if ($estPayout <= 0) $estPayout = 50.00;
-
-        $tempOrder = Order::create([
-            'click_id'      => $clickId,
-            'user_id'       => auth()->id(),
-            'merchant_id'   => $deal->store_id ?? null,
-            'product_name'  => $deal->title,
-            'product_image' => $productImage,
-            'amount'        => $estAmount,
-            'payout_amount' => $estPayout,
-            'currency'      => 'INR',
-            'status'        => 'pending',
-            'source'        => 'deal_section',
-        ]);
-
         $options = [
             'click_id'     => $clickId,
+            'sub_id'       => $subId,
             'merchant'     => 'deal_store',
             'campaign'     => $campaign,
             'title'        => $deal->title,
@@ -392,14 +406,16 @@ class SiteController extends Controller
             'utm_term'     => request('utm_term', $deal->title),
         ];
 
-        $link = appendTrackingSource($deal->link, auth()->user(), $tempOrder->id, $options);
+        $link = appendTrackingSource($deal->link, auth()->user(), null, $options);
 
+        // Store granular click data (real purchase order will be created via merchant callback)
         Click::create([
             'click_id'        => $clickId,
+            'sub_id'          => $subId,
             'user_id'         => auth()->id(),
             'deal_id'         => $deal->id,
             'store_id'        => $deal->store_id ?? null,
-            'order_id'        => $tempOrder->id,
+            'order_id'        => null,
             'campaign'        => $campaign,
             'utm_source'      => $options['utm_source'],
             'utm_medium'      => $options['utm_medium'],
@@ -426,36 +442,53 @@ class SiteController extends Controller
         }
 
         $slider = \App\Models\Slider::findOrFail($id);
+
+        // 1. Secure Redirect Validation
+        $rawLink = trim($slider->link ?? '');
+        if (!filter_var($rawLink, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $rawLink)) {
+            $notify[] = ['error', 'Security Alert: Invalid or unsafe redirect destination link'];
+            return back()->withNotify($notify);
+        }
+
+        $userAgent = request()->userAgent() ?? 'Unknown';
+
+        // 2. Fraud Click Protection: Filter automated bots
+        if ($this->isBotRequest($userAgent)) {
+            return redirect()->away($rawLink);
+        }
+
+        // 3. Duplicate Click Handling: Deduplicate clicks within 30 seconds
+        $recentClick = Click::where('user_id', auth()->id())
+            ->where('store_id', $slider->store_id ?? null)
+            ->where('destination_url', $slider->link)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->latest()
+            ->first();
+
+        if ($recentClick) {
+            $link = $recentClick->final_url ?: $rawLink;
+            $pageTitle = "Activating Cashback...";
+            return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'slider'));
+        }
+
         DailyMetric::incrementClicks(1);
 
-        $clickId = 'clk_' . time() . '_' . strtolower(\Illuminate\Support\Str::random(10));
+        $merchant = @$slider->store->name ?? 'featured';
+        $timestamp = time();
+        $random = strtolower(\Illuminate\Support\Str::random(10));
+        $clickId = 'clk_' . $timestamp . '_' . $random;
+        $subId   = 'sub_' . $timestamp . '_' . $random;
         $ip = getRealIP();
-        $userAgent = request()->userAgent() ?? 'Unknown';
         $osBrowser = ClientInfo::osBrowser();
         $os = $osBrowser['os_platform'] ?? 'Unknown';
         $browser = $osBrowser['browser'] ?? 'Unknown';
         $deviceType = preg_match('/(android|iphone|ipad|mobile|tablet)/i', $userAgent) ? 'mobile' : 'desktop';
         $campaign = request('utm_campaign', request('campaign', 'slider_campaign'));
 
-        // Create initial tracking order for slider visit
-        $productImage = $slider->image ?? null;
-
-        $tempOrder = Order::create([
-            'click_id'      => $clickId,
-            'user_id'       => auth()->id(),
-            'merchant_id'   => $slider->store_id ?? null,
-            'product_name'  => $slider->title ?? 'Featured Offer',
-            'product_image' => $productImage,
-            'amount'        => 500.00,
-            'payout_amount' => 50.00,
-            'currency'      => 'INR',
-            'status'        => 'pending',
-            'source'        => 'slider_section',
-        ]);
-
         $options = [
             'click_id'     => $clickId,
-            'merchant'     => 'featured_store',
+            'sub_id'       => $subId,
+            'merchant'     => $merchant,
             'campaign'     => $campaign,
             'title'        => $slider->title ?? 'Featured Offer',
             'utm_source'   => request('utm_source', auth()->user()->username),
@@ -463,13 +496,15 @@ class SiteController extends Controller
             'utm_term'     => request('utm_term', $slider->title ?? 'offer'),
         ];
 
-        $link = appendTrackingSource($slider->link, auth()->user(), $tempOrder->id, $options);
+        $link = appendTrackingSource($slider->link, auth()->user(), null, $options);
 
+        // Store granular click data (real purchase order will be created via merchant callback)
         Click::create([
             'click_id'        => $clickId,
+            'sub_id'          => $subId,
             'user_id'         => auth()->id(),
             'store_id'        => $slider->store_id ?? null,
-            'order_id'        => $tempOrder->id,
+            'order_id'        => null,
             'campaign'        => $campaign,
             'utm_source'      => $options['utm_source'],
             'utm_medium'      => $options['utm_medium'],
@@ -486,6 +521,15 @@ class SiteController extends Controller
 
         $pageTitle = "Activating Cashback...";
         return view($this->activeTemplate . 'redirect_page', compact('pageTitle', 'link', 'slider'));
+    }
+
+    /**
+     * Check if the incoming request is generated by an automated bot or crawler.
+     */
+    protected function isBotRequest($userAgent): bool
+    {
+        if (empty($userAgent) || $userAgent === 'Unknown') return false;
+        return (bool) preg_match('/(bot|crawl|spider|slurp|facebookexternalhit|headless|phantom|wget|curl|python|scrapy|preview|feed)/i', $userAgent);
     }
 
     public function contact()

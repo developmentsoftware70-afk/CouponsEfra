@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Periodic Affiliate Network Conversion Sync (Hourly status updates & backup recovery)
+        $schedule->command('affiliate:sync')->hourly()->withoutOverlapping()->runInBackground();
     }
 
     /**

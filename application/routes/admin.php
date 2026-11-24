@@ -168,6 +168,17 @@ Route::middleware('admin')->group(function () {
         Route::post('/update/{id}', 'update')->name('update');
     });
 
+    // Postback Management
+    Route::controller('PostbackController')->name('postback.')->prefix('postbacks')->group(function(){
+        Route::get('/', 'index')->name('index');
+        Route::post('/store', 'store')->name('store');
+        Route::post('/update/{id}', 'update')->name('update');
+        Route::post('/delete/{id}', 'delete')->name('delete');
+        Route::post('/test', 'testSimulator')->name('test');
+        Route::post('/sync/{id}', 'manualSync')->name('sync');
+        Route::post('/simulate-sync', 'simulateSync')->name('simulate.sync');
+    });
+
     // Payout Requests Management
     Route::controller('PayoutController')->name('payouts.')->prefix('payouts')->group(function(){
         Route::get('/', 'index')->name('index');
@@ -246,7 +257,10 @@ Route::middleware('admin')->group(function () {
     Route::controller('ReportController')->group(function(){
         Route::get('report/transaction', 'transaction')->name('report.transaction');
         Route::get('report/login/history', 'loginHistory')->name('report.login.history');
+        Route::get('report/login/history/export', 'exportLoginHistory')->name('report.login.export');
         Route::get('report/login/ipHistory/{ip}', 'loginIpHistory')->name('report.login.ipHistory');
+        Route::get('report/brand-clicks', 'brandClicks')->name('report.brand.clicks');
+        Route::get('report/brand-clicks/export', 'exportBrandClicks')->name('report.brand.clicks.export');
         Route::get('report/notification/history', 'notificationHistory')->name('report.notification.history');
         Route::get('report/email/detail/{id}', 'emailDetails')->name('report.email.details');
     });

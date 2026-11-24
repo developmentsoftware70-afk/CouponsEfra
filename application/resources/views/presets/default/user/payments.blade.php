@@ -71,6 +71,55 @@
             </div>
         </div>
 
+        {{-- Minimum Withdrawal Threshold & Progress Notice --}}
+        @php
+            $minThreshold = $minPayout ?? 500.00;
+            $progressPercent = $minThreshold > 0 ? min(100, round(($availableBalance / $minThreshold) * 100)) : 100;
+            $shortage = max(0, $minThreshold - $availableBalance);
+        @endphp
+        @if($availableBalance < $minThreshold)
+            <div class="mb-3 p-3 bg-white border rounded-3 shadow-sm" style="border-left: 4px solid #f59e0b !important;">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning" style="width: 36px; height: 36px; min-width: 36px;">
+                            <i class="fas fa-lock fs-14"></i>
+                        </span>
+                        <div>
+                            <h6 class="mb-0 fw-bold fs-14 text-dark">
+                                @lang('Minimum Withdrawal Threshold'): <span class="text-primary fw-bold">₹{{ showAmount($minThreshold) }}</span>
+                            </h6>
+                            <small class="text-muted">
+                                @lang('A minimum confirmed balance of') <strong>₹{{ showAmount($minThreshold) }}</strong> @lang('is required to request a payout. Current balance:') <strong class="text-success">₹{{ showAmount($availableBalance) }}</strong> @lang('(Need') <strong class="text-danger">₹{{ showAmount($shortage) }}</strong> @lang('more).')
+                            </small>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning bg-opacity-15 text-dark fw-bold fs-12 px-3 py-1 border border-warning">
+                        {{ $progressPercent }}% @lang('Reached')
+                    </span>
+                </div>
+                <div class="progress" style="height: 8px; border-radius: 4px; background: #e2e8f0;">
+                    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $progressPercent }}%" aria-valuenow="{{ $progressPercent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        @else
+            <div class="mb-3 p-3 bg-white border rounded-3 shadow-sm d-flex flex-wrap justify-content-between align-items-center gap-2" style="border-left: 4px solid #10b981 !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success" style="width: 36px; height: 36px; min-width: 36px;">
+                        <i class="fas fa-check-circle fs-16"></i>
+                    </span>
+                    <div>
+                        <h6 class="mb-0 fw-bold fs-14 text-dark">
+                            @lang('Withdrawal Ready!'): <span class="text-success fw-bold">₹{{ showAmount($availableBalance) }}</span> @lang('available to withdraw')
+                        </h6>
+                        <small class="text-muted">@lang('Your confirmed balance is eligible for withdrawal (₹' . (int)$minThreshold . '+).')</small>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-success fw-bold px-3 py-2" data-bs-toggle="modal" data-bs-target="#requestPayoutModal">
+                    <i class="fas fa-hand-holding-usd me-1"></i> @lang('Withdraw Now')
+                </button>
+            </div>
+        @endif
+
         {{-- Sleek Payout Receiving Account Banner (Optimized Accountability Hub) --}}
         <div class="payout-linked-card mb-3 p-3 bg-white border rounded-3 shadow-sm">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -115,7 +164,7 @@
                             </div>
                         @else
                             <p class="text-muted fs-13 mb-0">
-                                @lang('Apna Bank Account ya UPI ID link karein taaki withdrawal request bina kisi delay ke transfer ho sake.')
+                                @lang('Link your Bank Account or UPI ID to ensure seamless and timely withdrawal transfers.')
                             </p>
                         @endif
                     </div>
@@ -123,12 +172,19 @@
 
                 {{-- Explicit High-Contrast Action Buttons --}}
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <button type="button" class="btn-action-primary" data-bs-toggle="modal" data-bs-target="#updateDefaultAccountModal">
-                        <i class="fas fa-edit"></i> @lang('Update Account Details')
+                    <button type="button" class="btn-action-primary" data-bs-toggle="modal" data-bs-target="#updateDefaultAccountModal" style="background-color: #4f46e5 !important; color: #ffffff !important; border: 1px solid #4f46e5 !important; font-size: 13px !important; font-weight: 600 !important; padding: 8px 16px !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; gap: 6px !important;">
+                        <i class="fas fa-edit" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important; font-weight: 600 !important;">@lang('Update Account Details')</span>
                     </button>
-                    <button type="button" class="btn-action-success" data-bs-toggle="modal" data-bs-target="#requestPayoutModal">
-                        <i class="fas fa-plus-circle"></i> @lang('Request Payout')
-                    </button>
+                    @if($availableBalance >= $minThreshold)
+                        <button type="button" class="btn-action-success" data-bs-toggle="modal" data-bs-target="#requestPayoutModal" style="background-color: #10b981 !important; color: #ffffff !important; border: 1px solid #10b981 !important; font-size: 13px !important; font-weight: 600 !important; padding: 8px 16px !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; gap: 6px !important;">
+                            <i class="fas fa-plus-circle" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important; font-weight: 600 !important;">@lang('Request Payout')</span>
+                        </button>
+                    @else
+                        <button type="button" class="btn-action-locked" data-bs-toggle="modal" data-bs-target="#minPayoutNoticeModal" style="background-color: #fffbeb !important; color: #78350f !important; border: 1.5px solid #f59e0b !important; font-size: 13px !important; font-weight: 700 !important; padding: 8px 16px !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; gap: 7px !important;">
+                            <i class="fas fa-lock" style="color: #d97706 !important;"></i>
+                            <span style="color: #78350f !important; font-weight: 700 !important;">@lang('Request Payout (Min ₹' . (int)$minThreshold . ')')</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -310,7 +366,7 @@
                 @csrf
                 <div class="modal-body p-4">
                     <p class="text-muted fs-13 mb-3">
-                        @lang('Apna Bank Account ya UPI ID yahan save karein. Future me jab bhi aap withdrawal request karenge, ye details automatic pre-fill hongi.')
+                        @lang('Save your Bank Account or UPI ID here. These details will be automatically pre-filled whenever you request a payout.')
                     </p>
 
                     @php
@@ -411,8 +467,11 @@
                         </div>
                         <div class="input-group">
                             <span class="input-group-text bg-white fw-bold">₹</span>
-                            <input type="number" step="0.01" min="1" name="amount" value="{{ $availableBalance > 0 ? $availableBalance : '' }}" class="form-control" required placeholder="0.00">
+                            <input type="number" step="0.01" min="{{ $minThreshold }}" max="{{ $availableBalance }}" name="amount" value="{{ $availableBalance >= $minThreshold ? $availableBalance : '' }}" class="form-control" required placeholder="Min. ₹{{ (int)$minThreshold }}">
                         </div>
+                        <small class="text-muted fs-11 mt-1 d-block">
+                            <i class="fas fa-info-circle text-primary me-1"></i>@lang('Minimum withdrawal allowed is') <strong>₹{{ showAmount($minThreshold) }}</strong>.
+                        </small>
                     </div>
 
                     <div class="form-group mb-3">
@@ -474,6 +533,57 @@
     </div>
 </div>
 
+{{-- Minimum Payout Notice Modal (When Available < ₹500) --}}
+<div class="modal fade" id="minPayoutNoticeModal" tabindex="-1" aria-labelledby="minPayoutNoticeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header border-0 pb-1" style="background: linear-gradient(135deg, #0b192c, #1e3a8a); color: #fff; padding: 20px 24px;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-20 text-warning" style="width: 36px; height: 36px;">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="minPayoutNoticeModalLabel">@lang('Minimum Withdrawal Threshold')</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="my-2">
+                    <span class="d-inline-block p-3 rounded-circle bg-warning bg-opacity-10 text-warning mb-3">
+                        <i class="fas fa-coins" style="font-size: 40px;"></i>
+                    </span>
+                    <h5 class="fw-bold text-dark mb-1">₹{{ showAmount($minThreshold) }} @lang('Minimum Required')</h5>
+                    <p class="text-muted fs-13 mb-3">
+                        @lang('A minimum confirmed balance of') <strong>₹{{ showAmount($minThreshold) }}</strong> @lang('is required to submit a withdrawal request on CouponsEfra.')
+                    </p>
+
+                    <div class="p-3 rounded-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between mb-1 fs-13">
+                            <span class="text-muted">@lang('Current Available Balance'):</span>
+                            <strong class="text-dark">₹{{ showAmount($availableBalance) }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 fs-13">
+                            <span class="text-muted">@lang('Required More'):</span>
+                            <strong class="text-danger">₹{{ showAmount($shortage) }}</strong>
+                        </div>
+                        <div class="progress" style="height: 6px; border-radius: 3px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $progressPercent }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('home') }}" class="btn btn-primary flex-fill fw-bold py-2" style="border-radius: 10px;">
+                            <i class="fas fa-shopping-bag me-1"></i> @lang('Shop & Earn Cashback')
+                        </a>
+                        <a href="{{ route('user.referral') }}" class="btn btn-outline-warning text-dark flex-fill fw-bold py-2" style="border-radius: 10px;">
+                            <i class="fas fa-gift me-1"></i> @lang('Refer Friends (Get ₹50)')
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Edit Individual Pending Payout Request Modals --}}
 @foreach($payoutRequests as $item)
     @php
@@ -494,7 +604,7 @@
                     <div class="modal-body p-4">
                         <div class="alert alert-info py-2 px-3 mb-3 fs-12 border-0 bg-info bg-opacity-10 text-dark">
                             <i class="fas fa-info-circle text-info me-1"></i>
-                            @lang('Account me koi problem ya change ho toh yahan se update karein. Admin isi updated account me payment bhejega.')
+                            @lang('Update your payout account details if required. The disbursement will be processed to this updated account.')
                         </div>
 
                         <div class="form-group mb-3">
@@ -652,6 +762,33 @@
     background-color: #059669 !important;
     color: #ffffff !important;
     border-color: #059669 !important;
+}
+
+.btn-action-locked {
+    background-color: #fffbeb !important;
+    color: #78350f !important;
+    border: 1.5px solid #f59e0b !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    line-height: 1.4 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.15) !important;
+    transition: all 0.15s ease-in-out !important;
+}
+.btn-action-locked:hover {
+    background-color: #fef3c7 !important;
+    color: #78350f !important;
+    border-color: #d97706 !important;
+}
+.btn-action-locked span {
+    color: #78350f !important;
+    font-weight: 700 !important;
 }
 
 /* Table Edit Button */

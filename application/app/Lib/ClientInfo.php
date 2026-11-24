@@ -13,26 +13,67 @@ class ClientInfo{
 	{
 	    $ip = getRealIP();
 
+	    // Localhost / private IP check
+	    if ($ip == '127.0.0.1' || $ip == '::1' || str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
+	        return [
+	            'country' => 'Localhost',
+	            'city'    => 'Localhost',
+	            'area'    => 'Local',
+	            'code'    => 'LOC',
+	            'long'    => '',
+	            'lat'     => '',
+	            'ip'      => $ip,
+	            'time'    => date('Y-m-d h:i:s A'),
+	        ];
+	    }
 
-	    $xml = @simplexml_load_file("http://www.geoplugin.net/xml.gp?ip=" . $ip);
+	    $country = '';
+	    $city    = '';
+	    $area    = '';
+	    $code    = '';
+	    $long    = '';
+	    $lat     = '';
 
+	    // 1. Try ip-api.com (fast, accurate, reliable free JSON API)
+	    try {
+	        $ctx = stream_context_create(['http' => ['timeout' => 2]]);
+	        $res = @file_get_contents("http://ip-api.com/json/" . $ip, false, $ctx);
+	        if ($res) {
+	            $json = json_decode($res, true);
+	            if (!empty($json) && @$json['status'] === 'success') {
+	                $country = $json['country'] ?? '';
+	                $city    = $json['city'] ?? '';
+	                $area    = $json['regionName'] ?? '';
+	                $code    = $json['countryCode'] ?? '';
+	                $long    = (string) ($json['lon'] ?? '');
+	                $lat     = (string) ($json['lat'] ?? '');
+	            }
+	        }
+	    } catch (\Exception $e) {}
 
-	    $country = @$xml->geoplugin_countryName;
-	    $city = @$xml->geoplugin_city;
-	    $area = @$xml->geoplugin_areaCode;
-	    $code = @$xml->geoplugin_countryCode;
-	    $long = @$xml->geoplugin_longitude;
-	    $lat = @$xml->geoplugin_latitude;
+	    // 2. Fallback to geoplugin if ip-api failed
+	    if (empty($country)) {
+	        try {
+	            $xml = @simplexml_load_file("http://www.geoplugin.net/xml.gp?ip=" . $ip);
+	            if ($xml) {
+	                $country = (string) (@$xml->geoplugin_countryName ?? '');
+	                $city    = (string) (@$xml->geoplugin_city ?? '');
+	                $area    = (string) (@$xml->geoplugin_areaCode ?? '');
+	                $code    = (string) (@$xml->geoplugin_countryCode ?? '');
+	                $long    = (string) (@$xml->geoplugin_longitude ?? '');
+	                $lat     = (string) (@$xml->geoplugin_latitude ?? '');
+	            }
+	        } catch (\Exception $e) {}
+	    }
 
-	    $data['country'] = $country ?? [];
-	    $data['city'] = $city ?? [];
-	    $data['area'] = $area ?? [];
-	    $data['code'] = $code ?? [];
-	    $data['long'] = $long ?? [];
-	    $data['lat'] = $lat ?? [];
-	    $data['ip'] = $ip;
-	    $data['time'] = date('Y-m-d h:i:s A');
-
+	    $data['country'] = $country ?: [];
+	    $data['city']    = $city ?: [];
+	    $data['area']    = $area ?: [];
+	    $data['code']    = $code ?: [];
+	    $data['long']    = $long ?: [];
+	    $data['lat']     = $lat ?: [];
+	    $data['ip']      = $ip;
+	    $data['time']    = date('Y-m-d h:i:s A');
 
 	    return $data;
 	}

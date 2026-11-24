@@ -45,6 +45,9 @@ class GeneralSettingController extends Controller
         $general->registration = $request->registration ? 1 : 0;
         $general->agree = $request->agree ? 1 : 0;
         $general->homepage = $request->homepage;
+        if ($request->filled('min_payout')) {
+            $general->min_payout = $request->min_payout;
+        }
         $general->save();
         \Illuminate\Support\Facades\Cache::forget('GeneralSetting');
 

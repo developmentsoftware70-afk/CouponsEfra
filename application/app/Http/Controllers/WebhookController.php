@@ -30,6 +30,41 @@ class WebhookController extends Controller
 
         Log::info('Merchant Webhook Callback Received: ', $request->all());
 
+        // 0.5. Postback Validation (Token / Secret Key / Network Verification)
+        $providedSecret = $request->input('token') 
+            ?? $request->input('secret') 
+            ?? $request->input('secret_key') 
+            ?? $request->input('key') 
+            ?? $request->input('hash') 
+            ?? $request->header('X-Postback-Secret') 
+            ?? $request->header('X-Webhook-Token');
+
+        $networkParam = $request->input('network') ?? $request->input('source_network');
+        $matchedSetting = null;
+
+        if ($networkParam) {
+            $matchedSetting = \App\Models\PostbackSetting::where('network', $networkParam)->where('status', 1)->first();
+        }
+        if (!$matchedSetting && $providedSecret) {
+            $matchedSetting = \App\Models\PostbackSetting::where('secret_key', $providedSecret)->where('status', 1)->first();
+        }
+
+        // If security secret key is configured for this network, enforce strict validation
+        if ($matchedSetting && !empty($matchedSetting->secret_key)) {
+            if (empty($providedSecret) || !hash_equals((string)$matchedSetting->secret_key, (string)$providedSecret)) {
+                Log::warning('Security Alert: Unauthorized postback rejected due to invalid token/secret.', [
+                    'ip'        => getRealIP(),
+                    'network'   => $networkParam,
+                    'provided'  => $providedSecret,
+                ]);
+
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Unauthorized: Invalid postback security token or secret key.'
+                ], 401);
+            }
+        }
+
         // 1. Gather all candidate tracking identifiers across various network standards
         $clickCandidates = array_values(array_filter([
             $request->input('click_id'),
@@ -54,13 +89,30 @@ class WebhookController extends Controller
             $txnId = end($parts);
         }
 
-        // 3. Smart Find matching click in clicks table
+        // 3. Smart Find matching click in clicks table (checks both click_id and sub_id with cross-prefix matching)
         $click = null;
         if (!empty($clickCandidates)) {
-            $click = Click::whereIn('click_id', $clickCandidates)->first();
+            $allCandidates = $clickCandidates;
+            foreach ($clickCandidates as $cand) {
+                if (is_string($cand)) {
+                    if (str_starts_with($cand, 'sub_')) {
+                        $allCandidates[] = 'clk_' . substr($cand, 4);
+                    } elseif (str_starts_with($cand, 'clk_')) {
+                        $allCandidates[] = 'sub_' . substr($cand, 4);
+                    }
+                }
+            }
+            $allCandidates = array_unique($allCandidates);
+
+            $click = Click::whereIn('click_id', $allCandidates)
+                ->orWhereIn('sub_id', $allCandidates)
+                ->first();
         }
         if (!$click && $txnId) {
-            $click = Click::where('click_id', $txnId)->orWhere('order_id', $txnId)->first();
+            $click = Click::where('click_id', $txnId)
+                ->orWhere('sub_id', $txnId)
+                ->orWhere('order_id', $txnId)
+                ->first();
         }
 
         // Resolve active Click ID
