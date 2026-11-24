@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// External Merchant Order Webhook / Postback (Trackier, Admitad, Cuelinks, etc.)
+Route::match(['get', 'post'], 'webhook/order', [\App\Http\Controllers\WebhookController::class, 'handleMerchantCallback'])->name('api.webhook.order');
+
 Route::namespace('Api')->group(function(){
 
     
